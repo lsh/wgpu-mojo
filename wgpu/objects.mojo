@@ -188,15 +188,19 @@ struct Buffer:
     #         ) -> None
     #     ]("wgpuBufferMapAsync")(handle, mode, offset, size, callback, user_data)
 
-    # fn buffer_get_mapped_range(
-    #     handle: WGPUBuffer, offset: UInt, size: UInt
-    # ) -> UnsafePointer[NoneType]:
-    #     """
-    #     TODO
-    #     """
-    #     return _wgpu.get_function[
-    #         fn (WGPUBuffer, UInt, UInt) -> UnsafePointer[NoneType]
-    #     ]("wgpuBufferGetMappedRange")(handle, offset, size)
+    fn get_mapped_range(
+        self,
+        offset: UInt,
+        size: UInt
+    ) -> UnsafePointer[NoneType]:
+        """
+        TODO
+        """
+        return _c.buffer_get_mapped_range(
+            self._handle,
+            offset,
+            size
+        )
 
     # fn buffer_get_const_mapped_range(
     #     handle: WGPUBuffer, offset: UInt, size: UInt
@@ -1866,21 +1870,23 @@ struct RenderPassEncoder:
     #         fn (WGPURenderPassEncoder, UInt32, UInt32, UInt32, UInt32) -> None
     #     ]("wgpuRenderPassEncoderSetScissorRect")(handle, x, y, width, height)
 
-    # fn render_pass_encoder_set_vertex_buffer(
-    #     handle: WGPURenderPassEncoder,
-    #     slot: UInt32,
-    #     offset: UInt64,
-    #     size: UInt64,
-    #     buffer: WGPUBuffer = WGPUBuffer(),
-    # ) -> None:
-    #     """
-    #     TODO
-    #     """
-    #     return _wgpu.get_function[
-    #         fn (WGPURenderPassEncoder, UInt32, WGPUBuffer, UInt64, UInt64) -> None
-    #     ]("wgpuRenderPassEncoderSetVertexBuffer")(
-    #         handle, slot, buffer, offset, size
-    #     )
+    fn set_vertex_buffer(
+        self,
+        slot: UInt32,
+        offset: UInt64,
+        size: UInt64,
+        buffer: Buffer
+    ):
+        """
+        TODO
+        """
+        _c.render_pass_encoder_set_vertex_buffer(
+            self._handle,
+            slot,
+            offset,
+            size,
+            buffer._handle
+        )
 
     # fn render_pass_encoder_set_index_buffer(
     #     handle: WGPURenderPassEncoder,
