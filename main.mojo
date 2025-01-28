@@ -1,15 +1,26 @@
 import wgpu
-from wgpu import glfw, VertexAttribute, VertexFormat, Color, VertexBufferLayout, BufferUsage, BufferDescriptor, VertexStepMode
+from wgpu import (
+    glfw,
+    VertexAttribute,
+    VertexFormat,
+    Color,
+    VertexBufferLayout,
+    BufferUsage,
+    BufferDescriptor,
+    VertexStepMode,
+)
 from sys.info import sizeof
 
 from memory import Span
 from collections import Optional
+
 
 @value
 struct Vec3:
     var x: Float32
     var y: Float32
     var z: Float32
+
 
 @value
 struct MyColor:
@@ -18,13 +29,16 @@ struct MyColor:
     var b: Float32
     var a: Float32
 
+
 @value
 struct MyVertex:
     var pos: Vec3
     var color: MyColor
 
+
 def main():
     glfw.init()
+    glfw.window_hint(glfw.CLIENT_API, glfw.NO_API)
     window = glfw.Window(640, 480, "Hello, WebGPU")
 
     instance = wgpu.Instance()
@@ -71,14 +85,22 @@ def main():
     shader_module = device.create_wgsl_shader_module(code=shader_code)
 
     vertex_attributes = List[VertexAttribute](
-        VertexAttribute(format=VertexFormat.float32x3, offset=0, shader_location=0),
-        VertexAttribute(format=VertexFormat.float32x4, offset=sizeof[Vec3](), shader_location=1)
+        VertexAttribute(
+            format=VertexFormat.float32x3, offset=0, shader_location=0
+        ),
+        VertexAttribute(
+            format=VertexFormat.float32x4,
+            offset=sizeof[Vec3](),
+            shader_location=1,
+        ),
     )
 
     vertex_buffer_layout = VertexBufferLayout[StaticConstantOrigin](
         array_stride=sizeof[MyVertex](),
         step_mode=VertexStepMode.vertex,
-        attributes=Span[VertexAttribute, StaticConstantOrigin](ptr=vertex_attributes.unsafe_ptr(), length=len(vertex_attributes))
+        attributes=Span[VertexAttribute, StaticConstantOrigin](
+            ptr=vertex_attributes.unsafe_ptr(), length=len(vertex_attributes)
+        ),
     )
 
     desc = wgpu.RenderPipelineDescriptor(
@@ -86,7 +108,9 @@ def main():
         vertex=wgpu.VertexState(
             entry_point="vs_main",
             module=shader_module,
-            buffers=List[VertexBufferLayout[StaticConstantOrigin]](vertex_buffer_layout),
+            buffers=List[VertexBufferLayout[StaticConstantOrigin]](
+                vertex_buffer_layout
+            ),
         ),
         fragment=wgpu.FragmentState(
             module=shader_module,
@@ -124,16 +148,17 @@ def main():
     vertices = List[MyVertex](
         MyVertex(Vec3(-0.5, -0.5, 0.0), MyColor(1, 0, 0, 1)),
         MyVertex(Vec3(0.5, -0.5, 0.0), MyColor(0, 1, 0, 1)),
-        MyVertex(Vec3(0.0, 0.5, 0.0), MyColor(0, 0, 1, 1))
+        MyVertex(Vec3(0.0, 0.5, 0.0), MyColor(0, 0, 1, 1)),
     )
     vertices_size_bytes = len(vertices) * sizeof[MyVertex]()
-    vertex_buffer = device.create_buffer(BufferDescriptor(
-        "vertex buffer",
-        BufferUsage.vertex,
-        vertices_size_bytes,
-        True
-    ))
-    dst = vertex_buffer.get_mapped_range(0, vertices_size_bytes).bitcast[MyVertex]()
+    vertex_buffer = device.create_buffer(
+        BufferDescriptor(
+            "vertex buffer", BufferUsage.vertex, vertices_size_bytes, True
+        )
+    )
+    dst = vertex_buffer.get_mapped_range(0, vertices_size_bytes).bitcast[
+        MyVertex
+    ]()
     for i in range(len(vertices)):
         dst[i] = vertices[i]
     vertex_buffer.unmap()
