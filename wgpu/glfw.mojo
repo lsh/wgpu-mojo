@@ -4,11 +4,22 @@ from memory import UnsafePointer, Span
 
 var _glfw = ffi.DLHandle("libglfw.dylib", ffi.RTLD.LAZY)
 
+alias CLIENT_API = 0x00022001
+alias NO_API = 0
+
 var _window_should_close = _glfw.get_function[
     fn (UnsafePointer[_GLFWwindow]) -> Bool
 ]("glfwWindowShouldClose")
 
 var _poll_events = _glfw.get_function[fn () -> None]("glfwPollEvents")
+
+var _window_hint = _glfw.get_function[fn (Int32, Int32) -> None](
+    "glfwWindowHint"
+)
+
+
+fn window_hint(hint: Int32, value: Int32):
+    _window_hint(hint, value)
 
 
 fn get_platform() -> Platform:
