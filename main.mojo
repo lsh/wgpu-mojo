@@ -1,6 +1,7 @@
 import wgpu
 from wgpu import (
     glfw,
+    SurfaceConfiguration,
     VertexAttribute,
     VertexFormat,
     Color,
@@ -8,6 +9,7 @@ from wgpu import (
     BufferUsage,
     BufferDescriptor,
     VertexStepMode,
+    TextureFormat,
 )
 from sys.info import sizeof
 
@@ -53,13 +55,16 @@ def main():
     surface_capabilies = surface.get_capabilities(adapter)
     surface_format = surface_capabilies.formats()[0]
     surface.configure(
-        width=640,
-        height=480,
-        usage=wgpu.TextureUsage.render_attachment,
-        format=surface_format,
-        device=device,
-        alpha_mode=wgpu.CompositeAlphaMode.auto,
-        present_mode=wgpu.PresentMode.fifo,
+        device,
+        SurfaceConfiguration(
+            width=640,
+            height=480,
+            usage=wgpu.TextureUsage.render_attachment,
+            format=surface_format,
+            alpha_mode=wgpu.CompositeAlphaMode.auto,
+            present_mode=wgpu.PresentMode.fifo,
+            view_formats=List[TextureFormat](),
+        ),
     )
 
     shader_code = """
