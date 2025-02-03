@@ -189,18 +189,12 @@ struct Buffer:
     #     ]("wgpuBufferMapAsync")(handle, mode, offset, size, callback, user_data)
 
     fn get_mapped_range(
-        self,
-        offset: UInt,
-        size: UInt
+        self, offset: UInt, size: UInt
     ) -> UnsafePointer[NoneType]:
         """
         TODO
         """
-        return _c.buffer_get_mapped_range(
-            self._handle,
-            offset,
-            size
-        )
+        return _c.buffer_get_mapped_range(self._handle, offset, size)
 
     # fn buffer_get_const_mapped_range(
     #     handle: WGPUBuffer, offset: UInt, size: UInt
@@ -1871,21 +1865,13 @@ struct RenderPassEncoder:
     #     ]("wgpuRenderPassEncoderSetScissorRect")(handle, x, y, width, height)
 
     fn set_vertex_buffer(
-        self,
-        slot: UInt32,
-        offset: UInt64,
-        size: UInt64,
-        buffer: Buffer
+        self, slot: UInt32, offset: UInt64, size: UInt64, buffer: Buffer
     ):
         """
         TODO
         """
         _c.render_pass_encoder_set_vertex_buffer(
-            self._handle,
-            slot,
-            offset,
-            size,
-            buffer._handle
+            self._handle, slot, offset, size, buffer._handle
         )
 
     # fn render_pass_encoder_set_index_buffer(
@@ -2081,15 +2067,8 @@ struct Surface[window: ImmutableOrigin]:
 
     fn configure(
         self,
-        *,
         device: Device,
-        format: TextureFormat,
-        usage: TextureUsage,
-        width: UInt32,
-        height: UInt32,
-        view_formats: List[TextureFormat] = List[TextureFormat](),
-        alpha_mode: CompositeAlphaMode = wgpu.CompositeAlphaMode.auto,
-        present_mode: PresentMode = PresentMode.fifo,
+        config: SurfaceConfiguration,
     ):
         """
         TODO
@@ -2098,14 +2077,14 @@ struct Surface[window: ImmutableOrigin]:
             self._handle,
             _c.WGPUSurfaceConfiguration(
                 device=device._handle,
-                format=format,
-                usage=usage,
-                view_format_count=len(view_formats),
-                view_formats=view_formats.unsafe_ptr(),
-                alpha_mode=alpha_mode,
-                width=width,
-                height=height,
-                present_mode=present_mode,
+                format=config.format,
+                usage=config.usage,
+                view_format_count=len(config.view_formats),
+                view_formats=config.view_formats.unsafe_ptr(),
+                alpha_mode=config.alpha_mode,
+                width=config.width,
+                height=config.height,
+                present_mode=config.present_mode,
             ),
         )
 
