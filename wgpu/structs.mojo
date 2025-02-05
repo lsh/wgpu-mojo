@@ -81,28 +81,124 @@ struct DeviceDescriptor:
 
 
 @value
+struct BindingResource:
+    var _value: Variant[BufferBinding, BufferArray]
+
+    @implicit
+    fn __init__(out self, value: BufferBinding):
+        self._value = value
+
+    @implicit
+    fn __init__(out self, value: BufferArray):
+        self._value = value
+
+    fn is_buffer(self) -> Bool:
+        return self._value.isa[BufferBinding]()
+
+    fn is_buffer_array(self) -> Bool:
+        return self._value.isa[BufferArray]()
+
+    fn buffer(self) -> ref [self._value] BufferBinding:
+        return self._value[BufferBinding]
+
+    fn buffer_array(self) -> ref [self._value] BufferArray:
+        return self._value[BufferArray]
+
+
+@value
+struct BufferBinding:
+    var buffer: ArcPointer[Buffer]
+    var offset: UInt64
+    var size: UInt64
+
+
+@value
+struct BufferArray:
+    var value: List[BufferBinding]
+
+
+@value
 struct BindGroupEntry:
     """
     TODO
     """
 
     var binding: UInt32
-    var buffer: ArcPointer[Buffer]
-    var offset: UInt64
-    var size: UInt64
-    var sampler: ArcPointer[Sampler]
-    var texture_view: ArcPointer[TextureView]
+    var resource: BindingResource
 
 
-struct BindGroupDescriptor:
+struct BindGroupDescriptor[
+    origin: ImmutableOrigin,
+]:
     """
     TODO
     """
 
     var label: StringLiteral
+    var layout: ArcPointer[BindGroupLayout]
+    var entries: Span[BindGroupEntry, origin]
 
-    var layout: BindGroupLayout
-    var entries: List[BindGroupEntry]
+    fn __init__(
+        out self,
+        label: StringLiteral,
+        layout: ArcPointer[BindGroupLayout],
+        entries: Span[BindGroupEntry, origin],
+    ):
+        self.label = label
+        self.layout = layout
+        self.entries = entries
+
+
+@value
+struct BindingType:
+    var _value: Variant[
+        BufferBindingLayout,
+        SamplerBindingLayout,
+        TextureBindingLayout,
+        StorageTextureBindingLayout,
+    ]
+
+    @implicit
+    fn __init__(out self, value: BufferBindingLayout):
+        self._value = value
+
+    @implicit
+    fn __init__(out self, value: SamplerBindingLayout):
+        self._value = value
+
+    @implicit
+    fn __init__(out self, value: TextureBindingLayout):
+        self._value = value
+
+    @implicit
+    fn __init__(out self, value: StorageTextureBindingLayout):
+        self._value = value
+
+    fn is_buffer(self) -> Bool:
+        return self._value.isa[BufferBindingLayout]()
+
+    fn is_sampler(self) -> Bool:
+        return self._value.isa[SamplerBindingLayout]()
+
+    fn is_texture(self) -> Bool:
+        return self._value.isa[TextureBindingLayout]()
+
+    fn is_storage_texture(self) -> Bool:
+        return self._value.isa[StorageTextureBindingLayout]()
+
+    fn buffer(ref self) -> ref [self._value] BufferBindingLayout:
+        return self._value[BufferBindingLayout]
+
+    fn sampler(ref self) -> ref [self._value] SamplerBindingLayout:
+        return self._value[SamplerBindingLayout]
+
+    fn texture(ref self) -> ref [self._value] TextureBindingLayout:
+        return self._value[TextureBindingLayout]
+
+    fn storage_texture(
+        ref self,
+    ) -> ref [self._value] StorageTextureBindingLayout:
+        return self._value[StorageTextureBindingLayout]
 
 
 @value
@@ -222,20 +318,18 @@ struct BindGroupLayoutEntry:
 
     var binding: UInt32
     var visibility: ShaderStage
-    var buffer: BufferBindingLayout
-    var sampler: SamplerBindingLayout
-    var texture: TextureBindingLayout
-    var storage_texture: StorageTextureBindingLayout
+    var type: BindingType
+    var count: UInt32
 
 
 @value
-struct BindGroupLayoutDescriptor:
+struct BindGroupLayoutDescriptor[mut: Bool, //, origin: Origin[mut]]:
     """
     TODO
     """
 
     var label: StringLiteral
-    var entries: List[BindGroupLayoutEntry]
+    var entries: Span[BindGroupLayoutEntry, origin]
 
 
 @value
@@ -379,7 +473,7 @@ struct ImageCopyTexture[tex: ImmutableOrigin]:
 
 
 @value
-struct VertexBufferLayout[origin: ImmutableOrigin]:
+struct VertexBufferLayout[mut: Bool, //, origin: Origin[mut]]:
     """
     TODO
     """
@@ -389,13 +483,17 @@ struct VertexBufferLayout[origin: ImmutableOrigin]:
     var attributes: Span[VertexAttribute, origin]
 
 
-struct PipelineLayoutDescriptor:
+@value
+struct PipelineLayoutDescriptor[
+    mut: Bool, //,
+    origin: Origin[mut],
+]:
     """
     TODO
     """
 
     var label: StringLiteral
-    var bind_group_layouts: List[ArcPointer[BindGroupLayout]]
+    var bind_group_layouts: Span[ArcPointer[BindGroupLayout], origin]
 
 
 @value
@@ -537,10 +635,13 @@ struct RenderPassTimestampWrites:
 
 @value
 struct VertexState[
+    entry_mut: Bool,
+    buf_mut: Bool,
+    vbuf_mut: Bool, //,
     mod: ImmutableOrigin,
-    entry: ImmutableOrigin,
-    buf: ImmutableOrigin,
-    vbuf: ImmutableOrigin,
+    entry: Origin[entry_mut],
+    buf: Origin[buf_mut],
+    vbuf: Origin[vbuf_mut],
 ]:
     """
     TODO
@@ -638,7 +739,11 @@ struct MultisampleState:
 
 @value
 struct FragmentState[
-    mod: ImmutableOrigin, entry: ImmutableOrigin, tgt: ImmutableOrigin
+    entry_mut: Bool,
+    tgt_mut: Bool, //,
+    mod: ImmutableOrigin,
+    entry: Origin[entry_mut],
+    tgt: Origin[tgt_mut],
 ]:
     """
     TODO
@@ -676,14 +781,20 @@ struct ColorTargetState:
 
 @value
 struct RenderPipelineDescriptor[
-    lyt: ImmutableOrigin,
+    lyt_mut: Bool,
+    ventry_mut: Bool,
+    buf_mut: Bool,
+    vbuf_mut: Bool,
+    fentry_mut: Bool,
+    tgt_mut: Bool, //,
+    lyt: Origin[lyt_mut],
     vmod: ImmutableOrigin,
-    ventry: ImmutableOrigin,
-    buf: ImmutableOrigin,
-    vbuf: ImmutableOrigin,
+    ventry: Origin[ventry_mut],
+    buf: Origin[buf_mut],
+    vbuf: Origin[vbuf_mut],
     fmod: ImmutableOrigin,
-    fentry: ImmutableOrigin,
-    tgt: ImmutableOrigin,
+    fentry: Origin[fentry_mut],
+    tgt: Origin[tgt_mut],
 ]:
     """
     TODO

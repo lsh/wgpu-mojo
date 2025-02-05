@@ -1,4 +1,5 @@
 import sys
+from os import abort
 from memory import Span, UnsafePointer
 from collections.string import StringSlice
 from memory import ArcPointer
@@ -724,21 +725,20 @@ struct Device:
         """
         entries = List[_c.WGPUBindGroupEntry]()
         for entry in descriptor.entries:
-            entries.append(
-                _c.WGPUBindGroupEntry(
-                    binding=entry[].binding,
-                    buffer=entry[].buffer[]._handle,
-                    offset=entry[].offset,
-                    size=entry[].size,
-                    sampler=entry[].sampler[]._handle,
-                    texture_view=entry[].texture_view[]._handle,
+            if entry[].resource.is_buffer():
+                entries.append(
+                    _c.WGPUBindGroupEntry(
+                        binding=entry[].binding,
+                        buffer=entry[].resource.buffer().buffer[]._handle,
+                        offset=entry[].resource.buffer().offset,
+                        size=entry[].resource.buffer().size,
+                    )
                 )
-            )
         handle = _c.device_create_bind_group(
             self._handle,
             _c.WGPUBindGroupDescriptor(
                 label=descriptor.label.unsafe_cstr_ptr(),
-                layout=descriptor.layout._handle,
+                layout=descriptor.layout[]._handle,
                 entrie_count=len(descriptor.entries),
                 entries=entries.unsafe_ptr(),
             ),
@@ -753,40 +753,47 @@ struct Device:
         TODO
         """
         entries = List[_c.WGPUBindGroupLayoutEntry]()
-        # for entry in descriptor.entries:
-        #     entries.append(
-        #         # _c.WGPUBindGroupLayoutEntry(
-        #         #     binding=entry[].binding,
-        #         #     visibility=entry[].visibility,
-        #         #     buffer=_c.WGPUBufferBindingLayout(
-        #         #         # type: BufferBindingType
-        #         #         # has_dynamic_offset: Bool
-        #         #         # min_binding_size: UInt64
-        #         #         type=entry[].buffer.type,),
-        #         #     # var buffer= WGPUBufferBindingLayout
-        #         #     # var sampler= WGPUSamplerBindingLayout
-        #         #     # var texture= WGPUTextureBindingLayout
-        #         #     # var storage_texture= WGPUStorageTextureBindingLayout
-        #         # )
-        #     )
+        for entry in descriptor.entries:
+            c_entry = _c.WGPUBindGroupLayoutEntry(
+                binding=entry[].binding,
+                visibility=entry[].visibility,
+            )
+            if entry[].type.is_buffer():
+                c_entry.buffer = _c.WGPUBufferBindingLayout(
+                    type=entry[].type.buffer().type,
+                    has_dynamic_offset=entry[].type.buffer().has_dynamic_offset,
+                    min_binding_size=entry[].type.buffer().min_binding_size,
+                )
+            elif entry[].type.is_sampler():
+                c_entry.sampler = _c.WGPUSamplerBindingLayout(
+                    type=entry[].type.sampler().type
+                )
+            elif entry[].type.is_texture():
+                c_entry.texture = _c.WGPUTextureBindingLayout(
+                    sample_type=entry[].type.texture().sample_type,
+                    view_dimension=entry[].type.texture().view_dimension,
+                    multisampled=entry[].type.texture().multisampled,
+                )
+            elif entry[].type.is_storage_texture():
+                c_entry.storage_texture = _c.WGPUStorageTextureBindingLayout(
+                    access=entry[].type.storage_texture().access,
+                    format=entry[].type.storage_texture().format,
+                    view_dimension=entry[]
+                    .type.storage_texture()
+                    .view_dimension,
+                )
+            entries.append(c_entry)
+
         return BindGroupLayout(
             _c.device_create_bind_group_layout(
                 self._handle,
                 _c.WGPUBindGroupLayoutDescriptor(
                     label=descriptor.label.unsafe_cstr_ptr(),
                     entrie_count=len(descriptor.entries),
-                    entries=UnsafePointer[_c.WGPUBindGroupLayoutEntry](),
+                    entries=entries.unsafe_ptr(),
                 ),
             )
         )
-
-    #     return _wgpu.get_function[
-    #         fn (
-    #             WGPUDevice, UnsafePointer[WGPUBindGroupLayoutDescriptor]
-    #         ) -> WGPUBindGroupLayout
-    #     ]("wgpuDeviceCreateBindGroupLayout")(
-    #         handle, UnsafePointer.address_of(descriptor)
-    #     )
 
     fn create_buffer(self, descriptor: BufferDescriptor) -> Buffer:
         """
@@ -861,14 +868,25 @@ struct Device:
     #         handle, UnsafePointer.address_of(descriptor), callback, user_data
     #     )
 
-    fn create_pipeline_layout(self, label: StringLiteral) -> PipelineLayout:
+    fn create_pipeline_layout(
+        self, descriptor: PipelineLayoutDescriptor
+    ) -> PipelineLayout:
         """
         TODO
         """
+        layouts = List[_c.WGPUBindGroupLayout](
+            capacity=len(descriptor.bind_group_layouts)
+        )
+        for layout in descriptor.bind_group_layouts.get_immutable():
+            layouts.append(layout[][]._handle)
         return PipelineLayout(
             _c.device_create_pipeline_layout(
                 self._handle,
-                _c.WGPUPipelineLayoutDescriptor(label=label.unsafe_cstr_ptr()),
+                _c.WGPUPipelineLayoutDescriptor(
+                    label=descriptor.label.unsafe_cstr_ptr(),
+                    bind_group_layout_count=len(descriptor.bind_group_layouts),
+                    bind_group_layouts=layouts.unsafe_ptr(),
+                ),
             )
         )
 
@@ -937,7 +955,6 @@ struct Device:
         """
         TODO
         """
-        v_buf_len = len(descriptor.vertex.buffers)
         buffers = List[_c.WGPUVertexBufferLayout]()
         for buf in descriptor.vertex.buffers:
             buffers.append(
@@ -969,6 +986,18 @@ struct Device:
                 targets=targets.unsafe_ptr(),
             )
 
+        layout_ptr = _c.WGPUPipelineLayout()
+        if descriptor.layout:
+            layout_ptr = descriptor.layout.value()[]._handle
+
+        multisample = _c.WGPUMultisampleState(
+            count=descriptor.multisample.count,
+            mask=descriptor.multisample.mask,
+            alpha_to_coverage_enabled=descriptor.multisample.alpha_to_coverage_enabled,
+        )
+
+        depth_stencil = UnsafePointer[_c.WGPUDepthStencilState]()
+
         handle = _c.device_create_render_pipeline(
             self._handle,
             _c.WGPURenderPipelineDescriptor(
@@ -981,9 +1010,9 @@ struct Device:
                     buffer_count=len(buffers),
                     buffers=buffers.unsafe_ptr(),
                 ),
-                layout=_c.WGPUPipelineLayout(),
-                depth_stencil=UnsafePointer[_c.WGPUDepthStencilState](),
-                multisample=_c.WGPUMultisampleState(count=1, mask=0xFFFFFFFF),
+                layout=layout_ptr,
+                depth_stencil=depth_stencil,
+                multisample=multisample,
                 primitive=_c.WGPUPrimitiveState(
                     topology=descriptor.primitive.topology,
                     strip_index_format=descriptor.primitive.strip_index_format,
@@ -993,9 +1022,6 @@ struct Device:
                 fragment=UnsafePointer.address_of(frag),
             ),
         )
-        _ = buffers^
-        _ = frag^
-        _ = targets^
         return RenderPipeline(handle)
 
     fn create_sampler(self, descriptor: SamplerDescriptor) -> Sampler:
@@ -1171,7 +1197,13 @@ struct Instance:
         power_preference: PowerPreference = PowerPreference.undefined,
         force_fallback_adapter: Bool = False,
     ) raises -> Adapter:
-        adapter = _request_adapter_sync(self._handle)
+        adapter = _request_adapter_sync(
+            self._handle,
+            _c.WGPURequestAdapterOptions(
+                power_preference=power_preference,
+                force_fallback_adapter=force_fallback_adapter,
+            ),
+        )
         if not adapter:
             raise Error("failed to get adapter.")
         return Adapter(adapter)
@@ -1184,7 +1216,11 @@ struct Instance:
     ) raises -> Adapter:
         adapter = _request_adapter_sync(
             self._handle,
-            _c.WGPURequestAdapterOptions(compatible_surface=surface._handle),
+            _c.WGPURequestAdapterOptions(
+                compatible_surface=surface._handle,
+                power_preference=power_preference,
+                force_fallback_adapter=force_fallback_adapter,
+            ),
         )
         if not adapter:
             raise Error("failed to get adapter.")
@@ -1329,39 +1365,34 @@ struct Queue:
             self._handle, 1, UnsafePointer.address_of(command._handle)
         )
 
+    # fn queue_on_submitted_work_done(
+    #     handle: WGPUQueue,
+    #     callback: fn (QueueWorkDoneStatus, UnsafePointer[NoneType]) -> None,
+    #     user_data: UnsafePointer[NoneType],
+    # ) -> None:
+    #     """
+    #     TODO
+    #     """
+    #     return _wgpu.get_function[
+    #         fn (
+    #             WGPUQueue,
+    #             fn (QueueWorkDoneStatus, UnsafePointer[NoneType]) -> None,
+    #             UnsafePointer[NoneType],
+    #         ) -> None
+    #     ]("wgpuQueueOnSubmittedWorkDone")(handle, callback, user_data)
 
-# fn queue_on_submitted_work_done(
-#     handle: WGPUQueue,
-#     callback: fn (QueueWorkDoneStatus, UnsafePointer[NoneType]) -> None,
-#     user_data: UnsafePointer[NoneType],
-# ) -> None:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[
-#         fn (
-#             WGPUQueue,
-#             fn (QueueWorkDoneStatus, UnsafePointer[NoneType]) -> None,
-#             UnsafePointer[NoneType],
-#         ) -> None
-#     ]("wgpuQueueOnSubmittedWorkDone")(handle, callback, user_data)
-
-
-# fn queue_write_buffer(
-#     handle: WGPUQueue,
-#     buffer: WGPUBuffer,
-#     buffer_offset: UInt64,
-#     data: UnsafePointer[NoneType],
-#     size: UInt,
-# ) -> None:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[
-#         fn (
-#             WGPUQueue, WGPUBuffer, UInt64, UnsafePointer[NoneType], UInt
-#         ) -> None
-#     ]("wgpuQueueWriteBuffer")(handle, buffer, buffer_offset, data, size)
+    fn write_buffer(
+        self,
+        buffer: ArcPointer[Buffer],
+        offset: UInt64,
+        data: Span[UInt8],
+    ) -> None:
+        """
+        TODO
+        """
+        return _c.queue_write_buffer(
+            self._handle, buffer[]._handle, offset, data.unsafe_ptr(), len(data)
+        )
 
 
 # fn queue_write_texture(
@@ -1658,36 +1689,31 @@ struct RenderPassEncoder:
         if self._handle:
             _c.render_pass_encoder_release(self._handle)
 
-    fn set_pipeline(self, pipeline: RenderPipeline):
+    fn set_pipeline(mut self, pipeline: RenderPipeline):
         """
         TODO
         """
         _c.render_pass_encoder_set_pipeline(self._handle, pipeline._handle)
 
-    # fn render_pass_encoder_set_bind_group(
-    #     handle: WGPURenderPassEncoder,
-    #     group_index: UInt32,
-    #     dynamic_offsets_count: Int,
-    #     dynamic_offsets: UnsafePointer[UInt32],
-    #     group: WGPUBindGroup = WGPUBindGroup(),
-    # ) -> None:
-    #     """
-    #     TODO
-    #     """
-    #     return _wgpu.get_function[
-    #         fn (
-    #             WGPURenderPassEncoder,
-    #             UInt32,
-    #             WGPUBindGroup,
-    #             Int32,
-    #             UnsafePointer[UInt32],
-    #         ) -> None
-    #     ]("wgpuRenderPassEncoderSetBindGroup")(
-    #         handle, group_index, group, dynamic_offsets_count, dynamic_offsets
-    #     )
+    fn set_bind_group(
+        mut self,
+        index: UInt32,
+        group: BindGroup,
+        dynamic_offsets: Span[UInt32],
+    ) -> None:
+        """
+        TODO
+        """
+        return _c.render_pass_encoder_set_bind_group(
+            self._handle,
+            index,
+            len(dynamic_offsets),
+            dynamic_offsets.unsafe_ptr(),
+            group._handle,
+        )
 
     fn draw(
-        self,
+        mut self,
         vertex_count: UInt32,
         instance_count: UInt32,
         first_vertex: UInt32,

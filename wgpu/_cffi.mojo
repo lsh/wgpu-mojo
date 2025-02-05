@@ -1505,7 +1505,7 @@ fn queue_on_submitted_work_done(
 
 
 var _wgpuQueueWriteBuffer = _wgpu.get_function[
-    fn (WGPUQueue, WGPUBuffer, UInt64, UnsafePointer[NoneType], UInt) -> None
+    fn (WGPUQueue, WGPUBuffer, UInt64, UnsafePointer[UInt8], UInt) -> None
 ]("wgpuQueueWriteBuffer")
 
 
@@ -1513,7 +1513,7 @@ fn queue_write_buffer(
     handle: WGPUQueue,
     buffer: WGPUBuffer,
     buffer_offset: UInt64,
-    data: UnsafePointer[NoneType],
+    data: UnsafePointer[UInt8],
     size: UInt,
 ) -> None:
     """
