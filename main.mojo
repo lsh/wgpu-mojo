@@ -10,10 +10,19 @@ from wgpu import (
     BufferDescriptor,
     VertexStepMode,
     TextureFormat,
+    PipelineLayout,
+    BindGroupLayout,
+    BufferBindingLayout,
+    BindGroupLayoutEntry,
+    BindGroupDescriptor,
+    BindGroupLayoutDescriptor,
+    PipelineLayoutDescriptor,
+    BindGroupEntry,
+    BufferBinding,
 )
 from sys.info import sizeof
 
-from memory import Span
+from memory import Span, UnsafePointer, ArcPointer
 from collections import Optional
 
 
@@ -46,7 +55,7 @@ def main():
     instance = wgpu.Instance()
     surface = instance.create_surface(window)
 
-    adapter = instance.request_adapter_sync()
+    adapter = instance.request_adapter_sync(surface)
 
     device = adapter.adapter_request_device()
 
@@ -68,6 +77,9 @@ def main():
     )
 
     shader_code = """
+        @group(0) @binding(0)
+        var<uniform> time: f32;
+
         struct VertexOutput {
             @builtin(position) position: vec4<f32>,
             @location(1) color: vec4<f32>,
@@ -81,9 +93,9 @@ def main():
 
         @fragment
         fn fs_main(@location(1) in_color: vec4<f32>) -> @location(0) vec4<f32> {
-            // Convert color from u32 to f32
-            //let color = vec4<f32>(f32(in_color.x) / 255.0, f32(in_color.y) / 255.0, f32(in_color.z) / 255.0, f32(in_color.w) / 255.0);
-            return in_color;
+            let t = cos(time * 0.1) * 0.5 + 0.5;
+            let color = in_color + vec4<f32>(t, t, t, 1.0);
+            return color;
         }
         """
 
@@ -100,12 +112,68 @@ def main():
         ),
     )
 
-    vertex_buffer_layout = VertexBufferLayout[StaticConstantOrigin](
+    vertex_buffer_layout = VertexBufferLayout(
         array_stride=sizeof[MyVertex](),
         step_mode=VertexStepMode.vertex,
-        attributes=Span[VertexAttribute, StaticConstantOrigin](
-            ptr=vertex_attributes.unsafe_ptr(), length=len(vertex_attributes)
-        ),
+        attributes=Span(vertex_attributes),
+    )
+
+    bind_group_layout = ArcPointer(
+        device.create_bind_group_layout(
+            BindGroupLayoutDescriptor(
+                "bind group layout",
+                List[BindGroupLayoutEntry](
+                    BindGroupLayoutEntry(
+                        binding=0,
+                        visibility=wgpu.ShaderStage.fragment
+                        | wgpu.ShaderStage.vertex,
+                        type=BufferBindingLayout(
+                            type=wgpu.BufferBindingType.uniform,
+                            has_dynamic_offset=False,
+                            min_binding_size=sizeof[Float32](),
+                        ),
+                        count=0,
+                    )
+                ),
+            )
+        )
+    )
+
+    pipeline_layout = device.create_pipeline_layout(
+        PipelineLayoutDescriptor(
+            "pipeline layout",
+            List[ArcPointer[BindGroupLayout]](bind_group_layout),
+        )
+    )
+    uniform_buffer = ArcPointer(
+        device.create_buffer(
+            BufferDescriptor(
+                "uniform buffer",
+                BufferUsage.uniform | BufferUsage.copy_dst,
+                sizeof[Float32](),
+                True,
+            )
+        )
+    )
+    uniform_dst = (
+        uniform_buffer[]
+        .get_mapped_range(0, sizeof[Float32]())
+        .bitcast[Float32]()
+    )
+    uniform_dst[0] = 0
+    uniform_buffer[].unmap()
+
+    uniform_bind_group = device.create_bind_group(
+        BindGroupDescriptor(
+            "bind group",
+            bind_group_layout,
+            List[BindGroupEntry](
+                BindGroupEntry(
+                    0,
+                    BufferBinding(uniform_buffer, 0, sizeof[Float32]()),
+                )
+            ),
+        )
     )
 
     desc = wgpu.RenderPipelineDescriptor(
@@ -113,7 +181,7 @@ def main():
         vertex=wgpu.VertexState(
             entry_point="vs_main",
             module=shader_module,
-            buffers=List[VertexBufferLayout[StaticConstantOrigin]](
+            buffers=List[VertexBufferLayout[__origin_of(vertex_attributes)]](
                 vertex_buffer_layout
             ),
         ),
@@ -143,9 +211,7 @@ def main():
             topology=wgpu.PrimitiveTopology.triangle_list,
         ),
         multisample=wgpu.MultisampleState(),
-        layout=Optional[Pointer[wgpu.PipelineLayout, StaticConstantOrigin]](
-            None
-        ),
+        layout=Pointer.address_of(pipeline_layout),
         depth_stencil=None,
     )
     pipeline = device.create_render_pipeline(descriptor=desc)
@@ -168,6 +234,7 @@ def main():
         dst[i] = vertices[i]
     vertex_buffer.unmap()
 
+    u_time = Float32(0)
     while not window.should_close():
         glfw.poll_events()
         with surface.get_current_texture() as surface_tex:
@@ -195,9 +262,18 @@ def main():
                 )
             )
 
+            queue.write_buffer(
+                uniform_buffer,
+                0,
+                Span[UInt8, __origin_of(u_time)](
+                    ptr=UnsafePointer.address_of(u_time).bitcast[UInt8](),
+                    length=sizeof[Float32](),
+                ),
+            )
             rp = encoder.begin_render_pass(color_attachments=color_attachments)
             rp.set_pipeline(pipeline)
             rp.set_vertex_buffer(0, 0, vertex_buffer.get_size(), vertex_buffer)
+            rp.set_bind_group(0, uniform_bind_group, List[UInt32]())
             rp.draw(3, 1, 0, 0)
             rp.end()
 
@@ -205,5 +281,6 @@ def main():
 
             queue.submit(command)
             surface.present()
+            u_time += 0.05
 
     glfw.terminate()
