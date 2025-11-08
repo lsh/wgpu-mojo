@@ -1,0 +1,22 @@
+package:
+  name: wgpu-mojo
+  version: "0.1.0"
+
+source:
+  - path: .
+
+build:
+  number: 0
+  script:
+    # build glfw-mojo
+    - git clone https://github.com/lsh/glfw-mojo.git
+    - cd glfw-mojo && mojo package glfw -o glfw.mojopkg
+    - mkdir -p $PREFIX/lib/mojo
+    - cp glfw.mojopkg $PREFIX/lib/mojo/
+    - cd ..
+    - mojo package wgpu -o $PREFIX/lib/mojo/wgpu.mojopkg -I $PREFIX/lib/mojo/
+
+requirements:
+  build:
+    - mojo >=0.25.7.0.dev2025110305,<0.26
+    - git

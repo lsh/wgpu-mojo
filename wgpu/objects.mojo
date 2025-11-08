@@ -27,16 +27,11 @@ struct Adapter(Movable):
         if self._handle:
             _c.adapter_release(self._handle)
 
-    # fn limits(self) -> Limits:
-    #     pass
-
-    # fn adapter_get_limits(handle: WGPUAdapter, limits: WGPUSupportedLimits) -> Bool:
-    #     """
-    #     TODO
-    #     """
-    #     return _wgpu.get_function[
-    #         fn (WGPUAdapter, UnsafePointer[WGPUSupportedLimits]) -> Bool
-    #     ]("wgpuAdapterGetLimits")(handle, UnsafePointer(to=limits))
+    fn limits(self) raises -> Limits:
+        var limits = _cffi.WGPUSupportedLimits()
+        if _cffi.adapter_get_limits(self._handle, limits) != 0:
+            raise Error("Failed to get limits")
+        return limits.limits
 
     fn has_feature(self, feature: FeatureName) -> Bool:
         """
@@ -1110,11 +1105,11 @@ struct Device(Movable):
         """
         return _c.device_has_feature(self._handle, feature)
 
-    fn enumerate_features(self, features: FeatureName) -> UInt:
-        """
-        TODO
-        """
-        return _c.device_enumerate_features(self._handle, features)
+    # fn enumerate_features(self, features: FeatureName) -> UInt:
+    #     """
+    #     TODO
+    #     """
+    #     return _c.device_enumerate_features(self._handle, features)
 
     fn get_queue(self) -> Queue:
         """
@@ -1987,37 +1982,23 @@ struct RenderPipeline(Movable):
         if self._handle:
             _c.render_pipeline_release(self._handle)
 
+    # fn render_pipeline_get_bind_group_layout(
+    #     handle: WGPURenderPipeline, group_index: UInt32
+    # ) -> WGPUBindGroupLayout:
+    #     """
+    #     TODO
+    #     """
+    #     return _wgpu.get_function[
+    #         fn (WGPURenderPipeline, UInt32) -> WGPUBindGroupLayout
+    #     ]("wgpuRenderPipelineGetBindGroupLayout")(handle, group_index)
 
-# fn render_pipeline_release(handle: WGPURenderPipeline):
-#     _wgpu.get_function[fn (UnsafePointer[_RenderPipelineImpl]) -> None](
-#         "wgpuRenderPipelineRelease"
-#     )(handle)
-
-
-# fn render_pipeline_get_bind_group_layout(
-#     handle: WGPURenderPipeline, group_index: UInt32
-# ) -> WGPUBindGroupLayout:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[
-#         fn (WGPURenderPipeline, UInt32) -> WGPUBindGroupLayout
-#     ]("wgpuRenderPipelineGetBindGroupLayout")(handle, group_index)
-
-
-# fn render_pipeline_set_label(
-#     handle: WGPURenderPipeline, label: UnsafePointer[Int8]
-# ) -> None:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[
-#         fn (WGPURenderPipeline, UnsafePointer[Int8]) -> None
-#     ]("wgpuRenderPipelineSetLabel")(handle, label)
-
-
-# struct _SamplerImpl:
-#     pass
+    fn set_label(mut self, mut label: String) -> None:
+        """
+        TODO
+        """
+        return _cffi.render_pipeline_set_label(
+            self._handle, label.unsafe_cstr_ptr()
+        )
 
 
 struct Sampler(Movable):
@@ -2140,14 +2121,6 @@ struct Surface[window: ImmutOrigin]:
         _c.surface_get_capabilities(self._handle, adapter._handle, caps)
         return SurfaceCapabilities(caps)
 
-    #     return _wgpu.get_function[
-    #         fn (
-    #             WGPUSurface, WGPUAdapter, UnsafePointer[WGPUSurfaceCapabilities]
-    #         ) -> None
-    #     ]("wgpuSurfaceGetCapabilities")(
-    #         handle, adapter, UnsafePointer(to=capabilities)
-    #     )
-
     fn get_current_texture(self) -> SurfaceTexture:
         """
         TODO
@@ -2172,14 +2145,11 @@ struct Surface[window: ImmutOrigin]:
         """
         _c.surface_unconfigure(self._handle)
 
-
-# fn surface_set_label(handle: WGPUSurface, label: UnsafePointer[Int8]) -> None:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[fn (WGPUSurface, UnsafePointer[Int8]) -> None](
-#         "wgpuSurfaceSetLabel"
-#     )(handle, label)
+    fn surface_set_label(mut self, mut label: String):
+        """
+        TODO
+        """
+        _cffi.surface_set_label(self._handle, label.unsafe_cstr_ptr())
 
 
 struct Texture(Movable):
@@ -2315,33 +2285,17 @@ struct Texture(Movable):
         """
         return _c.texture_get_format(self._handle)
 
+    fn get_usage(self) -> TextureUsage:
+        """
+        TODO
+        """
+        return _cffi.texture_get_usage(self._handle)
 
-# fn texture_get_usage(
-#     handle: WGPUTexture,
-# ) -> TextureUsage:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[fn (WGPUTexture,) -> TextureUsage](
-#         "wgpuTextureGetUsage"
-#     )(
-#         handle,
-#     )
-
-
-# fn texture_destroy(
-#     handle: WGPUTexture,
-# ) -> None:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[fn (WGPUTexture,) -> None]("wgpuTextureDestroy")(
-#         handle,
-#     )
-
-
-# struct _TextureViewImpl:
-#     pass
+    fn destroy(deinit self) -> None:
+        """
+        TODO
+        """
+        return _cffi.texture_destroy(self._handle)
 
 
 struct TextureView(Movable):
@@ -2358,22 +2312,8 @@ struct TextureView(Movable):
         if self._handle:
             _c.texture_view_release(self._handle)
 
-
-# fn texture_view_release(handle: WGPUTextureView):
-#     _wgpu.get_function[fn (UnsafePointer[_TextureViewImpl]) -> None](
-#         "wgpuTextureViewRelease"
-#     )(handle)
-
-
-# fn texture_view_set_label(
-#     handle: WGPUTextureView, label: UnsafePointer[Int8]
-# ) -> None:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[
-#         fn (WGPUTextureView, UnsafePointer[Int8]) -> None
-#     ]("wgpuTextureViewSetLabel")(handle, label)
+    fn set_label(mut self, mut label: String):
+        _cffi.texture_view_set_label(self._handle, label.unsafe_cstr_ptr())
 
 
 fn _glfw_get_wgpu_surface(

@@ -40,10 +40,6 @@ struct RequestAdapterOptions[surface: ImmutOrigin, window: ImmutOrigin](
 
 
 struct AdapterInfo[origin: ImmutOrigin](Copyable, Movable):
-    """
-    TODO
-    """
-
     var vendor: StringSlice[origin]
     var architecture: StringSlice[origin]
     var device: StringSlice[origin]
@@ -55,10 +51,6 @@ struct AdapterInfo[origin: ImmutOrigin](Copyable, Movable):
 
 
 struct DeviceDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var required_features: Optional[List[FeatureName]]
     var limits: Limits
@@ -119,10 +111,6 @@ struct BufferArray(Copyable, Movable):
 
 @fieldwise_init
 struct BindGroupEntry(Copyable, Movable):
-    """
-    TODO
-    """
-
     var binding: UInt32
     var resource: BindingResource
 
@@ -130,10 +118,6 @@ struct BindGroupEntry(Copyable, Movable):
 struct BindGroupDescriptor[
     origin: ImmutOrigin,
 ](Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var layout: ArcPointer[BindGroupLayout]
     var entries: Span[BindGroupEntry, origin]
@@ -203,10 +187,6 @@ struct BindingType(Copyable, Movable):
 
 @fieldwise_init
 struct BufferBindingLayout(Copyable, Movable):
-    """
-    TODO
-    """
-
     var type: BufferBindingType
     var has_dynamic_offset: Bool
     var min_binding_size: UInt64
@@ -214,29 +194,17 @@ struct BufferBindingLayout(Copyable, Movable):
 
 @fieldwise_init
 struct SamplerBindingLayout(Copyable, Movable):
-    """
-    TODO
-    """
-
     var type: SamplerBindingType
 
 
 @fieldwise_init
 struct TextureBindingLayout(Copyable, Movable):
-    """
-    TODO
-    """
-
     var sample_type: TextureSampleType
     var view_dimension: TextureViewDimension
     var multisampled: Bool
 
 
 struct SurfaceCapabilities(Copyable, Movable):
-    """
-    TODO
-    """
-
     var _handle: _c.WGPUSurfaceCapabilities
 
     fn __init__(out self, unsafe_ptr: _c.WGPUSurfaceCapabilities):
@@ -271,10 +239,6 @@ struct SurfaceCapabilities(Copyable, Movable):
 
 
 struct SurfaceConfiguration(Copyable, Movable):
-    """
-    TODO
-    """
-
     var format: TextureFormat
     var usage: TextureUsage
     var view_formats: List[TextureFormat]
@@ -304,10 +268,6 @@ struct SurfaceConfiguration(Copyable, Movable):
 
 @fieldwise_init
 struct StorageTextureBindingLayout(Copyable, Movable):
-    """
-    TODO
-    """
-
     var access: StorageTextureAccess
     var format: TextureFormat
     var view_dimension: TextureViewDimension
@@ -315,10 +275,6 @@ struct StorageTextureBindingLayout(Copyable, Movable):
 
 @fieldwise_init
 struct BindGroupLayoutEntry(Copyable, Movable):
-    """
-    TODO
-    """
-
     var binding: UInt32
     var visibility: ShaderStage
     var type: BindingType
@@ -329,20 +285,12 @@ struct BindGroupLayoutEntry(Copyable, Movable):
 struct BindGroupLayoutDescriptor[mut: Bool, //, origin: Origin[mut]](
     Copyable, Movable
 ):
-    """
-    TODO
-    """
-
     var label: String
     var entries: Span[BindGroupLayoutEntry, origin]
 
 
 @fieldwise_init
 struct BufferDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var usage: BufferUsage
     var size: UInt64
@@ -351,47 +299,27 @@ struct BufferDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct ConstantEntry(Copyable, Movable):
-    """
-    TODO
-    """
-
     var key: String
     var value: Float64
 
 
 @fieldwise_init
 struct CommandBufferDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
 
 
 @fieldwise_init
 struct CommandEncoderDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
 
 
 @fieldwise_init
 struct WGPUCompilationInfo(Copyable, Movable):
-    """
-    TODO
-    """
-
     var messages: List[CompilationMessage]
 
 
 @fieldwise_init
 struct CompilationMessage(Copyable, Movable):
-    """
-    TODO
-    """
-
     var message: String
     var type: CompilationMessageType
     var line_num: UInt64
@@ -405,20 +333,12 @@ struct CompilationMessage(Copyable, Movable):
 
 @fieldwise_init
 struct ComputePassDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var timestamp_writes: Optional[ComputePassTimestampWrites]
 
 
 @fieldwise_init
 struct ComputePassTimestampWrites(Copyable, Movable):
-    """
-    TODO
-    """
-
     var query_set: ArcPointer[QuerySet]
     var beginning_of_pass_write_index: UInt32
     var end_of_pass_write_index: UInt32
@@ -426,10 +346,6 @@ struct ComputePassTimestampWrites(Copyable, Movable):
 
 @fieldwise_init
 struct ComputePipelineDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var layout: ArcPointer[PipelineLayout]
     var compute: ProgrammableStageDescriptor
@@ -437,10 +353,6 @@ struct ComputePipelineDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct ImageCopyBuffer[buf: ImmutOrigin](Copyable, Movable):
-    """
-    TODO
-    """
-
     var layout: TextureDataLayout
     var buffer: Pointer[Buffer, buf]
 
@@ -455,10 +367,6 @@ struct ImageCopyBuffer[buf: ImmutOrigin](Copyable, Movable):
 
 @fieldwise_init
 struct ImageCopyTexture[tex: ImmutOrigin](Copyable, Movable):
-    """
-    TODO
-    """
-
     var texture: Pointer[Texture, tex]
     var mip_level: UInt32
     var origin: Origin3D
@@ -481,10 +389,6 @@ struct ImageCopyTexture[tex: ImmutOrigin](Copyable, Movable):
 struct VertexBufferLayout[mut: Bool, //, origin: Origin[mut]](
     Copyable, Movable
 ):
-    """
-    TODO
-    """
-
     var array_stride: UInt64
     var step_mode: VertexStepMode
     var attributes: Span[VertexAttribute, origin]
@@ -495,20 +399,12 @@ struct PipelineLayoutDescriptor[
     mut: Bool, //,
     origin: Origin[mut],
 ](Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var bind_group_layouts: Span[ArcPointer[BindGroupLayout], origin]
 
 
 @fieldwise_init
 struct ProgrammableStageDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var module: ArcPointer[ShaderModule]
     var entry_point: String
     var constants: List[ConstantEntry]
@@ -516,20 +412,12 @@ struct ProgrammableStageDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct QuerySetDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var type: QueryType
     var count: UInt32
 
 
 struct QueueDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
 
     fn __init__(out self, label: String = String()):
@@ -538,19 +426,11 @@ struct QueueDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct RenderBundleDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
 
 
 @fieldwise_init
 struct RenderBundleEncoderDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var color_formats: List[TextureFormat]
     var depth_stencil_format: TextureFormat
@@ -561,10 +441,6 @@ struct RenderBundleEncoderDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct RenderPassColorAttachment(Copyable, Movable):
-    """
-    TODO
-    """
-
     var view: ArcPointer[TextureView]
     var depth_slice: UInt32
     var resolve_target: Optional[ArcPointer[TextureView]]
@@ -592,10 +468,6 @@ struct RenderPassColorAttachment(Copyable, Movable):
 
 @fieldwise_init
 struct RenderPassDepthStencilAttachment(Copyable, Movable):
-    """
-    TODO
-    """
-
     var view: ArcPointer[TextureView]
     var depth_load_op: LoadOp
     var depth_store_op: StoreOp
@@ -608,10 +480,6 @@ struct RenderPassDepthStencilAttachment(Copyable, Movable):
 
 
 struct RenderPassDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var color_attachments: List[RenderPassColorAttachment]
     var depth_stencil_attachment: Optional[RenderPassDepthStencilAttachment]
@@ -621,19 +489,11 @@ struct RenderPassDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct RenderPassDescriptorMaxDrawCount(Copyable, Movable):
-    """
-    TODO
-    """
-
     var max_draw_count: UInt64
 
 
 @fieldwise_init
 struct RenderPassTimestampWrites(Copyable, Movable):
-    """
-    TODO
-    """
-
     var query_set: ArcPointer[QuerySet]
     var beginning_of_pass_write_index: UInt32
     var end_of_pass_write_index: UInt32
@@ -648,10 +508,6 @@ struct VertexState[
     buf: Origin[buf_mut],
     vbuf: Origin[vbuf_mut],
 ](Copyable, Movable):
-    """
-    TODO
-    """
-
     var module: Pointer[ShaderModule, mod]
     var entry_point: StringSlice[entry]
     # var constants: Span[ConstantEntry, lifetime]
@@ -669,10 +525,6 @@ struct VertexState[
 
 
 struct PrimitiveState(Copyable, Movable):
-    """
-    TODO
-    """
-
     var topology: PrimitiveTopology
     var strip_index_format: IndexFormat
     var front_face: FrontFace
@@ -694,19 +546,11 @@ struct PrimitiveState(Copyable, Movable):
 
 @fieldwise_init
 struct PrimitiveDepthClipControl(Copyable, Movable):
-    """
-    TODO
-    """
-
     var unclipped_depth: Bool
 
 
 @fieldwise_init
 struct DepthStencilState(Copyable, Movable):
-    """
-    TODO
-    """
-
     var format: TextureFormat
     var depth_write_enabled: Bool
     var depth_compare: CompareFunction
@@ -720,10 +564,6 @@ struct DepthStencilState(Copyable, Movable):
 
 
 struct MultisampleState(Copyable, Movable):
-    """
-    TODO
-    """
-
     var count: UInt32
     var mask: UInt32
     var alpha_to_coverage_enabled: Bool
@@ -748,10 +588,6 @@ struct FragmentState[
     entry: Origin[entry_mut],
     tgt: Origin[tgt_mut],
 ](Copyable, Movable):
-    """
-    TODO
-    """
-
     var module: Pointer[ShaderModule, mod]
     var entry_point: StringSlice[entry]
     # var constants: Span[ConstantEntry, lifetime]
@@ -773,10 +609,6 @@ struct FragmentState[
 
 @fieldwise_init
 struct ColorTargetState(Copyable, Movable):
-    """
-    TODO
-    """
-
     var format: TextureFormat
     var blend: Optional[BlendState]
     var write_mask: ColorWriteMask
@@ -799,10 +631,6 @@ struct RenderPipelineDescriptor[
     fentry: Origin[fentry_mut],
     tgt: Origin[tgt_mut],
 ](Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var layout: Optional[Pointer[PipelineLayout, lyt]]
     var vertex: VertexState[vmod, ventry, buf, vbuf]
@@ -814,10 +642,6 @@ struct RenderPipelineDescriptor[
 
 @fieldwise_init
 struct SamplerDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var address_mode_u: AddressMode
     var address_mode_v: AddressMode
@@ -833,38 +657,22 @@ struct SamplerDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct ShaderModuleDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var hints: List[ShaderModuleCompilationHint]
 
 
 @fieldwise_init
 struct ShaderModuleCompilationHint(Copyable, Movable):
-    """
-    TODO
-    """
-
     var entry_point: String
     var layout: ArcPointer[PipelineLayout]
 
 
 @fieldwise_init
 struct SurfaceDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
 
 
 struct SurfaceTexture(Copyable, Movable):
-    """
-    TODO
-    """
-
     var texture: ArcPointer[Texture]
     var suboptimal: Bool
     var status: SurfaceGetCurrentTextureStatus
@@ -886,10 +694,6 @@ struct SurfaceTexture(Copyable, Movable):
 
 
 struct TextureDataLayout(Copyable, Movable):
-    """
-    TODO
-    """
-
     var offset: UInt64
     var bytes_per_row: Optional[UInt32]
     var rows_per_image: Optional[UInt32]
@@ -906,10 +710,6 @@ struct TextureDataLayout(Copyable, Movable):
 
 
 struct TextureDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var usage: TextureUsage
     var dimension: TextureDimension
@@ -922,10 +722,6 @@ struct TextureDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct TextureViewDescriptor(Copyable, Movable):
-    """
-    TODO
-    """
-
     var label: String
     var format: TextureFormat
     var dimension: TextureViewDimension
@@ -938,9 +734,5 @@ struct TextureViewDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct UncapturedErrorCallbackInfo(Copyable, Movable):
-    """
-    TODO
-    """
-
     var callback: UnsafePointer[NoneType]
     var userdata: UnsafePointer[NoneType]
