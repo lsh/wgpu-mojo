@@ -1,5 +1,9 @@
 # pixi environments
 .pixi
 *.egg-info
-# magic environments
-.magic
+
+
+.DS_Store
+
+kgen.trace.json.time-trace
+kgen.trace.json.time-events.txt
