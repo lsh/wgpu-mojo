@@ -120,41 +120,37 @@ fn main() raises:
         )
     ]
 
-    bind_group_layout = ArcPointer(
-        device.create_bind_group_layout(
-            BindGroupLayoutDescriptor(
-                "bind group layout",
-                List[BindGroupLayoutEntry](
-                    BindGroupLayoutEntry(
-                        binding=0,
-                        visibility=wgpu.ShaderStage.fragment
-                        | wgpu.ShaderStage.vertex,
-                        type=BufferBindingLayout(
-                            type=wgpu.BufferBindingType.uniform,
-                            has_dynamic_offset=False,
-                            min_binding_size=size_of[Float32](),
-                        ),
-                        count=0,
-                    )
-                ),
+    bind_group_entries = [
+        BindGroupLayoutEntry(
+            binding=0,
+            visibility=wgpu.ShaderStage.fragment | wgpu.ShaderStage.vertex,
+            type=BufferBindingLayout(
+                type=wgpu.BufferBindingType.uniform,
+                has_dynamic_offset=False,
+                min_binding_size=size_of[Float32](),
+            ),
+            count=0,
+        )
+    ]
+    bind_group_layouts = [
+        ArcPointer(
+            device.create_bind_group_layout(
+                {"bind group layout", bind_group_entries}
             )
         )
-    )
+    ]
 
     pipeline_layout = device.create_pipeline_layout(
-        PipelineLayoutDescriptor(
-            "pipeline layout",
-            List[ArcPointer[BindGroupLayout]](bind_group_layout),
-        )
+        {"pipeline layout", bind_group_layouts}
     )
     uniform_buffer = ArcPointer(
         device.create_buffer(
-            BufferDescriptor(
+            {
                 "uniform buffer",
                 BufferUsage.uniform | BufferUsage.copy_dst,
                 size_of[Float32](),
                 True,
-            )
+            }
         )
     )
     uniform_dst = (
@@ -164,18 +160,12 @@ fn main() raises:
     )
     uniform_dst[0] = 0
     uniform_buffer[].unmap()
+    uniform_bind_group_entries = [
+        BindGroupEntry(0, BufferBinding(uniform_buffer, 0, size_of[Float32]()))
+    ]
 
     uniform_bind_group = device.create_bind_group(
-        BindGroupDescriptor(
-            "bind group",
-            bind_group_layout,
-            List[BindGroupEntry](
-                BindGroupEntry(
-                    0,
-                    BufferBinding(uniform_buffer, 0, size_of[Float32]()),
-                )
-            ),
-        )
+        {"bind group", bind_group_layouts[0], uniform_bind_group_entries}
     )
     targets = [
         wgpu.ColorTargetState(
@@ -196,37 +186,36 @@ fn main() raises:
         )
     ]
 
-    desc = wgpu.RenderPipelineDescriptor(
-        label="render pipeline",
-        vertex=wgpu.VertexState(
-            entry_point="vs_main",
-            module=shader_module,
-            buffers=vertex_buffer_layouts,
-        ),
-        fragment=wgpu.FragmentState(
-            module=shader_module,
-            entry_point="fs_main",
-            targets=targets,
-        ),
-        primitive=wgpu.PrimitiveState(
-            topology=wgpu.PrimitiveTopology.triangle_list,
-        ),
-        multisample=wgpu.MultisampleState(),
-        layout=Pointer(to=pipeline_layout),
-        depth_stencil=None,
+    pipeline = device.create_render_pipeline(
+        {
+            label = "render pipeline",
+            vertex = wgpu.VertexState(
+                entry_point="vs_main",
+                module=shader_module,
+                buffers=vertex_buffer_layouts,
+            ),
+            fragment = wgpu.FragmentState(
+                module=shader_module,
+                entry_point="fs_main",
+                targets=targets,
+            ),
+            primitive = wgpu.PrimitiveState(
+                topology=wgpu.PrimitiveTopology.triangle_list,
+            ),
+            multisample = wgpu.MultisampleState(),
+            layout = Pointer(to=pipeline_layout),
+            depth_stencil = None,
+        }
     )
-    pipeline = device.create_render_pipeline(descriptor=desc^)
 
-    vertices = [
-        MyVertex(Vec3(-0.5, -0.5, 0.0), MyColor(1, 0, 0, 1)),
-        MyVertex(Vec3(0.5, -0.5, 0.0), MyColor(0, 1, 0, 1)),
-        MyVertex(Vec3(0.0, 0.5, 0.0), MyColor(0, 0, 1, 1)),
+    vertices: List[MyVertex] = [
+        {Vec3(-0.5, -0.5, 0.0), MyColor(1, 0, 0, 1)},
+        {Vec3(0.5, -0.5, 0.0), MyColor(0, 1, 0, 1)},
+        {Vec3(0.0, 0.5, 0.0), MyColor(0, 0, 1, 1)},
     ]
     vertices_size_bytes = len(vertices) * size_of[MyVertex]()
     vertex_buffer = device.create_buffer(
-        BufferDescriptor(
-            "vertex buffer", BufferUsage.vertex, vertices_size_bytes, True
-        )
+        {"vertex buffer", BufferUsage.vertex, vertices_size_bytes, True}
     )
     dst = vertex_buffer.get_mapped_range(0, vertices_size_bytes).bitcast[
         MyVertex
