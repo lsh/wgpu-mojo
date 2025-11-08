@@ -1,6 +1,5 @@
 import wgpu
 from wgpu import (
-    glfw,
     SurfaceConfiguration,
     VertexAttribute,
     VertexFormat,
@@ -20,37 +19,38 @@ from wgpu import (
     BindGroupEntry,
     BufferBinding,
 )
-from sys.info import sizeof
+import glfw
 
-from memory import Span, UnsafePointer, ArcPointer
-from collections import Optional
+from memory import ArcPointer
+from sys.info import size_of
 
 
-@value
-struct Vec3:
+@fieldwise_init
+struct Vec3(Copyable, ImplicitlyCopyable, Movable):
     var x: Float32
     var y: Float32
     var z: Float32
 
 
-@value
-struct MyColor:
+@fieldwise_init
+struct MyColor(Copyable, ImplicitlyCopyable, Movable):
     var r: Float32
     var g: Float32
     var b: Float32
     var a: Float32
 
 
-@value
-struct MyVertex:
+@fieldwise_init
+struct MyVertex(Copyable, ImplicitlyCopyable, Movable):
     var pos: Vec3
     var color: MyColor
 
 
-def main():
+fn main() raises:
     glfw.init()
-    glfw.window_hint(glfw.CLIENT_API, glfw.NO_API)
-    window = glfw.Window(640, 480, "Hello, WebGPU")
+    glfw.Window.hint(glfw.ContextHint.client_api, glfw.ContextHint.no_api)
+    var title = "Hello, WebGPU"
+    window = glfw.Window(640, 480, title)
 
     instance = wgpu.Instance()
     surface = instance.create_surface(window)
@@ -101,22 +101,24 @@ def main():
 
     shader_module = device.create_wgsl_shader_module(code=shader_code)
 
-    vertex_attributes = List[VertexAttribute](
+    vertex_attributes = [
         VertexAttribute(
             format=VertexFormat.float32x3, offset=0, shader_location=0
         ),
         VertexAttribute(
             format=VertexFormat.float32x4,
-            offset=sizeof[Vec3](),
+            offset=size_of[Vec3](),
             shader_location=1,
         ),
-    )
+    ]
 
-    vertex_buffer_layout = VertexBufferLayout(
-        array_stride=sizeof[MyVertex](),
-        step_mode=VertexStepMode.vertex,
-        attributes=Span(vertex_attributes),
-    )
+    vertex_buffer_layouts = [
+        VertexBufferLayout(
+            array_stride=size_of[MyVertex](),
+            step_mode=VertexStepMode.vertex,
+            attributes=Span(vertex_attributes),
+        )
+    ]
 
     bind_group_layout = ArcPointer(
         device.create_bind_group_layout(
@@ -130,7 +132,7 @@ def main():
                         type=BufferBindingLayout(
                             type=wgpu.BufferBindingType.uniform,
                             has_dynamic_offset=False,
-                            min_binding_size=sizeof[Float32](),
+                            min_binding_size=size_of[Float32](),
                         ),
                         count=0,
                     )
@@ -150,14 +152,14 @@ def main():
             BufferDescriptor(
                 "uniform buffer",
                 BufferUsage.uniform | BufferUsage.copy_dst,
-                sizeof[Float32](),
+                size_of[Float32](),
                 True,
             )
         )
     )
     uniform_dst = (
         uniform_buffer[]
-        .get_mapped_range(0, sizeof[Float32]())
+        .get_mapped_range(0, size_of[Float32]())
         .bitcast[Float32]()
     )
     uniform_dst[0] = 0
@@ -170,58 +172,57 @@ def main():
             List[BindGroupEntry](
                 BindGroupEntry(
                     0,
-                    BufferBinding(uniform_buffer, 0, sizeof[Float32]()),
+                    BufferBinding(uniform_buffer, 0, size_of[Float32]()),
                 )
             ),
         )
     )
+    targets = [
+        wgpu.ColorTargetState(
+            blend=wgpu.BlendState(
+                color=wgpu.BlendComponent(
+                    src_factor=wgpu.BlendFactor.src_alpha,
+                    dst_factor=wgpu.BlendFactor.one_minus_src_alpha,
+                    operation=wgpu.BlendOperation.add,
+                ),
+                alpha=wgpu.BlendComponent(
+                    src_factor=wgpu.BlendFactor.zero,
+                    dst_factor=wgpu.BlendFactor.one,
+                    operation=wgpu.BlendOperation.add,
+                ),
+            ),
+            format=surface_format,
+            write_mask=wgpu.ColorWriteMask.all,
+        )
+    ]
 
     desc = wgpu.RenderPipelineDescriptor(
         label="render pipeline",
         vertex=wgpu.VertexState(
             entry_point="vs_main",
             module=shader_module,
-            buffers=List[VertexBufferLayout[__origin_of(vertex_attributes)]](
-                vertex_buffer_layout
-            ),
+            buffers=vertex_buffer_layouts,
         ),
         fragment=wgpu.FragmentState(
             module=shader_module,
             entry_point="fs_main",
-            targets=List[wgpu.ColorTargetState](
-                wgpu.ColorTargetState(
-                    blend=wgpu.BlendState(
-                        color=wgpu.BlendComponent(
-                            src_factor=wgpu.BlendFactor.src_alpha,
-                            dst_factor=wgpu.BlendFactor.one_minus_src_alpha,
-                            operation=wgpu.BlendOperation.add,
-                        ),
-                        alpha=wgpu.BlendComponent(
-                            src_factor=wgpu.BlendFactor.zero,
-                            dst_factor=wgpu.BlendFactor.one,
-                            operation=wgpu.BlendOperation.add,
-                        ),
-                    ),
-                    format=surface_format,
-                    write_mask=wgpu.ColorWriteMask.all,
-                )
-            ),
+            targets=targets,
         ),
         primitive=wgpu.PrimitiveState(
             topology=wgpu.PrimitiveTopology.triangle_list,
         ),
         multisample=wgpu.MultisampleState(),
-        layout=Pointer.address_of(pipeline_layout),
+        layout=Pointer(to=pipeline_layout),
         depth_stencil=None,
     )
-    pipeline = device.create_render_pipeline(descriptor=desc)
+    pipeline = device.create_render_pipeline(descriptor=desc^)
 
-    vertices = List[MyVertex](
+    vertices = [
         MyVertex(Vec3(-0.5, -0.5, 0.0), MyColor(1, 0, 0, 1)),
         MyVertex(Vec3(0.5, -0.5, 0.0), MyColor(0, 1, 0, 1)),
         MyVertex(Vec3(0.0, 0.5, 0.0), MyColor(0, 0, 1, 1)),
-    )
-    vertices_size_bytes = len(vertices) * sizeof[MyVertex]()
+    ]
+    vertices_size_bytes = len(vertices) * size_of[MyVertex]()
     vertex_buffer = device.create_buffer(
         BufferDescriptor(
             "vertex buffer", BufferUsage.vertex, vertices_size_bytes, True
@@ -253,21 +254,21 @@ def main():
                 aspect=wgpu.TextureAspect.all,
             )
             encoder = device.create_command_encoder()
-            color_attachments = List[wgpu.RenderPassColorAttachment](
+            color_attachments = [
                 wgpu.RenderPassColorAttachment(
                     view=target_view,
                     load_op=wgpu.LoadOp.clear,
                     store_op=wgpu.StoreOp.store,
                     clear_value=wgpu.Color(0.9, 0.1, 0.2, 1.0),
                 )
-            )
+            ]
 
             queue.write_buffer(
                 uniform_buffer,
                 0,
-                Span[UInt8, __origin_of(u_time)](
-                    ptr=UnsafePointer.address_of(u_time).bitcast[UInt8](),
-                    length=sizeof[Float32](),
+                Span[UInt8, origin_of(u_time)](
+                    ptr=UnsafePointer(to=u_time).bitcast[UInt8](),
+                    length=size_of[Float32](),
                 ),
             )
             rp = encoder.begin_render_pass(color_attachments=color_attachments)

@@ -1,3 +1,4 @@
+
 alias ARRAY_LAYER_COUNT_UNDEFINED = UInt32.MAX
 """
 TODO
@@ -40,7 +41,7 @@ TODO
 """
 
 
-alias WHOLE_MAP_SIZE = UInt.MAX
+alias WHOLE_MAP_SIZE = Int.MAX
 """
 TODO
 """

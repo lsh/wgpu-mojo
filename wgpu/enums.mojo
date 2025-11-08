@@ -1,17 +1,14 @@
-@value
-struct RequestAdapterStatus:
+
+@fieldwise_init
+@register_passable("trivial")
+struct RequestAdapterStatus(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias success = Self(0)
     """TODO"""
     alias unavailable = Self(1)
@@ -21,7 +18,8 @@ struct RequestAdapterStatus:
     alias unknown = Self(3)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.success:
             w.write("success")
 
@@ -35,20 +33,16 @@ struct RequestAdapterStatus:
             w.write("unknown")
 
 
-@value
-struct AdapterType:
+@fieldwise_init
+@register_passable("trivial")
+struct AdapterType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias discrete_gpu = Self(0)
     """TODO"""
     alias integrated_gpu = Self(1)
@@ -58,7 +52,8 @@ struct AdapterType:
     alias unknown = Self(3)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.discrete_gpu:
             w.write("discrete_gpu")
 
@@ -72,20 +67,16 @@ struct AdapterType:
             w.write("unknown")
 
 
-@value
-struct AddressMode:
+@fieldwise_init
+@register_passable("trivial")
+struct AddressMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias repeat = Self(0)
     """TODO"""
     alias mirror_repeat = Self(1)
@@ -93,7 +84,8 @@ struct AddressMode:
     alias clamp_to_edge = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.repeat:
             w.write("repeat")
 
@@ -104,20 +96,16 @@ struct AddressMode:
             w.write("clamp_to_edge")
 
 
-@value
-struct BackendType:
+@fieldwise_init
+@register_passable("trivial")
+struct BackendType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias null = Self(1)
@@ -137,7 +125,8 @@ struct BackendType:
     alias opengles = Self(8)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -166,20 +155,16 @@ struct BackendType:
             w.write("opengles")
 
 
-@value
-struct BufferBindingType:
+@fieldwise_init
+@register_passable("trivial")
+struct BufferBindingType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias uniform = Self(1)
@@ -189,7 +174,8 @@ struct BufferBindingType:
     alias read_only_storage = Self(3)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -203,20 +189,16 @@ struct BufferBindingType:
             w.write("read_only_storage")
 
 
-@value
-struct SamplerBindingType:
+@fieldwise_init
+@register_passable("trivial")
+struct SamplerBindingType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias filtering = Self(1)
@@ -226,7 +208,8 @@ struct SamplerBindingType:
     alias comparison = Self(3)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -240,20 +223,16 @@ struct SamplerBindingType:
             w.write("comparison")
 
 
-@value
-struct TextureSampleType:
+@fieldwise_init
+@register_passable("trivial")
+struct TextureSampleType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias float = Self(1)
@@ -267,7 +246,8 @@ struct TextureSampleType:
     alias uint = Self(5)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -287,20 +267,16 @@ struct TextureSampleType:
             w.write("uint")
 
 
-@value
-struct StorageTextureAccess:
+@fieldwise_init
+@register_passable("trivial")
+struct StorageTextureAccess(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias write_only = Self(1)
@@ -310,7 +286,8 @@ struct StorageTextureAccess:
     alias read_write = Self(3)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -324,20 +301,16 @@ struct StorageTextureAccess:
             w.write("read_write")
 
 
-@value
-struct BlendFactor:
+@fieldwise_init
+@register_passable("trivial")
+struct BlendFactor(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias zero = Self(0)
     """TODO"""
     alias one = Self(1)
@@ -365,7 +338,8 @@ struct BlendFactor:
     alias one_minus_constant = Self(12)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.zero:
             w.write("zero")
 
@@ -406,20 +380,16 @@ struct BlendFactor:
             w.write("one_minus_constant")
 
 
-@value
-struct BlendOperation:
+@fieldwise_init
+@register_passable("trivial")
+struct BlendOperation(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias add = Self(0)
     """TODO"""
     alias subtract = Self(1)
@@ -431,7 +401,8 @@ struct BlendOperation:
     alias max = Self(4)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.add:
             w.write("add")
 
@@ -448,20 +419,16 @@ struct BlendOperation:
             w.write("max")
 
 
-@value
-struct BufferMapAsyncStatus:
+@fieldwise_init
+@register_passable("trivial")
+struct BufferMapAsyncStatus(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias success = Self(0)
     """TODO"""
     alias validation_error = Self(1)
@@ -481,7 +448,8 @@ struct BufferMapAsyncStatus:
     alias size_out_of_range = Self(8)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.success:
             w.write("success")
 
@@ -510,20 +478,16 @@ struct BufferMapAsyncStatus:
             w.write("size_out_of_range")
 
 
-@value
-struct BufferMapState:
+@fieldwise_init
+@register_passable("trivial")
+struct BufferMapState(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias unmapped = Self(0)
     """TODO"""
     alias pending = Self(1)
@@ -531,7 +495,8 @@ struct BufferMapState:
     alias mapped = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.unmapped:
             w.write("unmapped")
 
@@ -542,20 +507,16 @@ struct BufferMapState:
             w.write("mapped")
 
 
-@value
-struct CompareFunction:
+@fieldwise_init
+@register_passable("trivial")
+struct CompareFunction(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias never = Self(1)
@@ -575,7 +536,8 @@ struct CompareFunction:
     alias always = Self(8)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -604,20 +566,16 @@ struct CompareFunction:
             w.write("always")
 
 
-@value
-struct CompilationInfoRequestStatus:
+@fieldwise_init
+@register_passable("trivial")
+struct CompilationInfoRequestStatus(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias success = Self(0)
     """TODO"""
     alias error = Self(1)
@@ -627,7 +585,8 @@ struct CompilationInfoRequestStatus:
     alias unknown = Self(3)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.success:
             w.write("success")
 
@@ -641,20 +600,16 @@ struct CompilationInfoRequestStatus:
             w.write("unknown")
 
 
-@value
-struct CompilationMessageType:
+@fieldwise_init
+@register_passable("trivial")
+struct CompilationMessageType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias error = Self(0)
     """TODO"""
     alias warning = Self(1)
@@ -662,7 +617,8 @@ struct CompilationMessageType:
     alias info = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.error:
             w.write("error")
 
@@ -673,20 +629,16 @@ struct CompilationMessageType:
             w.write("info")
 
 
-@value
-struct CompositeAlphaMode:
+@fieldwise_init
+@register_passable("trivial")
+struct CompositeAlphaMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias auto = Self(0)
     """TODO"""
     alias opaque = Self(1)
@@ -698,7 +650,8 @@ struct CompositeAlphaMode:
     alias inherit = Self(4)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.auto:
             w.write("auto")
 
@@ -715,20 +668,16 @@ struct CompositeAlphaMode:
             w.write("inherit")
 
 
-@value
-struct CreatePipelineAsyncStatus:
+@fieldwise_init
+@register_passable("trivial")
+struct CreatePipelineAsyncStatus(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias success = Self(0)
     """TODO"""
     alias validation_error = Self(1)
@@ -742,7 +691,8 @@ struct CreatePipelineAsyncStatus:
     alias unknown = Self(5)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.success:
             w.write("success")
 
@@ -762,20 +712,16 @@ struct CreatePipelineAsyncStatus:
             w.write("unknown")
 
 
-@value
-struct CullMode:
+@fieldwise_init
+@register_passable("trivial")
+struct CullMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias none = Self(0)
     """TODO"""
     alias front = Self(1)
@@ -783,7 +729,8 @@ struct CullMode:
     alias back = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.none:
             w.write("none")
 
@@ -794,26 +741,23 @@ struct CullMode:
             w.write("back")
 
 
-@value
-struct DeviceLostReason:
+@fieldwise_init
+@register_passable("trivial")
+struct DeviceLostReason(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias unknown = Self(1)
     """TODO"""
     alias destroyed = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.unknown:
             w.write("unknown")
 
@@ -821,20 +765,16 @@ struct DeviceLostReason:
             w.write("destroyed")
 
 
-@value
-struct ErrorFilter:
+@fieldwise_init
+@register_passable("trivial")
+struct ErrorFilter(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias validation = Self(0)
     """TODO"""
     alias out_of_memory = Self(1)
@@ -842,7 +782,8 @@ struct ErrorFilter:
     alias internal = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.validation:
             w.write("validation")
 
@@ -853,20 +794,16 @@ struct ErrorFilter:
             w.write("internal")
 
 
-@value
-struct ErrorType:
+@fieldwise_init
+@register_passable("trivial")
+struct ErrorType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias no_error = Self(0)
     """TODO"""
     alias validation = Self(1)
@@ -880,7 +817,8 @@ struct ErrorType:
     alias device_lost = Self(5)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.no_error:
             w.write("no_error")
 
@@ -900,20 +838,16 @@ struct ErrorType:
             w.write("device_lost")
 
 
-@value
-struct FeatureName:
+@fieldwise_init
+@register_passable("trivial")
+struct FeatureName(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias depth_clip_control = Self(1)
@@ -939,7 +873,8 @@ struct FeatureName:
     alias float32_filterable = Self(11)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -977,26 +912,23 @@ struct FeatureName:
             w.write("float32_filterable")
 
 
-@value
-struct FilterMode:
+@fieldwise_init
+@register_passable("trivial")
+struct FilterMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias nearest = Self(0)
     """TODO"""
     alias linear = Self(1)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.nearest:
             w.write("nearest")
 
@@ -1004,26 +936,23 @@ struct FilterMode:
             w.write("linear")
 
 
-@value
-struct FrontFace:
+@fieldwise_init
+@register_passable("trivial")
+struct FrontFace(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias ccw = Self(0)
     """TODO"""
     alias cw = Self(1)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.ccw:
             w.write("ccw")
 
@@ -1031,20 +960,16 @@ struct FrontFace:
             w.write("cw")
 
 
-@value
-struct IndexFormat:
+@fieldwise_init
+@register_passable("trivial")
+struct IndexFormat(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias uint16 = Self(1)
@@ -1052,7 +977,8 @@ struct IndexFormat:
     alias uint32 = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -1063,20 +989,16 @@ struct IndexFormat:
             w.write("uint32")
 
 
-@value
-struct VertexStepMode:
+@fieldwise_init
+@register_passable("trivial")
+struct VertexStepMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias vertex = Self(0)
     """TODO"""
     alias instance = Self(1)
@@ -1084,7 +1006,8 @@ struct VertexStepMode:
     alias vertex_buffer_not_used = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.vertex:
             w.write("vertex")
 
@@ -1095,20 +1018,16 @@ struct VertexStepMode:
             w.write("vertex_buffer_not_used")
 
 
-@value
-struct LoadOp:
+@fieldwise_init
+@register_passable("trivial")
+struct LoadOp(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias clear = Self(1)
@@ -1116,7 +1035,8 @@ struct LoadOp:
     alias load = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -1127,26 +1047,23 @@ struct LoadOp:
             w.write("load")
 
 
-@value
-struct MipmapFilterMode:
+@fieldwise_init
+@register_passable("trivial")
+struct MipmapFilterMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias nearest = Self(0)
     """TODO"""
     alias linear = Self(1)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.nearest:
             w.write("nearest")
 
@@ -1154,20 +1071,16 @@ struct MipmapFilterMode:
             w.write("linear")
 
 
-@value
-struct StoreOp:
+@fieldwise_init
+@register_passable("trivial")
+struct StoreOp(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias store = Self(1)
@@ -1175,7 +1088,8 @@ struct StoreOp:
     alias discard = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -1186,20 +1100,16 @@ struct StoreOp:
             w.write("discard")
 
 
-@value
-struct PowerPreference:
+@fieldwise_init
+@register_passable("trivial")
+struct PowerPreference(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias low_power = Self(1)
@@ -1207,7 +1117,8 @@ struct PowerPreference:
     alias high_performance = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -1218,20 +1129,16 @@ struct PowerPreference:
             w.write("high_performance")
 
 
-@value
-struct PresentMode:
+@fieldwise_init
+@register_passable("trivial")
+struct PresentMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias fifo = Self(0)
     """TODO"""
     alias fifo_relaxed = Self(1)
@@ -1241,7 +1148,8 @@ struct PresentMode:
     alias mailbox = Self(3)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.fifo:
             w.write("fifo")
 
@@ -1255,20 +1163,16 @@ struct PresentMode:
             w.write("mailbox")
 
 
-@value
-struct PrimitiveTopology:
+@fieldwise_init
+@register_passable("trivial")
+struct PrimitiveTopology(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias point_list = Self(0)
     """TODO"""
     alias line_list = Self(1)
@@ -1280,7 +1184,8 @@ struct PrimitiveTopology:
     alias triangle_strip = Self(4)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.point_list:
             w.write("point_list")
 
@@ -1297,26 +1202,23 @@ struct PrimitiveTopology:
             w.write("triangle_strip")
 
 
-@value
-struct QueryType:
+@fieldwise_init
+@register_passable("trivial")
+struct QueryType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias occlusion = Self(0)
     """TODO"""
     alias timestamp = Self(1)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.occlusion:
             w.write("occlusion")
 
@@ -1324,20 +1226,16 @@ struct QueryType:
             w.write("timestamp")
 
 
-@value
-struct QueueWorkDoneStatus:
+@fieldwise_init
+@register_passable("trivial")
+struct QueueWorkDoneStatus(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias success = Self(0)
     """TODO"""
     alias error = Self(1)
@@ -1347,7 +1245,8 @@ struct QueueWorkDoneStatus:
     alias device_lost = Self(3)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.success:
             w.write("success")
 
@@ -1361,20 +1260,16 @@ struct QueueWorkDoneStatus:
             w.write("device_lost")
 
 
-@value
-struct RequestDeviceStatus:
+@fieldwise_init
+@register_passable("trivial")
+struct RequestDeviceStatus(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias success = Self(0)
     """TODO"""
     alias error = Self(1)
@@ -1382,7 +1277,8 @@ struct RequestDeviceStatus:
     alias unknown = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.success:
             w.write("success")
 
@@ -1393,20 +1289,16 @@ struct RequestDeviceStatus:
             w.write("unknown")
 
 
-@value
-struct StencilOperation:
+@fieldwise_init
+@register_passable("trivial")
+struct StencilOperation(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias keep = Self(0)
     """TODO"""
     alias zero = Self(1)
@@ -1424,7 +1316,8 @@ struct StencilOperation:
     alias decrement_wrap = Self(7)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.keep:
             w.write("keep")
 
@@ -1450,20 +1343,16 @@ struct StencilOperation:
             w.write("decrement_wrap")
 
 
-@value
-struct SType:
+@fieldwise_init
+@register_passable("trivial")
+struct SType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias invalid = Self(0)
     """TODO"""
     alias surface_descriptor_from_metal_layer = Self(1)
@@ -1489,7 +1378,8 @@ struct SType:
     alias render_pass_descriptor_max_draw_count = Self(15)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.invalid:
             w.write("invalid")
 
@@ -1527,20 +1417,16 @@ struct SType:
             w.write("render_pass_descriptor_max_draw_count")
 
 
-@value
-struct SurfaceGetCurrentTextureStatus:
+@fieldwise_init
+@register_passable("trivial")
+struct SurfaceGetCurrentTextureStatus(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias success = Self(0)
     """TODO"""
     alias timeout = Self(1)
@@ -1554,7 +1440,8 @@ struct SurfaceGetCurrentTextureStatus:
     alias device_lost = Self(5)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.success:
             w.write("success")
 
@@ -1574,20 +1461,16 @@ struct SurfaceGetCurrentTextureStatus:
             w.write("device_lost")
 
 
-@value
-struct TextureAspect:
+@fieldwise_init
+@register_passable("trivial")
+struct TextureAspect(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias all = Self(0)
     """TODO"""
     alias stencil_only = Self(1)
@@ -1595,7 +1478,8 @@ struct TextureAspect:
     alias depth_only = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.all:
             w.write("all")
 
@@ -1606,20 +1490,16 @@ struct TextureAspect:
             w.write("depth_only")
 
 
-@value
-struct TextureDimension:
+@fieldwise_init
+@register_passable("trivial")
+struct TextureDimension(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias d1 = Self(0)
     """TODO"""
     alias d2 = Self(1)
@@ -1627,7 +1507,8 @@ struct TextureDimension:
     alias d3 = Self(2)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.d1:
             w.write("d1")
 
@@ -1638,20 +1519,16 @@ struct TextureDimension:
             w.write("d3")
 
 
-@value
-struct TextureFormat:
+@fieldwise_init
+@register_passable("trivial")
+struct TextureFormat(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias r8_unorm = Self(1)
@@ -1845,7 +1722,8 @@ struct TextureFormat:
     alias astc_12x12_unorm_srgb = Self(95)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -2135,20 +2013,16 @@ struct TextureFormat:
             w.write("astc_12x12_unorm_srgb")
 
 
-@value
-struct TextureViewDimension:
+@fieldwise_init
+@register_passable("trivial")
+struct TextureViewDimension(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias denifednu = Self(0)
     """TODO"""
     alias d1 = Self(1)
@@ -2164,7 +2038,8 @@ struct TextureViewDimension:
     alias d3 = Self(6)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.denifednu:
             w.write("denifednu")
 
@@ -2187,20 +2062,16 @@ struct TextureViewDimension:
             w.write("d3")
 
 
-@value
-struct VertexFormat:
+@fieldwise_init
+@register_passable("trivial")
+struct VertexFormat(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias uint8x2 = Self(1)
@@ -2264,7 +2135,8 @@ struct VertexFormat:
     alias sint32x4 = Self(30)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -2359,20 +2231,16 @@ struct VertexFormat:
             w.write("sint32x4")
 
 
-@value
-struct WgslFeatureName:
+@fieldwise_init
+@register_passable("trivial")
+struct WgslFeatureName(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
-
     alias undefined = Self(0)
     """TODO"""
     alias readonly_and_readwrite_storage_textures = Self(1)
@@ -2384,7 +2252,8 @@ struct WgslFeatureName:
     alias pointer_composite_access = Self(4)
     """TODO"""
 
-    fn write_to[W: Writer](self, mut w: W):
+    fn write_to(self, mut w: Some[Writer]):
+
         if self == Self.undefined:
             w.write("undefined")
 
@@ -2404,15 +2273,13 @@ struct WgslFeatureName:
 # WGPU SPECIFIC ENUMS
 
 
-@value
-struct NativeSType:
+@fieldwise_init
+@register_passable("trivial")
+struct NativeSType(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
 
     #  Start at 0003 since that's allocated range for wgpu-native
     alias device_extras = Self(0x00030001)
@@ -2427,15 +2294,13 @@ struct NativeSType:
     alias surface_configuration_extras = Self(0x0003000A)
 
 
-@value
-struct NativeFeature:
+@fieldwise_init
+@register_passable("trivial")
+struct NativeFeature(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     var value: Int
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
 
     alias push_constants = Self(0x00030001)
     alias texture_adapter_specific_format_features = Self(0x00030002)
@@ -2477,15 +2342,13 @@ struct NativeFeature:
     alias shader_early_depth_test = Self(0x00030020)
 
 
-@value
-struct LogLevel:
+@fieldwise_init
+@register_passable("trivial")
+struct LogLevel(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     var value: Int
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
 
     alias off = Self(0x00000000)
     alias error = Self(0x00000001)
@@ -2495,15 +2358,13 @@ struct LogLevel:
     alias trace = Self(0x00000005)
 
 
-@value
-struct NativeTextureFormat:
+@fieldwise_init
+@register_passable("trivial")
+struct NativeTextureFormat(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
 
     # From Features::TEXTURE_FORMAT_16BIT_NORM
     alias r_16_unorm = Self(0x00030001)

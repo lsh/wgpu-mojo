@@ -1,9 +1,10 @@
-@value
-struct BufferUsage:
+
+@fieldwise_init
+@register_passable("trivial")
+struct BufferUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -48,12 +49,12 @@ struct BufferUsage:
     """TODO"""
 
 
-@value
-struct ColorWriteMask:
+@fieldwise_init
+@register_passable("trivial")
+struct ColorWriteMask(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -88,12 +89,12 @@ struct ColorWriteMask:
     """TODO"""
 
 
-@value
-struct MapMode:
+@fieldwise_init
+@register_passable("trivial")
+struct MapMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -122,12 +123,12 @@ struct MapMode:
     """TODO"""
 
 
-@value
-struct ShaderStage:
+@fieldwise_init
+@register_passable("trivial")
+struct ShaderStage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -158,12 +159,12 @@ struct ShaderStage:
     """TODO"""
 
 
-@value
-struct TextureUsage:
+@fieldwise_init
+@register_passable("trivial")
+struct TextureUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -200,16 +201,12 @@ struct TextureUsage:
 
 # WGPU SPECIFIC BITFLAGS
 
-
-@value
-struct InstanceBackend:
+@fieldwise_init
+struct InstanceBackend(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
 
     fn __xor__(self, rhs: Self) -> Self:
         return Self(self.value ^ rhs.value)
@@ -234,15 +231,12 @@ struct InstanceBackend:
     alias secondary = Self.gl | Self.dx11
 
 
-@value
-struct InstanceFlag:
+@fieldwise_init
+struct InstanceFlag(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
 
     fn __xor__(self, rhs: Self) -> Self:
         return Self(self.value ^ rhs.value)
@@ -262,15 +256,12 @@ struct InstanceFlag:
     alias discard_hal_labels = Self(1 << 2)
 
 
-@value
-struct Dx12Compiler:
+@fieldwise_init
+struct Dx12Compiler(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
 
     fn __xor__(self, rhs: Self) -> Self:
         return Self(self.value ^ rhs.value)
@@ -289,15 +280,12 @@ struct Dx12Compiler:
     alias dxc = Self(0x00000002)
 
 
-@value
-struct Gles3MinorVersion:
+@fieldwise_init
+struct Gles3MinorVersion(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
 
     fn __xor__(self, rhs: Self) -> Self:
         return Self(self.value ^ rhs.value)
@@ -317,15 +305,12 @@ struct Gles3MinorVersion:
     alias version2 = Self(0x00000003)
 
 
-@value
-struct PipelineStatisticName:
+@fieldwise_init
+struct PipelineStatisticName(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
 
     fn __xor__(self, rhs: Self) -> Self:
         return Self(self.value ^ rhs.value)
@@ -346,15 +331,12 @@ struct PipelineStatisticName:
     alias compute_shader_invocations = Self(0x00000004)
 
 
-@value
-struct NativeQueryType:
+@fieldwise_init
+struct NativeQueryType(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
-
-    fn __ne__(self, rhs: Self) -> Bool:
-        return self.value != rhs.value
 
     fn __xor__(self, rhs: Self) -> Self:
         return Self(self.value ^ rhs.value)

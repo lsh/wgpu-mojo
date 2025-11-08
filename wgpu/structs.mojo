@@ -21,8 +21,9 @@ alias BlendState = _c.WGPUBlendState
 alias StencilFaceState = _c.WGPUStencilFaceState
 
 
-@value
-struct RequestAdapterOptions[surface: ImmutableOrigin, window: ImmutableOrigin]:
+struct RequestAdapterOptions[surface: ImmutOrigin, window: ImmutOrigin](
+    Copyable, Movable
+):
     var power_preference: PowerPreference
     var force_fallback_adapter: Bool
     var compatible_surface: Optional[Pointer[Surface[window], surface]]
@@ -38,7 +39,7 @@ struct RequestAdapterOptions[surface: ImmutableOrigin, window: ImmutableOrigin]:
         self.compatible_surface = compatible_surface
 
 
-struct AdapterInfo[origin: ImmutableOrigin]:
+struct AdapterInfo[origin: ImmutOrigin](Copyable, Movable):
     """
     TODO
     """
@@ -53,13 +54,12 @@ struct AdapterInfo[origin: ImmutableOrigin]:
     var device_ID: UInt32
 
 
-@value
-struct DeviceDescriptor:
+struct DeviceDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var required_features: Optional[List[FeatureName]]
     var limits: Limits
     var default_queue: QueueDescriptor
@@ -69,28 +69,28 @@ struct DeviceDescriptor:
 
     fn __init__(
         out self,
-        label: StringLiteral = "",
+        label: String = "",
         required_features: Optional[List[FeatureName]] = None,
         limits: Limits = Limits(),
-        default_queue: QueueDescriptor = QueueDescriptor(),
+        var default_queue: QueueDescriptor = QueueDescriptor(),
     ):
         self.label = label
         self.required_features = required_features
         self.limits = limits
-        self.default_queue = default_queue
+        self.default_queue = default_queue^
 
 
-@value
-struct BindingResource:
+@fieldwise_init
+struct BindingResource(Copyable, Movable):
     var _value: Variant[BufferBinding, BufferArray]
 
     @implicit
-    fn __init__(out self, value: BufferBinding):
-        self._value = value
+    fn __init__(out self, var value: BufferBinding):
+        self._value = value^
 
     @implicit
-    fn __init__(out self, value: BufferArray):
-        self._value = value
+    fn __init__(out self, var value: BufferArray):
+        self._value = value^
 
     fn is_buffer(self) -> Bool:
         return self._value.isa[BufferBinding]()
@@ -105,20 +105,20 @@ struct BindingResource:
         return self._value[BufferArray]
 
 
-@value
-struct BufferBinding:
+@fieldwise_init
+struct BufferBinding(Copyable, Movable):
     var buffer: ArcPointer[Buffer]
     var offset: UInt64
     var size: UInt64
 
 
-@value
-struct BufferArray:
+@fieldwise_init
+struct BufferArray(Copyable, Movable):
     var value: List[BufferBinding]
 
 
-@value
-struct BindGroupEntry:
+@fieldwise_init
+struct BindGroupEntry(Copyable, Movable):
     """
     TODO
     """
@@ -128,19 +128,19 @@ struct BindGroupEntry:
 
 
 struct BindGroupDescriptor[
-    origin: ImmutableOrigin,
-]:
+    origin: ImmutOrigin,
+](Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var layout: ArcPointer[BindGroupLayout]
     var entries: Span[BindGroupEntry, origin]
 
     fn __init__(
         out self,
-        label: StringLiteral,
+        label: String,
         layout: ArcPointer[BindGroupLayout],
         entries: Span[BindGroupEntry, origin],
     ):
@@ -149,8 +149,8 @@ struct BindGroupDescriptor[
         self.entries = entries
 
 
-@value
-struct BindingType:
+@fieldwise_init
+struct BindingType(Copyable, Movable):
     var _value: Variant[
         BufferBindingLayout,
         SamplerBindingLayout,
@@ -159,20 +159,20 @@ struct BindingType:
     ]
 
     @implicit
-    fn __init__(out self, value: BufferBindingLayout):
-        self._value = value
+    fn __init__(out self, var value: BufferBindingLayout):
+        self._value = value^
 
     @implicit
-    fn __init__(out self, value: SamplerBindingLayout):
-        self._value = value
+    fn __init__(out self, var value: SamplerBindingLayout):
+        self._value = value^
 
     @implicit
-    fn __init__(out self, value: TextureBindingLayout):
-        self._value = value
+    fn __init__(out self, var value: TextureBindingLayout):
+        self._value = value^
 
     @implicit
-    fn __init__(out self, value: StorageTextureBindingLayout):
-        self._value = value
+    fn __init__(out self, var value: StorageTextureBindingLayout):
+        self._value = value^
 
     fn is_buffer(self) -> Bool:
         return self._value.isa[BufferBindingLayout]()
@@ -201,8 +201,8 @@ struct BindingType:
         return self._value[StorageTextureBindingLayout]
 
 
-@value
-struct BufferBindingLayout:
+@fieldwise_init
+struct BufferBindingLayout(Copyable, Movable):
     """
     TODO
     """
@@ -212,8 +212,8 @@ struct BufferBindingLayout:
     var min_binding_size: UInt64
 
 
-@value
-struct SamplerBindingLayout:
+@fieldwise_init
+struct SamplerBindingLayout(Copyable, Movable):
     """
     TODO
     """
@@ -221,8 +221,8 @@ struct SamplerBindingLayout:
     var type: SamplerBindingType
 
 
-@value
-struct TextureBindingLayout:
+@fieldwise_init
+struct TextureBindingLayout(Copyable, Movable):
     """
     TODO
     """
@@ -232,7 +232,7 @@ struct TextureBindingLayout:
     var multisampled: Bool
 
 
-struct SurfaceCapabilities:
+struct SurfaceCapabilities(Copyable, Movable):
     """
     TODO
     """
@@ -242,32 +242,35 @@ struct SurfaceCapabilities:
     fn __init__(out self, unsafe_ptr: _c.WGPUSurfaceCapabilities):
         self._handle = unsafe_ptr
 
-    fn __del__(owned self):
+    fn __moveinit__(out self, deinit rhs: Self):
+        self._handle = rhs._handle
+        rhs._handle = {}
+
+    fn __del__(deinit self):
         _c.surface_capabilities_free_members(self._handle)
 
     fn usages(self) -> TextureUsage:
         return self._handle.usages
 
-    fn formats(self) -> Span[TextureFormat, __origin_of(self)]:
-        return Span[TextureFormat, __origin_of(self)](
+    fn formats(self) -> Span[TextureFormat, origin_of(self)]:
+        return Span[TextureFormat, origin_of(self)](
             ptr=self._handle.formats, length=self._handle.format_count
         )
 
-    fn present_modes(self) -> Span[PresentMode, __origin_of(self)]:
-        return Span[PresentMode, __origin_of(self)](
+    fn present_modes(self) -> Span[PresentMode, origin_of(self)]:
+        return Span[PresentMode, origin_of(self)](
             ptr=self._handle.present_modes,
             length=self._handle.present_mode_count,
         )
 
-    fn alpha_modes(self) -> Span[CompositeAlphaMode, __origin_of(self)]:
-        return Span[CompositeAlphaMode, __origin_of(self)](
+    fn alpha_modes(self) -> Span[CompositeAlphaMode, origin_of(self)]:
+        return Span[CompositeAlphaMode, origin_of(self)](
             ptr=self._handle.alpha_modes,
             length=self._handle.alpha_mode_count,
         )
 
 
-@value
-struct SurfaceConfiguration:
+struct SurfaceConfiguration(Copyable, Movable):
     """
     TODO
     """
@@ -284,7 +287,7 @@ struct SurfaceConfiguration:
         out self,
         format: TextureFormat,
         usage: TextureUsage,
-        view_formats: List[TextureFormat],
+        var view_formats: List[TextureFormat],
         alpha_mode: CompositeAlphaMode,
         width: UInt32,
         height: UInt32,
@@ -292,15 +295,15 @@ struct SurfaceConfiguration:
     ):
         self.format = format
         self.usage = usage
-        self.view_formats = view_formats
+        self.view_formats = view_formats^
         self.alpha_mode = alpha_mode
         self.width = width
         self.height = height
         self.present_mode = present_mode
 
 
-@value
-struct StorageTextureBindingLayout:
+@fieldwise_init
+struct StorageTextureBindingLayout(Copyable, Movable):
     """
     TODO
     """
@@ -310,8 +313,8 @@ struct StorageTextureBindingLayout:
     var view_dimension: TextureViewDimension
 
 
-@value
-struct BindGroupLayoutEntry:
+@fieldwise_init
+struct BindGroupLayoutEntry(Copyable, Movable):
     """
     TODO
     """
@@ -322,30 +325,32 @@ struct BindGroupLayoutEntry:
     var count: UInt32
 
 
-@value
-struct BindGroupLayoutDescriptor[mut: Bool, //, origin: Origin[mut]]:
+@fieldwise_init
+struct BindGroupLayoutDescriptor[mut: Bool, //, origin: Origin[mut]](
+    Copyable, Movable
+):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var entries: Span[BindGroupLayoutEntry, origin]
 
 
-@value
-struct BufferDescriptor:
+@fieldwise_init
+struct BufferDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var usage: BufferUsage
     var size: UInt64
     var mapped_at_creation: Bool
 
 
-@value
-struct ConstantEntry:
+@fieldwise_init
+struct ConstantEntry(Copyable, Movable):
     """
     TODO
     """
@@ -354,26 +359,26 @@ struct ConstantEntry:
     var value: Float64
 
 
-@value
-struct CommandBufferDescriptor:
+@fieldwise_init
+struct CommandBufferDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
 
 
-@value
-struct CommandEncoderDescriptor:
+@fieldwise_init
+struct CommandEncoderDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
 
 
-@value
-struct WGPUCompilationInfo:
+@fieldwise_init
+struct WGPUCompilationInfo(Copyable, Movable):
     """
     TODO
     """
@@ -381,13 +386,13 @@ struct WGPUCompilationInfo:
     var messages: List[CompilationMessage]
 
 
-@value
-struct CompilationMessage:
+@fieldwise_init
+struct CompilationMessage(Copyable, Movable):
     """
     TODO
     """
 
-    var message: StringLiteral
+    var message: String
     var type: CompilationMessageType
     var line_num: UInt64
     var line_pos: UInt64
@@ -398,18 +403,18 @@ struct CompilationMessage:
     var utf16_length: UInt64
 
 
-@value
-struct ComputePassDescriptor:
+@fieldwise_init
+struct ComputePassDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var timestamp_writes: Optional[ComputePassTimestampWrites]
 
 
-@value
-struct ComputePassTimestampWrites:
+@fieldwise_init
+struct ComputePassTimestampWrites(Copyable, Movable):
     """
     TODO
     """
@@ -419,19 +424,19 @@ struct ComputePassTimestampWrites:
     var end_of_pass_write_index: UInt32
 
 
-@value
-struct ComputePipelineDescriptor:
+@fieldwise_init
+struct ComputePipelineDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var layout: ArcPointer[PipelineLayout]
     var compute: ProgrammableStageDescriptor
 
 
-@value
-struct ImageCopyBuffer[buf: ImmutableOrigin]:
+@fieldwise_init
+struct ImageCopyBuffer[buf: ImmutOrigin](Copyable, Movable):
     """
     TODO
     """
@@ -442,14 +447,14 @@ struct ImageCopyBuffer[buf: ImmutableOrigin]:
     fn __init__(
         out self,
         ref [buf]buffer: Buffer,
-        layout: TextureDataLayout = TextureDataLayout(),
+        var layout: TextureDataLayout = TextureDataLayout(),
     ):
-        self.buffer = Pointer.address_of(buffer)
-        self.layout = layout
+        self.buffer = Pointer(to=buffer)
+        self.layout = layout^
 
 
-@value
-struct ImageCopyTexture[tex: ImmutableOrigin]:
+@fieldwise_init
+struct ImageCopyTexture[tex: ImmutOrigin](Copyable, Movable):
     """
     TODO
     """
@@ -466,14 +471,16 @@ struct ImageCopyTexture[tex: ImmutableOrigin]:
         origin: Origin3D = Origin3D(),
         aspect: TextureAspect = TextureAspect.all,
     ):
-        self.texture = Pointer.address_of(texture)
+        self.texture = Pointer(to=texture)
         self.mip_level = mip_level
         self.origin = origin
         self.aspect = aspect
 
 
-@value
-struct VertexBufferLayout[mut: Bool, //, origin: Origin[mut]]:
+@fieldwise_init
+struct VertexBufferLayout[mut: Bool, //, origin: Origin[mut]](
+    Copyable, Movable
+):
     """
     TODO
     """
@@ -483,43 +490,42 @@ struct VertexBufferLayout[mut: Bool, //, origin: Origin[mut]]:
     var attributes: Span[VertexAttribute, origin]
 
 
-@value
+@fieldwise_init
 struct PipelineLayoutDescriptor[
     mut: Bool, //,
     origin: Origin[mut],
-]:
+](Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var bind_group_layouts: Span[ArcPointer[BindGroupLayout], origin]
 
 
-@value
-struct ProgrammableStageDescriptor:
+@fieldwise_init
+struct ProgrammableStageDescriptor(Copyable, Movable):
     """
     TODO
     """
 
     var module: ArcPointer[ShaderModule]
-    var entry_point: StringLiteral
+    var entry_point: String
     var constants: List[ConstantEntry]
 
 
-@value
-struct QuerySetDescriptor:
+@fieldwise_init
+struct QuerySetDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var type: QueryType
     var count: UInt32
 
 
-@value
-struct QueueDescriptor:
+struct QueueDescriptor(Copyable, Movable):
     """
     TODO
     """
@@ -530,22 +536,22 @@ struct QueueDescriptor:
         self.label = label
 
 
-@value
-struct RenderBundleDescriptor:
+@fieldwise_init
+struct RenderBundleDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
 
 
-@value
-struct RenderBundleEncoderDescriptor:
+@fieldwise_init
+struct RenderBundleEncoderDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var color_formats: List[TextureFormat]
     var depth_stencil_format: TextureFormat
     var sample_count: UInt32
@@ -553,8 +559,8 @@ struct RenderBundleEncoderDescriptor:
     var stencil_read_only: Bool
 
 
-@value
-struct RenderPassColorAttachment:
+@fieldwise_init
+struct RenderPassColorAttachment(Copyable, Movable):
     """
     TODO
     """
@@ -584,8 +590,8 @@ struct RenderPassColorAttachment:
         self.depth_slice = depth_slice
 
 
-@value
-struct RenderPassDepthStencilAttachment:
+@fieldwise_init
+struct RenderPassDepthStencilAttachment(Copyable, Movable):
     """
     TODO
     """
@@ -601,20 +607,20 @@ struct RenderPassDepthStencilAttachment:
     var stencil_read_only: Bool
 
 
-struct RenderPassDescriptor:
+struct RenderPassDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var color_attachments: List[RenderPassColorAttachment]
     var depth_stencil_attachment: Optional[RenderPassDepthStencilAttachment]
-    var occlusion_query_set: QuerySet
+    var occlusion_query_set: ArcPointer[QuerySet]
     var timestamp_writes: Optional[RenderPassTimestampWrites]
 
 
-@value
-struct RenderPassDescriptorMaxDrawCount:
+@fieldwise_init
+struct RenderPassDescriptorMaxDrawCount(Copyable, Movable):
     """
     TODO
     """
@@ -622,8 +628,8 @@ struct RenderPassDescriptorMaxDrawCount:
     var max_draw_count: UInt64
 
 
-@value
-struct RenderPassTimestampWrites:
+@fieldwise_init
+struct RenderPassTimestampWrites(Copyable, Movable):
     """
     TODO
     """
@@ -633,16 +639,15 @@ struct RenderPassTimestampWrites:
     var end_of_pass_write_index: UInt32
 
 
-@value
 struct VertexState[
     entry_mut: Bool,
     buf_mut: Bool,
     vbuf_mut: Bool, //,
-    mod: ImmutableOrigin,
+    mod: ImmutOrigin,
     entry: Origin[entry_mut],
     buf: Origin[buf_mut],
     vbuf: Origin[vbuf_mut],
-]:
+](Copyable, Movable):
     """
     TODO
     """
@@ -658,13 +663,12 @@ struct VertexState[
         entry_point: StringSlice[entry],
         buffers: Span[VertexBufferLayout[vbuf], buf],
     ):
-        self.module = Pointer.address_of(module)
+        self.module = Pointer(to=module)
         self.entry_point = entry_point
         self.buffers = buffers
 
 
-@value
-struct PrimitiveState:
+struct PrimitiveState(Copyable, Movable):
     """
     TODO
     """
@@ -688,8 +692,8 @@ struct PrimitiveState:
         self.cull_mode = cull_mode
 
 
-@value
-struct PrimitiveDepthClipControl:
+@fieldwise_init
+struct PrimitiveDepthClipControl(Copyable, Movable):
     """
     TODO
     """
@@ -697,8 +701,8 @@ struct PrimitiveDepthClipControl:
     var unclipped_depth: Bool
 
 
-@value
-struct DepthStencilState:
+@fieldwise_init
+struct DepthStencilState(Copyable, Movable):
     """
     TODO
     """
@@ -715,8 +719,7 @@ struct DepthStencilState:
     var depth_bias_clamp: Float32
 
 
-@value
-struct MultisampleState:
+struct MultisampleState(Copyable, Movable):
     """
     TODO
     """
@@ -737,14 +740,14 @@ struct MultisampleState:
         self.alpha_to_coverage_enabled = alpha_to_coverage_enabled
 
 
-@value
+@fieldwise_init
 struct FragmentState[
     entry_mut: Bool,
     tgt_mut: Bool, //,
-    mod: ImmutableOrigin,
+    mod: ImmutOrigin,
     entry: Origin[entry_mut],
     tgt: Origin[tgt_mut],
-]:
+](Copyable, Movable):
     """
     TODO
     """
@@ -762,14 +765,14 @@ struct FragmentState[
         # constants: Span[ConstantEntry],
         targets: Span[ColorTargetState, tgt],
     ):
-        self.module = Pointer.address_of(module)
+        self.module = Pointer(to=module)
         self.entry_point = entry_point
         # self.constants = constants
         self.targets = targets
 
 
-@value
-struct ColorTargetState:
+@fieldwise_init
+struct ColorTargetState(Copyable, Movable):
     """
     TODO
     """
@@ -779,7 +782,7 @@ struct ColorTargetState:
     var write_mask: ColorWriteMask
 
 
-@value
+@fieldwise_init
 struct RenderPipelineDescriptor[
     lyt_mut: Bool,
     ventry_mut: Bool,
@@ -788,19 +791,19 @@ struct RenderPipelineDescriptor[
     fentry_mut: Bool,
     tgt_mut: Bool, //,
     lyt: Origin[lyt_mut],
-    vmod: ImmutableOrigin,
+    vmod: ImmutOrigin,
     ventry: Origin[ventry_mut],
     buf: Origin[buf_mut],
     vbuf: Origin[vbuf_mut],
-    fmod: ImmutableOrigin,
+    fmod: ImmutOrigin,
     fentry: Origin[fentry_mut],
     tgt: Origin[tgt_mut],
-]:
+](Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var layout: Optional[Pointer[PipelineLayout, lyt]]
     var vertex: VertexState[vmod, ventry, buf, vbuf]
     var primitive: PrimitiveState
@@ -809,13 +812,13 @@ struct RenderPipelineDescriptor[
     var fragment: Optional[FragmentState[fmod, fentry, tgt]]
 
 
-@value
-struct SamplerDescriptor:
+@fieldwise_init
+struct SamplerDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var address_mode_u: AddressMode
     var address_mode_v: AddressMode
     var address_mode_w: AddressMode
@@ -828,37 +831,36 @@ struct SamplerDescriptor:
     var max_anisotropy: UInt16
 
 
-@value
-struct ShaderModuleDescriptor:
+@fieldwise_init
+struct ShaderModuleDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var hints: List[ShaderModuleCompilationHint]
 
 
-@value
-struct ShaderModuleCompilationHint:
+@fieldwise_init
+struct ShaderModuleCompilationHint(Copyable, Movable):
     """
     TODO
     """
 
-    var entry_point: StringLiteral
+    var entry_point: String
     var layout: ArcPointer[PipelineLayout]
 
 
-@value
-struct SurfaceDescriptor:
+@fieldwise_init
+struct SurfaceDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
 
 
-@value
-struct SurfaceTexture:
+struct SurfaceTexture(Copyable, Movable):
     """
     TODO
     """
@@ -879,12 +881,11 @@ struct SurfaceTexture:
         self.suboptimal = suboptimal
         self.status = status
 
-    fn __enter__(self) -> Self:
-        return self
+    fn __enter__(var self) -> Self:
+        return self^
 
 
-@value
-struct TextureDataLayout:
+struct TextureDataLayout(Copyable, Movable):
     """
     TODO
     """
@@ -904,12 +905,12 @@ struct TextureDataLayout:
         self.rows_per_image = rows_per_image
 
 
-struct TextureDescriptor:
+struct TextureDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var usage: TextureUsage
     var dimension: TextureDimension
     var size: Extent3D
@@ -919,13 +920,13 @@ struct TextureDescriptor:
     var view_formats: List[TextureFormat]
 
 
-@value
-struct TextureViewDescriptor:
+@fieldwise_init
+struct TextureViewDescriptor(Copyable, Movable):
     """
     TODO
     """
 
-    var label: StringLiteral
+    var label: String
     var format: TextureFormat
     var dimension: TextureViewDimension
     var base_mip_level: UInt32
@@ -935,8 +936,8 @@ struct TextureViewDescriptor:
     var aspect: TextureAspect
 
 
-@value
-struct UncapturedErrorCallbackInfo:
+@fieldwise_init
+struct UncapturedErrorCallbackInfo(Copyable, Movable):
     """
     TODO
     """

@@ -1,15 +1,10 @@
-from sys import ffi
-from memory import Span, UnsafePointer
+from sys.ffi import external_call
 from .enums import *
 from .bitflags import *
 from .constants import *
 
-var _wgpu = ffi.DLHandle("libwgpu_native.dylib", ffi.RTLD.LAZY)
-from memory import UnsafePointer
 
-
-@value
-struct ChainedStruct:
+struct ChainedStruct(Copyable, ImplicitlyCopyable, Movable):
     var next: UnsafePointer[Self]
     var s_type: SType
 
@@ -22,8 +17,7 @@ struct ChainedStruct:
         self.s_type = s_type
 
 
-@value
-struct ChainedStructOut:
+struct ChainedStructOut(Copyable, ImplicitlyCopyable, Movable):
     var next: UnsafePointer[Self]
     var s_type: SType
 
@@ -44,74 +38,53 @@ alias WGPUAdapter = UnsafePointer[_AdapterImpl]
 
 
 fn adapter_release(handle: WGPUAdapter):
-    _wgpu.get_function[fn (UnsafePointer[_AdapterImpl]) -> None](
-        "wgpuAdapterRelease"
-    )(handle)
-
-
-var _wgpuAdapterGetLimits = _wgpu.get_function[
-    fn (WGPUAdapter, UnsafePointer[WGPUSupportedLimits]) -> Bool
-]("wgpuAdapterGetLimits")
+    _ = external_call[
+        "wgpuAdapterRelease", NoneType, UnsafePointer[_AdapterImpl]
+    ](handle)
 
 
 fn adapter_get_limits(handle: WGPUAdapter, limits: WGPUSupportedLimits) -> Bool:
     """
     TODO
     """
-    return _wgpuAdapterGetLimits(handle, UnsafePointer.address_of(limits))
-
-
-var _wgpuAdapterHasFeature = _wgpu.get_function[
-    fn (WGPUAdapter, FeatureName) -> Bool
-]("wgpuAdapterHasFeature")
+    return external_call[
+        "wgpuAdapterGetLimits",
+        Bool,
+        WGPUAdapter,
+        UnsafePointer[WGPUSupportedLimits],
+    ](handle, UnsafePointer(to=limits))
 
 
 fn adapter_has_feature(handle: WGPUAdapter, feature: FeatureName) -> Bool:
     """
     TODO
     """
-    return _wgpuAdapterHasFeature(handle, feature)
-
-
-var _wgpuAdapterEnumerateFeatures = _wgpu.get_function[
-    fn (WGPUAdapter, FeatureName) -> UInt
-]("wgpuAdapterEnumerateFeatures")
+    return external_call[
+        "wgpuAdapterHasFeature", Bool, WGPUAdapter, FeatureName
+    ](handle, feature)
 
 
 fn adapter_enumerate_features(
     handle: WGPUAdapter, features: FeatureName
-) -> UInt:
+) -> Int:
     """
     TODO
     """
-    return _wgpuAdapterEnumerateFeatures(handle, features)
-
-
-var _wgpuAdapterGetInfo = _wgpu.get_function[
-    fn (WGPUAdapter, UnsafePointer[WGPUAdapterInfo]) -> None
-]("wgpuAdapterGetInfo")
+    return external_call[
+        "wgpuAdapterEnumerateFeatures", Int, WGPUAdapter, FeatureName
+    ](handle, features)
 
 
 fn adapter_get_info(handle: WGPUAdapter, info: WGPUAdapterInfo) -> None:
     """
     TODO
     """
-    return _wgpuAdapterGetInfo(handle, UnsafePointer.address_of(info))
-
-
-var _wgpuAdapterRequestDevice = _wgpu.get_function[
-    fn (
+    _ = external_call[
+        "wgpuAdapterGetInfo",
+        NoneType,
         WGPUAdapter,
-        UnsafePointer[WGPUDeviceDescriptor],
-        fn (
-            RequestDeviceStatus,
-            WGPUDevice,
-            UnsafePointer[Int8],
-            UnsafePointer[NoneType],
-        ) -> None,
-        UnsafePointer[NoneType],
-    ) -> None
-]("wgpuAdapterRequestDevice")
+        UnsafePointer[WGPUAdapterInfo],
+    ](handle, UnsafePointer(to=info))
 
 
 fn adapter_request_device(
@@ -128,9 +101,19 @@ fn adapter_request_device(
     """
     TODO
     """
-    return _wgpuAdapterRequestDevice(
-        handle, UnsafePointer[WGPUDeviceDescriptor](), callback, user_data
-    )
+    _ = external_call[
+        "wgpuAdapterRequestDevice",
+        NoneType,
+        WGPUAdapter,
+        UnsafePointer[WGPUDeviceDescriptor],
+        fn (
+            RequestDeviceStatus,
+            WGPUDevice,
+            UnsafePointer[Int8],
+            UnsafePointer[NoneType],
+        ) -> None,
+        UnsafePointer[NoneType],
+    ](handle, UnsafePointer(to=descriptor), callback, user_data)
 
 
 struct _BindGroupImpl:
@@ -141,14 +124,9 @@ alias WGPUBindGroup = UnsafePointer[_BindGroupImpl]
 
 
 fn bind_group_release(handle: WGPUBindGroup):
-    _wgpu.get_function[fn (UnsafePointer[_BindGroupImpl]) -> None](
-        "wgpuBindGroupRelease"
-    )(handle)
-
-
-var _wgpuBindGroupSetLabel = _wgpu.get_function[
-    fn (WGPUBindGroup, UnsafePointer[Int8]) -> None
-]("wgpuBindGroupSetLabel")
+    _ = external_call[
+        "wgpuBindGroupRelease", NoneType, UnsafePointer[_BindGroupImpl]
+    ](handle)
 
 
 fn bind_group_set_label(
@@ -157,7 +135,9 @@ fn bind_group_set_label(
     """
     TODO
     """
-    return _wgpuBindGroupSetLabel(handle, label)
+    _ = external_call[
+        "wgpuBindGroupSetLabel", NoneType, WGPUBindGroup, UnsafePointer[Int8]
+    ](handle, label)
 
 
 struct _BindGroupLayoutImpl:
@@ -168,14 +148,11 @@ alias WGPUBindGroupLayout = UnsafePointer[_BindGroupLayoutImpl]
 
 
 fn bind_group_layout_release(handle: WGPUBindGroupLayout):
-    _wgpu.get_function[fn (UnsafePointer[_BindGroupLayoutImpl]) -> None](
-        "wgpuBindGroupLayoutRelease"
-    )(handle)
-
-
-var _wgpuBindGroupLayoutSetLabel = _wgpu.get_function[
-    fn (WGPUBindGroupLayout, UnsafePointer[Int8]) -> None
-]("wgpuBindGroupLayoutSetLabel")
+    _ = external_call[
+        "wgpuBindGroupLayoutRelease",
+        NoneType,
+        UnsafePointer[_BindGroupLayoutImpl],
+    ](handle)
 
 
 fn bind_group_layout_set_label(
@@ -184,7 +161,12 @@ fn bind_group_layout_set_label(
     """
     TODO
     """
-    return _wgpuBindGroupLayoutSetLabel(handle, label)
+    _ = external_call[
+        "wgpuBindGroupLayoutSetLabel",
+        NoneType,
+        WGPUBindGroupLayout,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _BufferImpl:
@@ -195,80 +177,71 @@ alias WGPUBuffer = UnsafePointer[_BufferImpl]
 
 
 fn buffer_release(handle: WGPUBuffer):
-    _wgpu.get_function[fn (UnsafePointer[_BufferImpl]) -> None](
-        "wgpuBufferRelease"
-    )(handle)
-
-
-var _wgpuBufferMapAsync = _wgpu.get_function[
-    fn (
-        WGPUBuffer,
-        MapMode,
-        UInt,
-        UInt,
-        fn (BufferMapAsyncStatus, UnsafePointer[NoneType]) -> None,
-        UnsafePointer[NoneType],
-    ) -> None
-]("wgpuBufferMapAsync")
+    _ = external_call[
+        "wgpuBufferRelease", NoneType, UnsafePointer[_BufferImpl]
+    ](handle)
 
 
 fn buffer_map_async(
     handle: WGPUBuffer,
     mode: MapMode,
-    offset: UInt,
-    size: UInt,
+    offset: Int,
+    size: Int,
     callback: fn (BufferMapAsyncStatus, UnsafePointer[NoneType]) -> None,
     user_data: UnsafePointer[NoneType],
 ) -> None:
     """
     TODO
     """
-    return _wgpuBufferMapAsync(handle, mode, offset, size, callback, user_data)
-
-
-var _wgpuBufferGetMappedRange = _wgpu.get_function[
-    fn (WGPUBuffer, UInt, UInt) -> UnsafePointer[NoneType]
-]("wgpuBufferGetMappedRange")
+    _ = external_call[
+        "wgpuBufferMapAsync",
+        NoneType,
+        WGPUBuffer,
+        MapMode,
+        Int,
+        Int,
+        fn (BufferMapAsyncStatus, UnsafePointer[NoneType]) -> None,
+        UnsafePointer[NoneType],
+    ](handle, mode, offset, size, callback, user_data)
 
 
 fn buffer_get_mapped_range(
-    handle: WGPUBuffer, offset: UInt, size: UInt
+    handle: WGPUBuffer, offset: Int, size: Int
 ) -> UnsafePointer[NoneType]:
     """
     TODO
     """
-    return _wgpuBufferGetMappedRange(handle, offset, size)
-
-
-var _wgpuBufferGetConstMappedRange = _wgpu.get_function[
-    fn (WGPUBuffer, UInt, UInt) -> UnsafePointer[NoneType]
-]("wgpuBufferGetConstMappedRange")
+    return external_call[
+        "wgpuBufferGetMappedRange",
+        UnsafePointer[NoneType],
+        WGPUBuffer,
+        Int,
+        Int,
+    ](handle, offset, size)
 
 
 fn buffer_get_const_mapped_range(
-    handle: WGPUBuffer, offset: UInt, size: UInt
+    handle: WGPUBuffer, offset: Int, size: Int
 ) -> UnsafePointer[NoneType]:
     """
     TODO
     """
-    return _wgpuBufferGetConstMappedRange(handle, offset, size)
-
-
-var _wgpuBufferSetLabel = _wgpu.get_function[
-    fn (WGPUBuffer, UnsafePointer[Int8]) -> None
-]("wgpuBufferSetLabel")
+    return external_call[
+        "wgpuBufferGetConstMappedRange",
+        UnsafePointer[NoneType],
+        WGPUBuffer,
+        Int,
+        Int,
+    ](handle, offset, size)
 
 
 fn buffer_set_label(handle: WGPUBuffer, label: UnsafePointer[Int8]) -> None:
     """
     TODO
     """
-    return _wgpuBufferSetLabel(handle, label)
-
-
-var _wgpuBufferGetUsage = _wgpu.get_function[fn (WGPUBuffer,) -> BufferUsage](
-    "wgpuBufferGetUsage"
-)
+    _ = external_call[
+        "wgpuBufferSetLabel", NoneType, WGPUBuffer, UnsafePointer[Int8]
+    ](handle, label)
 
 
 fn buffer_get_usage(
@@ -277,14 +250,9 @@ fn buffer_get_usage(
     """
     TODO
     """
-    return _wgpuBufferGetUsage(
+    return external_call["wgpuBufferGetUsage", BufferUsage, WGPUBuffer,](
         handle,
     )
-
-
-var _wgpuBufferGetSize = _wgpu.get_function[fn (WGPUBuffer,) -> UInt64](
-    "wgpuBufferGetSize"
-)
 
 
 fn buffer_get_size(
@@ -293,14 +261,9 @@ fn buffer_get_size(
     """
     TODO
     """
-    return _wgpuBufferGetSize(
+    return external_call["wgpuBufferGetSize", UInt64, WGPUBuffer,](
         handle,
     )
-
-
-var _wgpuBufferGetMapState = _wgpu.get_function[
-    fn (WGPUBuffer,) -> BufferMapState
-]("wgpuBufferGetMapState")
 
 
 fn buffer_get_map_state(
@@ -309,14 +272,9 @@ fn buffer_get_map_state(
     """
     TODO
     """
-    return _wgpuBufferGetMapState(
+    return external_call["wgpuBufferGetMapState", BufferMapState, WGPUBuffer,](
         handle,
     )
-
-
-var _wgpuBufferUnmap = _wgpu.get_function[fn (WGPUBuffer,) -> None](
-    "wgpuBufferUnmap"
-)
 
 
 fn buffer_unmap(
@@ -325,14 +283,9 @@ fn buffer_unmap(
     """
     TODO
     """
-    return _wgpuBufferUnmap(
+    _ = external_call["wgpuBufferUnmap", NoneType, WGPUBuffer,](
         handle,
     )
-
-
-var _wgpuBufferDestroy = _wgpu.get_function[fn (WGPUBuffer,) -> None](
-    "wgpuBufferDestroy"
-)
 
 
 fn buffer_destroy(
@@ -341,7 +294,7 @@ fn buffer_destroy(
     """
     TODO
     """
-    return _wgpuBufferDestroy(
+    _ = external_call["wgpuBufferDestroy", NoneType, WGPUBuffer,](
         handle,
     )
 
@@ -354,14 +307,9 @@ alias WGPUCommandBuffer = UnsafePointer[_CommandBufferImpl]
 
 
 fn command_buffer_release(handle: WGPUCommandBuffer):
-    _wgpu.get_function[fn (UnsafePointer[_CommandBufferImpl]) -> None](
-        "wgpuCommandBufferRelease"
-    )(handle)
-
-
-var _wgpuCommandBufferSetLabel = _wgpu.get_function[
-    fn (WGPUCommandBuffer, UnsafePointer[Int8]) -> None
-]("wgpuCommandBufferSetLabel")
+    _ = external_call[
+        "wgpuCommandBufferRelease", NoneType, UnsafePointer[_CommandBufferImpl]
+    ](handle)
 
 
 fn command_buffer_set_label(
@@ -370,7 +318,12 @@ fn command_buffer_set_label(
     """
     TODO
     """
-    return _wgpuCommandBufferSetLabel(handle, label)
+    _ = external_call[
+        "wgpuCommandBufferSetLabel",
+        NoneType,
+        WGPUCommandBuffer,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _CommandEncoderImpl:
@@ -381,16 +334,11 @@ alias WGPUCommandEncoder = UnsafePointer[_CommandEncoderImpl]
 
 
 fn command_encoder_release(handle: WGPUCommandEncoder):
-    _wgpu.get_function[fn (UnsafePointer[_CommandEncoderImpl]) -> None](
-        "wgpuCommandEncoderRelease"
-    )(handle)
-
-
-var _wgpuCommandEncoderFinish = _wgpu.get_function[
-    fn (
-        WGPUCommandEncoder, UnsafePointer[WGPUCommandBufferDescriptor]
-    ) -> WGPUCommandBuffer
-]("wgpuCommandEncoderFinish")
+    _ = external_call[
+        "wgpuCommandEncoderRelease",
+        NoneType,
+        UnsafePointer[_CommandEncoderImpl],
+    ](handle)
 
 
 fn command_encoder_finish(
@@ -400,16 +348,12 @@ fn command_encoder_finish(
     """
     TODO
     """
-    return _wgpuCommandEncoderFinish(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuCommandEncoderBeginComputePass = _wgpu.get_function[
-    fn (
-        WGPUCommandEncoder, UnsafePointer[WGPUComputePassDescriptor]
-    ) -> WGPUComputePassEncoder
-]("wgpuCommandEncoderBeginComputePass")
+    return external_call[
+        "wgpuCommandEncoderFinish",
+        WGPUCommandBuffer,
+        WGPUCommandEncoder,
+        UnsafePointer[WGPUCommandBufferDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn command_encoder_begin_compute_pass(
@@ -419,16 +363,12 @@ fn command_encoder_begin_compute_pass(
     """
     TODO
     """
-    return _wgpuCommandEncoderBeginComputePass(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuCommandEncoderBeginRenderPass = _wgpu.get_function[
-    fn (
-        WGPUCommandEncoder, UnsafePointer[WGPURenderPassDescriptor]
-    ) -> WGPURenderPassEncoder
-]("wgpuCommandEncoderBeginRenderPass")
+    return external_call[
+        "wgpuCommandEncoderBeginComputePass",
+        WGPUComputePassEncoder,
+        WGPUCommandEncoder,
+        UnsafePointer[WGPUComputePassDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn command_encoder_begin_render_pass(
@@ -437,16 +377,12 @@ fn command_encoder_begin_render_pass(
     """
     TODO
     """
-    return _wgpuCommandEncoderBeginRenderPass(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuCommandEncoderCopyBufferToBuffer = _wgpu.get_function[
-    fn (
-        WGPUCommandEncoder, WGPUBuffer, UInt64, WGPUBuffer, UInt64, UInt64
-    ) -> None
-]("wgpuCommandEncoderCopyBufferToBuffer")
+    return external_call[
+        "wgpuCommandEncoderBeginRenderPass",
+        WGPURenderPassEncoder,
+        WGPUCommandEncoder,
+        UnsafePointer[WGPURenderPassDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn command_encoder_copy_buffer_to_buffer(
@@ -460,19 +396,16 @@ fn command_encoder_copy_buffer_to_buffer(
     """
     TODO
     """
-    return _wgpuCommandEncoderCopyBufferToBuffer(
-        handle, source, source_offset, destination, destination_offset, size
-    )
-
-
-var _wgpuCommandEncoderCopyBufferToTexture = _wgpu.get_function[
-    fn (
+    _ = external_call[
+        "wgpuCommandEncoderCopyBufferToBuffer",
+        NoneType,
         WGPUCommandEncoder,
-        UnsafePointer[WGPUImageCopyBuffer],
-        UnsafePointer[WGPUImageCopyTexture],
-        UnsafePointer[WGPUExtent3D],
-    ) -> None
-]("wgpuCommandEncoderCopyBufferToTexture")
+        WGPUBuffer,
+        UInt64,
+        WGPUBuffer,
+        UInt64,
+        UInt64,
+    ](handle, source, source_offset, destination, destination_offset, size)
 
 
 fn command_encoder_copy_buffer_to_texture(
@@ -484,22 +417,19 @@ fn command_encoder_copy_buffer_to_texture(
     """
     TODO
     """
-    return _wgpuCommandEncoderCopyBufferToTexture(
-        handle,
-        UnsafePointer.address_of(source),
-        UnsafePointer.address_of(destination),
-        UnsafePointer.address_of(copy_size),
-    )
-
-
-var _wgpuCommandEncoderCopyTextureToBuffer = _wgpu.get_function[
-    fn (
+    _ = external_call[
+        "wgpuCommandEncoderCopyBufferToTexture",
+        NoneType,
         WGPUCommandEncoder,
-        UnsafePointer[WGPUImageCopyTexture],
         UnsafePointer[WGPUImageCopyBuffer],
+        UnsafePointer[WGPUImageCopyTexture],
         UnsafePointer[WGPUExtent3D],
-    ) -> None
-]("wgpuCommandEncoderCopyTextureToBuffer")
+    ](
+        handle,
+        UnsafePointer(to=source),
+        UnsafePointer(to=destination),
+        UnsafePointer(to=copy_size),
+    )
 
 
 fn command_encoder_copy_texture_to_buffer(
@@ -511,22 +441,19 @@ fn command_encoder_copy_texture_to_buffer(
     """
     TODO
     """
-    return _wgpuCommandEncoderCopyTextureToBuffer(
-        handle,
-        UnsafePointer.address_of(source),
-        UnsafePointer.address_of(destination),
-        UnsafePointer.address_of(copy_size),
-    )
-
-
-var _wgpuCommandEncoderCopyTextureToTexture = _wgpu.get_function[
-    fn (
+    _ = external_call[
+        "wgpuCommandEncoderCopyTextureToBuffer",
+        NoneType,
         WGPUCommandEncoder,
         UnsafePointer[WGPUImageCopyTexture],
-        UnsafePointer[WGPUImageCopyTexture],
+        UnsafePointer[WGPUImageCopyBuffer],
         UnsafePointer[WGPUExtent3D],
-    ) -> None
-]("wgpuCommandEncoderCopyTextureToTexture")
+    ](
+        handle,
+        UnsafePointer(to=source),
+        UnsafePointer(to=destination),
+        UnsafePointer(to=copy_size),
+    )
 
 
 fn command_encoder_copy_texture_to_texture(
@@ -538,17 +465,19 @@ fn command_encoder_copy_texture_to_texture(
     """
     TODO
     """
-    return _wgpuCommandEncoderCopyTextureToTexture(
+    _ = external_call[
+        "wgpuCommandEncoderCopyTextureToTexture",
+        NoneType,
+        WGPUCommandEncoder,
+        UnsafePointer[WGPUImageCopyTexture],
+        UnsafePointer[WGPUImageCopyTexture],
+        UnsafePointer[WGPUExtent3D],
+    ](
         handle,
-        UnsafePointer.address_of(source),
-        UnsafePointer.address_of(destination),
-        UnsafePointer.address_of(copy_size),
+        UnsafePointer(to=source),
+        UnsafePointer(to=destination),
+        UnsafePointer(to=copy_size),
     )
-
-
-var _wgpuCommandEncoderClearBuffer = _wgpu.get_function[
-    fn (WGPUCommandEncoder, WGPUBuffer, UInt64, UInt64) -> None
-]("wgpuCommandEncoderClearBuffer")
 
 
 fn command_encoder_clear_buffer(
@@ -557,12 +486,14 @@ fn command_encoder_clear_buffer(
     """
     TODO
     """
-    return _wgpuCommandEncoderClearBuffer(handle, buffer, offset, size)
-
-
-var _wgpuCommandEncoderInsertDebugMarker = _wgpu.get_function[
-    fn (WGPUCommandEncoder, UnsafePointer[Int8]) -> None
-]("wgpuCommandEncoderInsertDebugMarker")
+    _ = external_call[
+        "wgpuCommandEncoderClearBuffer",
+        NoneType,
+        WGPUCommandEncoder,
+        WGPUBuffer,
+        UInt64,
+        UInt64,
+    ](handle, buffer, offset, size)
 
 
 fn command_encoder_insert_debug_marker(
@@ -571,12 +502,12 @@ fn command_encoder_insert_debug_marker(
     """
     TODO
     """
-    return _wgpuCommandEncoderInsertDebugMarker(handle, marker_label)
-
-
-var _wgpuCommandEncoderPopDebugGroup = _wgpu.get_function[
-    fn (WGPUCommandEncoder,) -> None
-]("wgpuCommandEncoderPopDebugGroup")
+    _ = external_call[
+        "wgpuCommandEncoderInsertDebugMarker",
+        NoneType,
+        WGPUCommandEncoder,
+        UnsafePointer[Int8],
+    ](handle, marker_label)
 
 
 fn command_encoder_pop_debug_group(
@@ -585,14 +516,13 @@ fn command_encoder_pop_debug_group(
     """
     TODO
     """
-    return _wgpuCommandEncoderPopDebugGroup(
+    _ = external_call[
+        "wgpuCommandEncoderPopDebugGroup",
+        NoneType,
+        WGPUCommandEncoder,
+    ](
         handle,
     )
-
-
-var _wgpuCommandEncoderPushDebugGroup = _wgpu.get_function[
-    fn (WGPUCommandEncoder, UnsafePointer[Int8]) -> None
-]("wgpuCommandEncoderPushDebugGroup")
 
 
 fn command_encoder_push_debug_group(
@@ -601,14 +531,12 @@ fn command_encoder_push_debug_group(
     """
     TODO
     """
-    return _wgpuCommandEncoderPushDebugGroup(handle, group_label)
-
-
-var _wgpuCommandEncoderResolveQuerySet = _wgpu.get_function[
-    fn (
-        WGPUCommandEncoder, WGPUQuerySet, UInt32, UInt32, WGPUBuffer, UInt64
-    ) -> None
-]("wgpuCommandEncoderResolveQuerySet")
+    _ = external_call[
+        "wgpuCommandEncoderPushDebugGroup",
+        NoneType,
+        WGPUCommandEncoder,
+        UnsafePointer[Int8],
+    ](handle, group_label)
 
 
 fn command_encoder_resolve_query_set(
@@ -622,7 +550,16 @@ fn command_encoder_resolve_query_set(
     """
     TODO
     """
-    return _wgpuCommandEncoderResolveQuerySet(
+    _ = external_call[
+        "wgpuCommandEncoderResolveQuerySet",
+        NoneType,
+        WGPUCommandEncoder,
+        WGPUQuerySet,
+        UInt32,
+        UInt32,
+        WGPUBuffer,
+        UInt64,
+    ](
         handle,
         query_set,
         first_query,
@@ -632,23 +569,19 @@ fn command_encoder_resolve_query_set(
     )
 
 
-var _wgpuCommandEncoderWriteTimestamp = _wgpu.get_function[
-    fn (WGPUCommandEncoder, WGPUQuerySet, UInt32) -> None
-]("wgpuCommandEncoderWriteTimestamp")
-
-
 fn command_encoder_write_timestamp(
     handle: WGPUCommandEncoder, query_set: WGPUQuerySet, query_index: UInt32
 ) -> None:
     """
     TODO
     """
-    return _wgpuCommandEncoderWriteTimestamp(handle, query_set, query_index)
-
-
-var _wgpuCommandEncoderSetLabel = _wgpu.get_function[
-    fn (WGPUCommandEncoder, UnsafePointer[Int8]) -> None
-]("wgpuCommandEncoderSetLabel")
+    _ = external_call[
+        "wgpuCommandEncoderWriteTimestamp",
+        NoneType,
+        WGPUCommandEncoder,
+        WGPUQuerySet,
+        UInt32,
+    ](handle, query_set, query_index)
 
 
 fn command_encoder_set_label(
@@ -657,7 +590,12 @@ fn command_encoder_set_label(
     """
     TODO
     """
-    return _wgpuCommandEncoderSetLabel(handle, label)
+    _ = external_call[
+        "wgpuCommandEncoderSetLabel",
+        NoneType,
+        WGPUCommandEncoder,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _ComputePassEncoderImpl:
@@ -668,14 +606,11 @@ alias WGPUComputePassEncoder = UnsafePointer[_ComputePassEncoderImpl]
 
 
 fn compute_pass_encoder_release(handle: WGPUComputePassEncoder):
-    _wgpu.get_function[fn (UnsafePointer[_ComputePassEncoderImpl]) -> None](
-        "wgpuComputePassEncoderRelease"
-    )(handle)
-
-
-var _wgpuComputePassEncoderInsertDebugMarker = _wgpu.get_function[
-    fn (WGPUComputePassEncoder, UnsafePointer[Int8]) -> None
-]("wgpuComputePassEncoderInsertDebugMarker")
+    _ = external_call[
+        "wgpuComputePassEncoderRelease",
+        NoneType,
+        UnsafePointer[_ComputePassEncoderImpl],
+    ](handle)
 
 
 fn compute_pass_encoder_insert_debug_marker(
@@ -684,12 +619,12 @@ fn compute_pass_encoder_insert_debug_marker(
     """
     TODO
     """
-    return _wgpuComputePassEncoderInsertDebugMarker(handle, marker_label)
-
-
-var _wgpuComputePassEncoderPopDebugGroup = _wgpu.get_function[
-    fn (WGPUComputePassEncoder,) -> None
-]("wgpuComputePassEncoderPopDebugGroup")
+    _ = external_call[
+        "wgpuComputePassEncoderInsertDebugMarker",
+        NoneType,
+        WGPUComputePassEncoder,
+        UnsafePointer[Int8],
+    ](handle, marker_label)
 
 
 fn compute_pass_encoder_pop_debug_group(
@@ -698,14 +633,13 @@ fn compute_pass_encoder_pop_debug_group(
     """
     TODO
     """
-    return _wgpuComputePassEncoderPopDebugGroup(
+    _ = external_call[
+        "wgpuComputePassEncoderPopDebugGroup",
+        NoneType,
+        WGPUComputePassEncoder,
+    ](
         handle,
     )
-
-
-var _wgpuComputePassEncoderPushDebugGroup = _wgpu.get_function[
-    fn (WGPUComputePassEncoder, UnsafePointer[Int8]) -> None
-]("wgpuComputePassEncoderPushDebugGroup")
 
 
 fn compute_pass_encoder_push_debug_group(
@@ -714,12 +648,12 @@ fn compute_pass_encoder_push_debug_group(
     """
     TODO
     """
-    return _wgpuComputePassEncoderPushDebugGroup(handle, group_label)
-
-
-var _wgpuComputePassEncoderSetPipeline = _wgpu.get_function[
-    fn (WGPUComputePassEncoder, WGPUComputePipeline) -> None
-]("wgpuComputePassEncoderSetPipeline")
+    _ = external_call[
+        "wgpuComputePassEncoderPushDebugGroup",
+        NoneType,
+        WGPUComputePassEncoder,
+        UnsafePointer[Int8],
+    ](handle, group_label)
 
 
 fn compute_pass_encoder_set_pipeline(
@@ -728,18 +662,12 @@ fn compute_pass_encoder_set_pipeline(
     """
     TODO
     """
-    return _wgpuComputePassEncoderSetPipeline(handle, pipeline)
-
-
-var _wgpuComputePassEncoderSetBindGroup = _wgpu.get_function[
-    fn (
+    _ = external_call[
+        "wgpuComputePassEncoderSetPipeline",
+        NoneType,
         WGPUComputePassEncoder,
-        UInt32,
-        WGPUBindGroup,
-        Int32,
-        UnsafePointer[UInt32],
-    ) -> None
-]("wgpuComputePassEncoderSetBindGroup")
+        WGPUComputePipeline,
+    ](handle, pipeline)
 
 
 fn compute_pass_encoder_set_bind_group(
@@ -752,14 +680,15 @@ fn compute_pass_encoder_set_bind_group(
     """
     TODO
     """
-    return _wgpuComputePassEncoderSetBindGroup(
-        handle, group_index, group, dynamic_offset_count, dynamic_offsets
-    )
-
-
-var _wgpuComputePassEncoderDispatchWorkgroups = _wgpu.get_function[
-    fn (WGPUComputePassEncoder, UInt32, UInt32, UInt32) -> None
-]("wgpuComputePassEncoderDispatchWorkgroups")
+    _ = external_call[
+        "wgpuComputePassEncoderSetBindGroup",
+        NoneType,
+        WGPUComputePassEncoder,
+        UInt32,
+        WGPUBindGroup,
+        Int32,
+        UnsafePointer[UInt32],
+    ](handle, group_index, group, dynamic_offset_count, dynamic_offsets)
 
 
 fn compute_pass_encoder_dispatch_workgroups(
@@ -771,14 +700,14 @@ fn compute_pass_encoder_dispatch_workgroups(
     """
     TODO
     """
-    return _wgpuComputePassEncoderDispatchWorkgroups(
-        handle, workgroupCountX, workgroupCountY, workgroupCountZ
-    )
-
-
-var _wgpuComputePassEncoderDispatchWorkgroupsIndirect = _wgpu.get_function[
-    fn (WGPUComputePassEncoder, WGPUBuffer, UInt64) -> None
-]("wgpuComputePassEncoderDispatchWorkgroupsIndirect")
+    _ = external_call[
+        "wgpuComputePassEncoderDispatchWorkgroups",
+        NoneType,
+        WGPUComputePassEncoder,
+        UInt32,
+        UInt32,
+        UInt32,
+    ](handle, workgroupCountX, workgroupCountY, workgroupCountZ)
 
 
 fn compute_pass_encoder_dispatch_workgroups_indirect(
@@ -789,14 +718,13 @@ fn compute_pass_encoder_dispatch_workgroups_indirect(
     """
     TODO
     """
-    return _wgpuComputePassEncoderDispatchWorkgroupsIndirect(
-        handle, indirect_buffer, indirect_offset
-    )
-
-
-var _wgpuComputePassEncoderEnd = _wgpu.get_function[
-    fn (WGPUComputePassEncoder,) -> None
-]("wgpuComputePassEncoderEnd")
+    _ = external_call[
+        "wgpuComputePassEncoderDispatchWorkgroupsIndirect",
+        NoneType,
+        WGPUComputePassEncoder,
+        WGPUBuffer,
+        UInt64,
+    ](handle, indirect_buffer, indirect_offset)
 
 
 fn compute_pass_encoder_end(
@@ -805,14 +733,13 @@ fn compute_pass_encoder_end(
     """
     TODO
     """
-    return _wgpuComputePassEncoderEnd(
+    _ = external_call[
+        "wgpuComputePassEncoderEnd",
+        NoneType,
+        WGPUComputePassEncoder,
+    ](
         handle,
     )
-
-
-var _wgpuComputePassEncoderSetLabel = _wgpu.get_function[
-    fn (WGPUComputePassEncoder, UnsafePointer[Int8]) -> None
-]("wgpuComputePassEncoderSetLabel")
 
 
 fn compute_pass_encoder_set_label(
@@ -821,7 +748,12 @@ fn compute_pass_encoder_set_label(
     """
     TODO
     """
-    return _wgpuComputePassEncoderSetLabel(handle, label)
+    _ = external_call[
+        "wgpuComputePassEncoderSetLabel",
+        NoneType,
+        WGPUComputePassEncoder,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _ComputePipelineImpl:
@@ -832,14 +764,11 @@ alias WGPUComputePipeline = UnsafePointer[_ComputePipelineImpl]
 
 
 fn compute_pipeline_release(handle: WGPUComputePipeline):
-    _wgpu.get_function[fn (UnsafePointer[_ComputePipelineImpl]) -> None](
-        "wgpuComputePipelineRelease"
-    )(handle)
-
-
-var _wgpuComputePipelineGetBindGroupLayout = _wgpu.get_function[
-    fn (WGPUComputePipeline, UInt32) -> WGPUBindGroupLayout
-]("wgpuComputePipelineGetBindGroupLayout")
+    _ = external_call[
+        "wgpuComputePipelineRelease",
+        NoneType,
+        UnsafePointer[_ComputePipelineImpl],
+    ](handle)
 
 
 fn compute_pipeline_get_bind_group_layout(
@@ -848,12 +777,12 @@ fn compute_pipeline_get_bind_group_layout(
     """
     TODO
     """
-    return _wgpuComputePipelineGetBindGroupLayout(handle, group_index)
-
-
-var _wgpuComputePipelineSetLabel = _wgpu.get_function[
-    fn (WGPUComputePipeline, UnsafePointer[Int8]) -> None
-]("wgpuComputePipelineSetLabel")
+    return external_call[
+        "wgpuComputePipelineGetBindGroupLayout",
+        WGPUBindGroupLayout,
+        WGPUComputePipeline,
+        UInt32,
+    ](handle, group_index)
 
 
 fn compute_pipeline_set_label(
@@ -862,7 +791,12 @@ fn compute_pipeline_set_label(
     """
     TODO
     """
-    return _wgpuComputePipelineSetLabel(handle, label)
+    _ = external_call[
+        "wgpuComputePipelineSetLabel",
+        NoneType,
+        WGPUComputePipeline,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _DeviceImpl:
@@ -873,14 +807,9 @@ alias WGPUDevice = UnsafePointer[_DeviceImpl]
 
 
 fn device_release(handle: WGPUDevice):
-    _wgpu.get_function[fn (UnsafePointer[_DeviceImpl]) -> None](
-        "wgpuDeviceRelease"
-    )(handle)
-
-
-var _wgpuDeviceCreateBindGroup = _wgpu.get_function[
-    fn (WGPUDevice, UnsafePointer[WGPUBindGroupDescriptor]) -> WGPUBindGroup
-]("wgpuDeviceCreateBindGroup")
+    _ = external_call[
+        "wgpuDeviceRelease", NoneType, UnsafePointer[_DeviceImpl]
+    ](handle)
 
 
 fn device_create_bind_group(
@@ -889,16 +818,12 @@ fn device_create_bind_group(
     """
     TODO
     """
-    return _wgpuDeviceCreateBindGroup(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceCreateBindGroupLayout = _wgpu.get_function[
-    fn (
-        WGPUDevice, UnsafePointer[WGPUBindGroupLayoutDescriptor]
-    ) -> WGPUBindGroupLayout
-]("wgpuDeviceCreateBindGroupLayout")
+    return external_call[
+        "wgpuDeviceCreateBindGroup",
+        WGPUBindGroup,
+        WGPUDevice,
+        UnsafePointer[WGPUBindGroupDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_bind_group_layout(
@@ -907,14 +832,12 @@ fn device_create_bind_group_layout(
     """
     TODO
     """
-    return _wgpuDeviceCreateBindGroupLayout(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceCreateBuffer = _wgpu.get_function[
-    fn (WGPUDevice, UnsafePointer[WGPUBufferDescriptor]) -> WGPUBuffer
-]("wgpuDeviceCreateBuffer")
+    return external_call[
+        "wgpuDeviceCreateBindGroupLayout",
+        WGPUBindGroupLayout,
+        WGPUDevice,
+        UnsafePointer[WGPUBindGroupLayoutDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_buffer(
@@ -923,14 +846,12 @@ fn device_create_buffer(
     """
     TODO
     """
-    return _wgpuDeviceCreateBuffer(handle, UnsafePointer.address_of(descriptor))
-
-
-var _wgpuDeviceCreateCommandEncoder = _wgpu.get_function[
-    fn (
-        WGPUDevice, UnsafePointer[WGPUCommandEncoderDescriptor]
-    ) -> WGPUCommandEncoder
-]("wgpuDeviceCreateCommandEncoder")
+    return external_call[
+        "wgpuDeviceCreateBuffer",
+        WGPUBuffer,
+        WGPUDevice,
+        UnsafePointer[WGPUBufferDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_command_encoder(
@@ -940,16 +861,12 @@ fn device_create_command_encoder(
     """
     TODO
     """
-    return _wgpuDeviceCreateCommandEncoder(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceCreateComputePipeline = _wgpu.get_function[
-    fn (
-        WGPUDevice, UnsafePointer[WGPUComputePipelineDescriptor]
-    ) -> WGPUComputePipeline
-]("wgpuDeviceCreateComputePipeline")
+    return external_call[
+        "wgpuDeviceCreateCommandEncoder",
+        WGPUCommandEncoder,
+        WGPUDevice,
+        UnsafePointer[WGPUCommandEncoderDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_compute_pipeline(
@@ -958,24 +875,12 @@ fn device_create_compute_pipeline(
     """
     TODO
     """
-    return _wgpuDeviceCreateComputePipeline(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceCreateComputePipelineAsync = _wgpu.get_function[
-    fn (
+    return external_call[
+        "wgpuDeviceCreateComputePipeline",
+        WGPUComputePipeline,
         WGPUDevice,
         UnsafePointer[WGPUComputePipelineDescriptor],
-        fn (
-            CreatePipelineAsyncStatus,
-            WGPUComputePipeline,
-            UnsafePointer[Int8],
-            UnsafePointer[NoneType],
-        ) -> None,
-        UnsafePointer[NoneType],
-    ) -> None
-]("wgpuDeviceCreateComputePipelineAsync")
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_compute_pipeline_async(
@@ -992,16 +897,19 @@ fn device_create_compute_pipeline_async(
     """
     TODO
     """
-    return _wgpuDeviceCreateComputePipelineAsync(
-        handle, UnsafePointer.address_of(descriptor), callback, user_data
-    )
-
-
-var _wgpuDeviceCreatePipelineLayout = _wgpu.get_function[
-    fn (
-        WGPUDevice, UnsafePointer[WGPUPipelineLayoutDescriptor]
-    ) -> WGPUPipelineLayout
-]("wgpuDeviceCreatePipelineLayout")
+    _ = external_call[
+        "wgpuDeviceCreateComputePipelineAsync",
+        NoneType,
+        WGPUDevice,
+        UnsafePointer[WGPUComputePipelineDescriptor],
+        fn (
+            CreatePipelineAsyncStatus,
+            WGPUComputePipeline,
+            UnsafePointer[Int8],
+            UnsafePointer[NoneType],
+        ) -> None,
+        UnsafePointer[NoneType],
+    ](handle, UnsafePointer(to=descriptor), callback, user_data)
 
 
 fn device_create_pipeline_layout(
@@ -1010,14 +918,12 @@ fn device_create_pipeline_layout(
     """
     TODO
     """
-    return _wgpuDeviceCreatePipelineLayout(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceCreateQuerySet = _wgpu.get_function[
-    fn (WGPUDevice, UnsafePointer[WGPUQuerySetDescriptor]) -> WGPUQuerySet
-]("wgpuDeviceCreateQuerySet")
+    return external_call[
+        "wgpuDeviceCreatePipelineLayout",
+        WGPUPipelineLayout,
+        WGPUDevice,
+        UnsafePointer[WGPUPipelineLayoutDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_query_set(
@@ -1026,24 +932,12 @@ fn device_create_query_set(
     """
     TODO
     """
-    return _wgpuDeviceCreateQuerySet(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceCreateRenderPipelineAsync = _wgpu.get_function[
-    fn (
+    return external_call[
+        "wgpuDeviceCreateQuerySet",
+        WGPUQuerySet,
         WGPUDevice,
-        UnsafePointer[WGPURenderPipelineDescriptor],
-        fn (
-            CreatePipelineAsyncStatus,
-            WGPURenderPipeline,
-            UnsafePointer[Int8],
-            UnsafePointer[NoneType],
-        ) -> None,
-        UnsafePointer[NoneType],
-    ) -> None
-]("wgpuDeviceCreateRenderPipelineAsync")
+        UnsafePointer[WGPUQuerySetDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_render_pipeline_async(
@@ -1060,16 +954,19 @@ fn device_create_render_pipeline_async(
     """
     TODO
     """
-    return _wgpuDeviceCreateRenderPipelineAsync(
-        handle, UnsafePointer.address_of(descriptor), callback, user_data
-    )
-
-
-var _wgpuDeviceCreateRenderBundleEncoder = _wgpu.get_function[
-    fn (
-        WGPUDevice, UnsafePointer[WGPURenderBundleEncoderDescriptor]
-    ) -> WGPURenderBundleEncoder
-]("wgpuDeviceCreateRenderBundleEncoder")
+    _ = external_call[
+        "wgpuDeviceCreateRenderPipelineAsync",
+        NoneType,
+        WGPUDevice,
+        UnsafePointer[WGPURenderPipelineDescriptor],
+        fn (
+            CreatePipelineAsyncStatus,
+            WGPURenderPipeline,
+            UnsafePointer[Int8],
+            UnsafePointer[NoneType],
+        ) -> None,
+        UnsafePointer[NoneType],
+    ](handle, UnsafePointer(to=descriptor), callback, user_data)
 
 
 fn device_create_render_bundle_encoder(
@@ -1078,16 +975,12 @@ fn device_create_render_bundle_encoder(
     """
     TODO
     """
-    return _wgpuDeviceCreateRenderBundleEncoder(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceCreateRenderPipeline = _wgpu.get_function[
-    fn (
-        WGPUDevice, UnsafePointer[WGPURenderPipelineDescriptor]
-    ) -> WGPURenderPipeline
-]("wgpuDeviceCreateRenderPipeline")
+    return external_call[
+        "wgpuDeviceCreateRenderBundleEncoder",
+        WGPURenderBundleEncoder,
+        WGPUDevice,
+        UnsafePointer[WGPURenderBundleEncoderDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_render_pipeline(
@@ -1096,14 +989,12 @@ fn device_create_render_pipeline(
     """
     TODO
     """
-    return _wgpuDeviceCreateRenderPipeline(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceCreateSampler = _wgpu.get_function[
-    fn (WGPUDevice, UnsafePointer[WGPUSamplerDescriptor]) -> WGPUSampler
-]("wgpuDeviceCreateSampler")
+    return external_call[
+        "wgpuDeviceCreateRenderPipeline",
+        WGPURenderPipeline,
+        WGPUDevice,
+        UnsafePointer[WGPURenderPipelineDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_sampler(
@@ -1113,16 +1004,12 @@ fn device_create_sampler(
     """
     TODO
     """
-    return _wgpuDeviceCreateSampler(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceCreateShaderModule = _wgpu.get_function[
-    fn (
-        WGPUDevice, UnsafePointer[WGPUShaderModuleDescriptor]
-    ) -> WGPUShaderModule
-]("wgpuDeviceCreateShaderModule")
+    return external_call[
+        "wgpuDeviceCreateSampler",
+        WGPUSampler,
+        WGPUDevice,
+        UnsafePointer[WGPUSamplerDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_shader_module(
@@ -1131,14 +1018,12 @@ fn device_create_shader_module(
     """
     TODO
     """
-    return _wgpuDeviceCreateShaderModule(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceCreateTexture = _wgpu.get_function[
-    fn (WGPUDevice, UnsafePointer[WGPUTextureDescriptor]) -> WGPUTexture
-]("wgpuDeviceCreateTexture")
+    return external_call[
+        "wgpuDeviceCreateShaderModule",
+        WGPUShaderModule,
+        WGPUDevice,
+        UnsafePointer[WGPUShaderModuleDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_create_texture(
@@ -1147,14 +1032,12 @@ fn device_create_texture(
     """
     TODO
     """
-    return _wgpuDeviceCreateTexture(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuDeviceDestroy = _wgpu.get_function[fn (WGPUDevice,) -> None](
-    "wgpuDeviceDestroy"
-)
+    return external_call[
+        "wgpuDeviceCreateTexture",
+        WGPUTexture,
+        WGPUDevice,
+        UnsafePointer[WGPUTextureDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn device_destroy(
@@ -1163,50 +1046,39 @@ fn device_destroy(
     """
     TODO
     """
-    return _wgpuDeviceDestroy(
+    _ = external_call["wgpuDeviceDestroy", NoneType, WGPUDevice,](
         handle,
     )
-
-
-var _wgpuDeviceGetLimits = _wgpu.get_function[
-    fn (WGPUDevice, UnsafePointer[WGPUSupportedLimits]) -> Bool
-]("wgpuDeviceGetLimits")
 
 
 fn device_get_limits(handle: WGPUDevice, limits: WGPUSupportedLimits) -> Bool:
     """
     TODO
     """
-    return _wgpuDeviceGetLimits(handle, UnsafePointer.address_of(limits))
-
-
-var _wgpuDeviceHasFeature = _wgpu.get_function[
-    fn (WGPUDevice, FeatureName) -> Bool
-]("wgpuDeviceHasFeature")
+    return external_call[
+        "wgpuDeviceGetLimits",
+        Bool,
+        WGPUDevice,
+        UnsafePointer[WGPUSupportedLimits],
+    ](handle, UnsafePointer(to=limits))
 
 
 fn device_has_feature(handle: WGPUDevice, feature: FeatureName) -> Bool:
     """
     TODO
     """
-    return _wgpuDeviceHasFeature(handle, feature)
+    return external_call["wgpuDeviceHasFeature", Bool, WGPUDevice, FeatureName](
+        handle, feature
+    )
 
 
-var _wgpuDeviceEnumerateFeatures = _wgpu.get_function[
-    fn (WGPUDevice, FeatureName) -> UInt
-]("wgpuDeviceEnumerateFeatures")
-
-
-fn device_enumerate_features(handle: WGPUDevice, features: FeatureName) -> UInt:
+fn device_enumerate_features(handle: WGPUDevice, features: FeatureName) -> Int:
     """
     TODO
     """
-    return _wgpuDeviceEnumerateFeatures(handle, features)
-
-
-var _wgpuDeviceGetQueue = _wgpu.get_function[fn (WGPUDevice,) -> WGPUQueue](
-    "wgpuDeviceGetQueue"
-)
+    return external_call[
+        "wgpuDeviceEnumerateFeatures", Int, WGPUDevice, FeatureName
+    ](handle, features)
 
 
 fn device_get_queue(
@@ -1215,26 +1087,18 @@ fn device_get_queue(
     """
     TODO
     """
-    return _wgpuDeviceGetQueue(
+    return external_call["wgpuDeviceGetQueue", WGPUQueue, WGPUDevice,](
         handle,
     )
-
-
-var _wgpuDevicePushErrorScope = _wgpu.get_function[
-    fn (WGPUDevice, ErrorFilter) -> None
-]("wgpuDevicePushErrorScope")
 
 
 fn device_push_error_scope(handle: WGPUDevice, filter: ErrorFilter) -> None:
     """
     TODO
     """
-    return _wgpuDevicePushErrorScope(handle, filter)
-
-
-var _wgpuDevicePopErrorScope = _wgpu.get_function[
-    fn (WGPUDevice, ErrorCallback, UnsafePointer[NoneType]) -> None
-]("wgpuDevicePopErrorScope")
+    _ = external_call[
+        "wgpuDevicePushErrorScope", NoneType, WGPUDevice, ErrorFilter
+    ](handle, filter)
 
 
 fn device_pop_error_scope(
@@ -1245,19 +1109,22 @@ fn device_pop_error_scope(
     """
     TODO
     """
-    return _wgpuDevicePopErrorScope(handle, callback, userdata)
-
-
-var _wgpuDeviceSetLabel = _wgpu.get_function[
-    fn (WGPUDevice, UnsafePointer[Int8]) -> None
-]("wgpuDeviceSetLabel")
+    _ = external_call[
+        "wgpuDevicePopErrorScope",
+        NoneType,
+        WGPUDevice,
+        ErrorCallback,
+        UnsafePointer[NoneType],
+    ](handle, callback, userdata)
 
 
 fn device_set_label(handle: WGPUDevice, label: UnsafePointer[Int8]) -> None:
     """
     TODO
     """
-    return _wgpuDeviceSetLabel(handle, label)
+    _ = external_call[
+        "wgpuDeviceSetLabel", NoneType, WGPUDevice, UnsafePointer[Int8]
+    ](handle, label)
 
 
 struct _InstanceImpl:
@@ -1268,14 +1135,9 @@ alias WGPUInstance = UnsafePointer[_InstanceImpl]
 
 
 fn instance_release(handle: WGPUInstance):
-    _wgpu.get_function[fn (UnsafePointer[_InstanceImpl]) -> None](
-        "wgpuInstanceRelease"
-    )(handle)
-
-
-var _wgpuInstanceCreateSurface = _wgpu.get_function[
-    fn (WGPUInstance, UnsafePointer[WGPUSurfaceDescriptor]) -> WGPUSurface
-]("wgpuInstanceCreateSurface")
+    _ = external_call[
+        "wgpuInstanceRelease", NoneType, UnsafePointer[_InstanceImpl]
+    ](handle)
 
 
 fn instance_create_surface(
@@ -1284,14 +1146,12 @@ fn instance_create_surface(
     """
     TODO
     """
-    return _wgpuInstanceCreateSurface(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuInstanceHasWgslLanguageFeature = _wgpu.get_function[
-    fn (WGPUInstance, WgslFeatureName) -> Bool
-]("wgpuInstanceHasWgslLanguageFeature")
+    return external_call[
+        "wgpuInstanceCreateSurface",
+        WGPUSurface,
+        WGPUInstance,
+        UnsafePointer[WGPUSurfaceDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn instance_has_WGSL_language_feature(
@@ -1300,12 +1160,12 @@ fn instance_has_WGSL_language_feature(
     """
     TODO
     """
-    return _wgpuInstanceHasWgslLanguageFeature(handle, feature)
-
-
-var _wgpuInstanceProcessEvents = _wgpu.get_function[fn (WGPUInstance,) -> None](
-    "wgpuInstanceProcessEvents"
-)
+    return external_call[
+        "wgpuInstanceHasWgslLanguageFeature",
+        Bool,
+        WGPUInstance,
+        WgslFeatureName,
+    ](handle, feature)
 
 
 fn instance_process_events(
@@ -1314,24 +1174,9 @@ fn instance_process_events(
     """
     TODO
     """
-    return _wgpuInstanceProcessEvents(
+    _ = external_call["wgpuInstanceProcessEvents", NoneType, WGPUInstance,](
         handle,
     )
-
-
-var _wgpuInstanceRequestAdapter = _wgpu.get_function[
-    fn (
-        WGPUInstance,
-        UnsafePointer[WGPURequestAdapterOptions],
-        fn (
-            RequestAdapterStatus,
-            WGPUAdapter,
-            UnsafePointer[Int8],
-            UnsafePointer[NoneType],
-        ) -> None,
-        UnsafePointer[NoneType],
-    ) -> None
-]("wgpuInstanceRequestAdapter")
 
 
 fn instance_request_adapter(
@@ -1348,9 +1193,19 @@ fn instance_request_adapter(
     """
     TODO
     """
-    return _wgpuInstanceRequestAdapter(
-        handle, UnsafePointer.address_of(options), callback, user_data
-    )
+    _ = external_call[
+        "wgpuInstanceRequestAdapter",
+        NoneType,
+        WGPUInstance,
+        UnsafePointer[WGPURequestAdapterOptions],
+        fn (
+            RequestAdapterStatus,
+            WGPUAdapter,
+            UnsafePointer[Int8],
+            UnsafePointer[NoneType],
+        ) -> None,
+        UnsafePointer[NoneType],
+    ](handle, UnsafePointer(to=options), callback, user_data)
 
 
 struct _PipelineLayoutImpl:
@@ -1361,14 +1216,11 @@ alias WGPUPipelineLayout = UnsafePointer[_PipelineLayoutImpl]
 
 
 fn pipeline_layout_release(handle: WGPUPipelineLayout):
-    _wgpu.get_function[fn (UnsafePointer[_PipelineLayoutImpl]) -> None](
-        "wgpuPipelineLayoutRelease"
-    )(handle)
-
-
-var _wgpuPipelineLayoutSetLabel = _wgpu.get_function[
-    fn (WGPUPipelineLayout, UnsafePointer[Int8]) -> None
-]("wgpuPipelineLayoutSetLabel")
+    _ = external_call[
+        "wgpuPipelineLayoutRelease",
+        NoneType,
+        UnsafePointer[_PipelineLayoutImpl],
+    ](handle)
 
 
 fn pipeline_layout_set_label(
@@ -1377,7 +1229,12 @@ fn pipeline_layout_set_label(
     """
     TODO
     """
-    return _wgpuPipelineLayoutSetLabel(handle, label)
+    _ = external_call[
+        "wgpuPipelineLayoutSetLabel",
+        NoneType,
+        WGPUPipelineLayout,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _QuerySetImpl:
@@ -1388,14 +1245,9 @@ alias WGPUQuerySet = UnsafePointer[_QuerySetImpl]
 
 
 fn query_set_release(handle: WGPUQuerySet):
-    _wgpu.get_function[fn (UnsafePointer[_QuerySetImpl]) -> None](
-        "wgpuQuerySetRelease"
-    )(handle)
-
-
-var _wgpuQuerySetSetLabel = _wgpu.get_function[
-    fn (WGPUQuerySet, UnsafePointer[Int8]) -> None
-]("wgpuQuerySetSetLabel")
+    _ = external_call[
+        "wgpuQuerySetRelease", NoneType, UnsafePointer[_QuerySetImpl]
+    ](handle)
 
 
 fn query_set_set_label(
@@ -1404,12 +1256,9 @@ fn query_set_set_label(
     """
     TODO
     """
-    return _wgpuQuerySetSetLabel(handle, label)
-
-
-var _wgpuQuerySetGetType = _wgpu.get_function[fn (WGPUQuerySet,) -> QueryType](
-    "wgpuQuerySetGetType"
-)
+    _ = external_call[
+        "wgpuQuerySetSetLabel", NoneType, WGPUQuerySet, UnsafePointer[Int8]
+    ](handle, label)
 
 
 fn query_set_get_type(
@@ -1418,14 +1267,9 @@ fn query_set_get_type(
     """
     TODO
     """
-    return _wgpuQuerySetGetType(
+    return external_call["wgpuQuerySetGetType", QueryType, WGPUQuerySet,](
         handle,
     )
-
-
-var _wgpuQuerySetGetCount = _wgpu.get_function[fn (WGPUQuerySet,) -> UInt32](
-    "wgpuQuerySetGetCount"
-)
 
 
 fn query_set_get_count(
@@ -1434,14 +1278,9 @@ fn query_set_get_count(
     """
     TODO
     """
-    return _wgpuQuerySetGetCount(
+    return external_call["wgpuQuerySetGetCount", UInt32, WGPUQuerySet,](
         handle,
     )
-
-
-var _wgpuQuerySetDestroy = _wgpu.get_function[fn (WGPUQuerySet,) -> None](
-    "wgpuQuerySetDestroy"
-)
 
 
 fn query_set_destroy(
@@ -1450,7 +1289,7 @@ fn query_set_destroy(
     """
     TODO
     """
-    return _wgpuQuerySetDestroy(
+    _ = external_call["wgpuQuerySetDestroy", NoneType, WGPUQuerySet,](
         handle,
     )
 
@@ -1463,14 +1302,9 @@ alias WGPUQueue = UnsafePointer[_QueueImpl]
 
 
 fn queue_release(handle: WGPUQueue):
-    _wgpu.get_function[fn (UnsafePointer[_QueueImpl]) -> None](
-        "wgpuQueueRelease"
-    )(handle)
-
-
-var _wgpuQueueSubmit = _wgpu.get_function[
-    fn (WGPUQueue, Int32, UnsafePointer[WGPUCommandBuffer]) -> None
-]("wgpuQueueSubmit")
+    _ = external_call["wgpuQueueRelease", NoneType, UnsafePointer[_QueueImpl]](
+        handle
+    )
 
 
 fn queue_submit(
@@ -1481,16 +1315,13 @@ fn queue_submit(
     """
     TODO
     """
-    return _wgpuQueueSubmit(handle, command_count, commands)
-
-
-var _wgpuQueueOnSubmittedWorkDone = _wgpu.get_function[
-    fn (
+    _ = external_call[
+        "wgpuQueueSubmit",
+        NoneType,
         WGPUQueue,
-        fn (QueueWorkDoneStatus, UnsafePointer[NoneType]) -> None,
-        UnsafePointer[NoneType],
-    ) -> None
-]("wgpuQueueOnSubmittedWorkDone")
+        Int32,
+        UnsafePointer[WGPUCommandBuffer],
+    ](handle, command_count, commands)
 
 
 fn queue_on_submitted_work_done(
@@ -1501,70 +1332,73 @@ fn queue_on_submitted_work_done(
     """
     TODO
     """
-    return _wgpuQueueOnSubmittedWorkDone(handle, callback, user_data)
-
-
-var _wgpuQueueWriteBuffer = _wgpu.get_function[
-    fn (WGPUQueue, WGPUBuffer, UInt64, UnsafePointer[UInt8], UInt) -> None
-]("wgpuQueueWriteBuffer")
+    _ = external_call[
+        "wgpuQueueOnSubmittedWorkDone",
+        NoneType,
+        WGPUQueue,
+        fn (QueueWorkDoneStatus, UnsafePointer[NoneType]) -> None,
+        UnsafePointer[NoneType],
+    ](handle, callback, user_data)
 
 
 fn queue_write_buffer(
     handle: WGPUQueue,
     buffer: WGPUBuffer,
     buffer_offset: UInt64,
-    data: UnsafePointer[UInt8],
-    size: UInt,
+    data: UnsafePointer[NoneType],
+    size: Int,
 ) -> None:
     """
     TODO
     """
-    return _wgpuQueueWriteBuffer(handle, buffer, buffer_offset, data, size)
-
-
-var _wgpuQueueWriteTexture = _wgpu.get_function[
-    fn (
+    _ = external_call[
+        "wgpuQueueWriteBuffer",
+        NoneType,
         WGPUQueue,
-        UnsafePointer[WGPUImageCopyTexture],
+        WGPUBuffer,
+        UInt64,
         UnsafePointer[NoneType],
-        UInt,
-        UnsafePointer[WGPUTextureDataLayout],
-        UnsafePointer[WGPUExtent3D],
-    ) -> None
-]("wgpuQueueWriteTexture")
+        Int,
+    ](handle, buffer, buffer_offset, data, size)
 
 
 fn queue_write_texture(
     handle: WGPUQueue,
     destination: WGPUImageCopyTexture,
     data: UnsafePointer[NoneType],
-    data_size: UInt,
+    data_size: Int,
     data_layout: WGPUTextureDataLayout,
     write_size: WGPUExtent3D,
 ) -> None:
     """
     TODO
     """
-    return _wgpuQueueWriteTexture(
+    _ = external_call[
+        "wgpuQueueWriteTexture",
+        NoneType,
+        WGPUQueue,
+        UnsafePointer[WGPUImageCopyTexture],
+        UnsafePointer[NoneType],
+        Int,
+        UnsafePointer[WGPUTextureDataLayout],
+        UnsafePointer[WGPUExtent3D],
+    ](
         handle,
-        UnsafePointer.address_of(destination),
+        UnsafePointer(to=destination),
         data,
         data_size,
-        UnsafePointer.address_of(data_layout),
-        UnsafePointer.address_of(write_size),
+        UnsafePointer(to=data_layout),
+        UnsafePointer(to=write_size),
     )
-
-
-var _wgpuQueueSetLabel = _wgpu.get_function[
-    fn (WGPUQueue, UnsafePointer[Int8]) -> None
-]("wgpuQueueSetLabel")
 
 
 fn queue_set_label(handle: WGPUQueue, label: UnsafePointer[Int8]) -> None:
     """
     TODO
     """
-    return _wgpuQueueSetLabel(handle, label)
+    _ = external_call[
+        "wgpuQueueSetLabel", NoneType, WGPUQueue, UnsafePointer[Int8]
+    ](handle, label)
 
 
 struct _RenderBundleImpl:
@@ -1575,14 +1409,9 @@ alias WGPURenderBundle = UnsafePointer[_RenderBundleImpl]
 
 
 fn render_bundle_release(handle: WGPURenderBundle):
-    _wgpu.get_function[fn (UnsafePointer[_RenderBundleImpl]) -> None](
-        "wgpuRenderBundleRelease"
-    )(handle)
-
-
-var _wgpuRenderBundleSetLabel = _wgpu.get_function[
-    fn (WGPURenderBundle, UnsafePointer[Int8]) -> None
-]("wgpuRenderBundleSetLabel")
+    _ = external_call[
+        "wgpuRenderBundleRelease", NoneType, UnsafePointer[_RenderBundleImpl]
+    ](handle)
 
 
 fn render_bundle_set_label(
@@ -1591,7 +1420,12 @@ fn render_bundle_set_label(
     """
     TODO
     """
-    return _wgpuRenderBundleSetLabel(handle, label)
+    _ = external_call[
+        "wgpuRenderBundleSetLabel",
+        NoneType,
+        WGPURenderBundle,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _RenderBundleEncoderImpl:
@@ -1602,14 +1436,11 @@ alias WGPURenderBundleEncoder = UnsafePointer[_RenderBundleEncoderImpl]
 
 
 fn render_bundle_encoder_release(handle: WGPURenderBundleEncoder):
-    _wgpu.get_function[fn (UnsafePointer[_RenderBundleEncoderImpl]) -> None](
-        "wgpuRenderBundleEncoderRelease"
-    )(handle)
-
-
-var _wgpuRenderBundleEncoderSetPipeline = _wgpu.get_function[
-    fn (WGPURenderBundleEncoder, WGPURenderPipeline) -> None
-]("wgpuRenderBundleEncoderSetPipeline")
+    _ = external_call[
+        "wgpuRenderBundleEncoderRelease",
+        NoneType,
+        UnsafePointer[_RenderBundleEncoderImpl],
+    ](handle)
 
 
 fn render_bundle_encoder_set_pipeline(
@@ -1618,18 +1449,12 @@ fn render_bundle_encoder_set_pipeline(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderSetPipeline(handle, pipeline)
-
-
-var _wgpuRenderBundleEncoderSetBindGroup = _wgpu.get_function[
-    fn (
+    _ = external_call[
+        "wgpuRenderBundleEncoderSetPipeline",
+        NoneType,
         WGPURenderBundleEncoder,
-        UInt32,
-        WGPUBindGroup,
-        Int32,
-        UnsafePointer[UInt32],
-    ) -> None
-]("wgpuRenderBundleEncoderSetBindGroup")
+        WGPURenderPipeline,
+    ](handle, pipeline)
 
 
 fn render_bundle_encoder_set_bind_group(
@@ -1642,14 +1467,15 @@ fn render_bundle_encoder_set_bind_group(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderSetBindGroup(
-        handle, group_index, group, dynamic_offset_count, dynamic_offsets
-    )
-
-
-var _wgpuRenderBundleEncoderDraw = _wgpu.get_function[
-    fn (WGPURenderBundleEncoder, UInt32, UInt32, UInt32, UInt32) -> None
-]("wgpuRenderBundleEncoderDraw")
+    _ = external_call[
+        "wgpuRenderBundleEncoderSetBindGroup",
+        NoneType,
+        WGPURenderBundleEncoder,
+        UInt32,
+        WGPUBindGroup,
+        Int32,
+        UnsafePointer[UInt32],
+    ](handle, group_index, group, dynamic_offset_count, dynamic_offsets)
 
 
 fn render_bundle_encoder_draw(
@@ -1662,14 +1488,15 @@ fn render_bundle_encoder_draw(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderDraw(
-        handle, vertex_count, instance_count, first_vertex, first_instance
-    )
-
-
-var _wgpuRenderBundleEncoderDrawIndexed = _wgpu.get_function[
-    fn (WGPURenderBundleEncoder, UInt32, UInt32, UInt32, Int32, UInt32) -> None
-]("wgpuRenderBundleEncoderDrawIndexed")
+    _ = external_call[
+        "wgpuRenderBundleEncoderDraw",
+        NoneType,
+        WGPURenderBundleEncoder,
+        UInt32,
+        UInt32,
+        UInt32,
+        UInt32,
+    ](handle, vertex_count, instance_count, first_vertex, first_instance)
 
 
 fn render_bundle_encoder_draw_indexed(
@@ -1683,7 +1510,16 @@ fn render_bundle_encoder_draw_indexed(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderDrawIndexed(
+    _ = external_call[
+        "wgpuRenderBundleEncoderDrawIndexed",
+        NoneType,
+        WGPURenderBundleEncoder,
+        UInt32,
+        UInt32,
+        UInt32,
+        Int32,
+        UInt32,
+    ](
         handle,
         index_count,
         instance_count,
@@ -1691,11 +1527,6 @@ fn render_bundle_encoder_draw_indexed(
         base_vertex,
         first_instance,
     )
-
-
-var _wgpuRenderBundleEncoderDrawIndirect = _wgpu.get_function[
-    fn (WGPURenderBundleEncoder, WGPUBuffer, UInt64) -> None
-]("wgpuRenderBundleEncoderDrawIndirect")
 
 
 fn render_bundle_encoder_draw_indirect(
@@ -1706,14 +1537,13 @@ fn render_bundle_encoder_draw_indirect(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderDrawIndirect(
-        handle, indirect_buffer, indirect_offset
-    )
-
-
-var _wgpuRenderBundleEncoderDrawIndexedIndirect = _wgpu.get_function[
-    fn (WGPURenderBundleEncoder, WGPUBuffer, UInt64) -> None
-]("wgpuRenderBundleEncoderDrawIndexedIndirect")
+    _ = external_call[
+        "wgpuRenderBundleEncoderDrawIndirect",
+        NoneType,
+        WGPURenderBundleEncoder,
+        WGPUBuffer,
+        UInt64,
+    ](handle, indirect_buffer, indirect_offset)
 
 
 fn render_bundle_encoder_draw_indexed_indirect(
@@ -1724,14 +1554,13 @@ fn render_bundle_encoder_draw_indexed_indirect(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderDrawIndexedIndirect(
-        handle, indirect_buffer, indirect_offset
-    )
-
-
-var _wgpuRenderBundleEncoderInsertDebugMarker = _wgpu.get_function[
-    fn (WGPURenderBundleEncoder, UnsafePointer[Int8]) -> None
-]("wgpuRenderBundleEncoderInsertDebugMarker")
+    _ = external_call[
+        "wgpuRenderBundleEncoderDrawIndexedIndirect",
+        NoneType,
+        WGPURenderBundleEncoder,
+        WGPUBuffer,
+        UInt64,
+    ](handle, indirect_buffer, indirect_offset)
 
 
 fn render_bundle_encoder_insert_debug_marker(
@@ -1740,12 +1569,12 @@ fn render_bundle_encoder_insert_debug_marker(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderInsertDebugMarker(handle, marker_label)
-
-
-var _wgpuRenderBundleEncoderPopDebugGroup = _wgpu.get_function[
-    fn (WGPURenderBundleEncoder,) -> None
-]("wgpuRenderBundleEncoderPopDebugGroup")
+    _ = external_call[
+        "wgpuRenderBundleEncoderInsertDebugMarker",
+        NoneType,
+        WGPURenderBundleEncoder,
+        UnsafePointer[Int8],
+    ](handle, marker_label)
 
 
 fn render_bundle_encoder_pop_debug_group(
@@ -1754,14 +1583,13 @@ fn render_bundle_encoder_pop_debug_group(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderPopDebugGroup(
+    _ = external_call[
+        "wgpuRenderBundleEncoderPopDebugGroup",
+        NoneType,
+        WGPURenderBundleEncoder,
+    ](
         handle,
     )
-
-
-var _wgpuRenderBundleEncoderPushDebugGroup = _wgpu.get_function[
-    fn (WGPURenderBundleEncoder, UnsafePointer[Int8]) -> None
-]("wgpuRenderBundleEncoderPushDebugGroup")
 
 
 fn render_bundle_encoder_push_debug_group(
@@ -1770,12 +1598,12 @@ fn render_bundle_encoder_push_debug_group(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderPushDebugGroup(handle, group_label)
-
-
-var _wgpuRenderBundleEncoderSetVertexBuffer = _wgpu.get_function[
-    fn (WGPURenderBundleEncoder, UInt32, WGPUBuffer, UInt64, UInt64) -> None
-]("wgpuRenderBundleEncoderSetVertexBuffer")
+    _ = external_call[
+        "wgpuRenderBundleEncoderPushDebugGroup",
+        NoneType,
+        WGPURenderBundleEncoder,
+        UnsafePointer[Int8],
+    ](handle, group_label)
 
 
 fn render_bundle_encoder_set_vertex_buffer(
@@ -1788,16 +1616,15 @@ fn render_bundle_encoder_set_vertex_buffer(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderSetVertexBuffer(
-        handle, slot, buffer, offset, size
-    )
-
-
-var _wgpuRenderBundleEncoderSetIndexBuffer = _wgpu.get_function[
-    fn (
-        WGPURenderBundleEncoder, WGPUBuffer, IndexFormat, UInt64, UInt64
-    ) -> None
-]("wgpuRenderBundleEncoderSetIndexBuffer")
+    _ = external_call[
+        "wgpuRenderBundleEncoderSetVertexBuffer",
+        NoneType,
+        WGPURenderBundleEncoder,
+        UInt32,
+        WGPUBuffer,
+        UInt64,
+        UInt64,
+    ](handle, slot, buffer, offset, size)
 
 
 fn render_bundle_encoder_set_index_buffer(
@@ -1810,16 +1637,15 @@ fn render_bundle_encoder_set_index_buffer(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderSetIndexBuffer(
-        handle, buffer, format, offset, size
-    )
-
-
-var _wgpuRenderBundleEncoderFinish = _wgpu.get_function[
-    fn (
-        WGPURenderBundleEncoder, UnsafePointer[WGPURenderBundleDescriptor]
-    ) -> WGPURenderBundle
-]("wgpuRenderBundleEncoderFinish")
+    _ = external_call[
+        "wgpuRenderBundleEncoderSetIndexBuffer",
+        NoneType,
+        WGPURenderBundleEncoder,
+        WGPUBuffer,
+        IndexFormat,
+        UInt64,
+        UInt64,
+    ](handle, buffer, format, offset, size)
 
 
 fn render_bundle_encoder_finish(
@@ -1829,14 +1655,12 @@ fn render_bundle_encoder_finish(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderFinish(
-        handle, UnsafePointer.address_of(descriptor)
-    )
-
-
-var _wgpuRenderBundleEncoderSetLabel = _wgpu.get_function[
-    fn (WGPURenderBundleEncoder, UnsafePointer[Int8]) -> None
-]("wgpuRenderBundleEncoderSetLabel")
+    return external_call[
+        "wgpuRenderBundleEncoderFinish",
+        WGPURenderBundle,
+        WGPURenderBundleEncoder,
+        UnsafePointer[WGPURenderBundleDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn render_bundle_encoder_set_label(
@@ -1845,7 +1669,12 @@ fn render_bundle_encoder_set_label(
     """
     TODO
     """
-    return _wgpuRenderBundleEncoderSetLabel(handle, label)
+    _ = external_call[
+        "wgpuRenderBundleEncoderSetLabel",
+        NoneType,
+        WGPURenderBundleEncoder,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _RenderPassEncoderImpl:
@@ -1856,14 +1685,11 @@ alias WGPURenderPassEncoder = UnsafePointer[_RenderPassEncoderImpl]
 
 
 fn render_pass_encoder_release(handle: WGPURenderPassEncoder):
-    _wgpu.get_function[fn (UnsafePointer[_RenderPassEncoderImpl]) -> None](
-        "wgpuRenderPassEncoderRelease"
-    )(handle)
-
-
-var _wgpuRenderPassEncoderSetPipeline = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, WGPURenderPipeline) -> None
-]("wgpuRenderPassEncoderSetPipeline")
+    _ = external_call[
+        "wgpuRenderPassEncoderRelease",
+        NoneType,
+        UnsafePointer[_RenderPassEncoderImpl],
+    ](handle)
 
 
 fn render_pass_encoder_set_pipeline(
@@ -1872,18 +1698,12 @@ fn render_pass_encoder_set_pipeline(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderSetPipeline(handle, pipeline)
-
-
-var _wgpuRenderPassEncoderSetBindGroup = _wgpu.get_function[
-    fn (
+    _ = external_call[
+        "wgpuRenderPassEncoderSetPipeline",
+        NoneType,
         WGPURenderPassEncoder,
-        UInt32,
-        WGPUBindGroup,
-        Int32,
-        UnsafePointer[UInt32],
-    ) -> None
-]("wgpuRenderPassEncoderSetBindGroup")
+        WGPURenderPipeline,
+    ](handle, pipeline)
 
 
 fn render_pass_encoder_set_bind_group(
@@ -1896,14 +1716,15 @@ fn render_pass_encoder_set_bind_group(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderSetBindGroup(
-        handle, group_index, group, dynamic_offset_count, dynamic_offsets
-    )
-
-
-var _wgpuRenderPassEncoderDraw = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, UInt32, UInt32, UInt32, UInt32) -> None
-]("wgpuRenderPassEncoderDraw")
+    _ = external_call[
+        "wgpuRenderPassEncoderSetBindGroup",
+        NoneType,
+        WGPURenderPassEncoder,
+        UInt32,
+        WGPUBindGroup,
+        Int32,
+        UnsafePointer[UInt32],
+    ](handle, group_index, group, dynamic_offset_count, dynamic_offsets)
 
 
 fn render_pass_encoder_draw(
@@ -1916,14 +1737,15 @@ fn render_pass_encoder_draw(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderDraw(
-        handle, vertex_count, instance_count, first_vertex, first_instance
-    )
-
-
-var _wgpuRenderPassEncoderDrawIndexed = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, UInt32, UInt32, UInt32, Int32, UInt32) -> None
-]("wgpuRenderPassEncoderDrawIndexed")
+    _ = external_call[
+        "wgpuRenderPassEncoderDraw",
+        NoneType,
+        WGPURenderPassEncoder,
+        UInt32,
+        UInt32,
+        UInt32,
+        UInt32,
+    ](handle, vertex_count, instance_count, first_vertex, first_instance)
 
 
 fn render_pass_encoder_draw_indexed(
@@ -1937,7 +1759,16 @@ fn render_pass_encoder_draw_indexed(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderDrawIndexed(
+    _ = external_call[
+        "wgpuRenderPassEncoderDrawIndexed",
+        NoneType,
+        WGPURenderPassEncoder,
+        UInt32,
+        UInt32,
+        UInt32,
+        Int32,
+        UInt32,
+    ](
         handle,
         index_count,
         instance_count,
@@ -1945,11 +1776,6 @@ fn render_pass_encoder_draw_indexed(
         base_vertex,
         first_instance,
     )
-
-
-var _wgpuRenderPassEncoderDrawIndirect = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, WGPUBuffer, UInt64) -> None
-]("wgpuRenderPassEncoderDrawIndirect")
 
 
 fn render_pass_encoder_draw_indirect(
@@ -1960,14 +1786,13 @@ fn render_pass_encoder_draw_indirect(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderDrawIndirect(
-        handle, indirect_buffer, indirect_offset
-    )
-
-
-var _wgpuRenderPassEncoderDrawIndexedIndirect = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, WGPUBuffer, UInt64) -> None
-]("wgpuRenderPassEncoderDrawIndexedIndirect")
+    _ = external_call[
+        "wgpuRenderPassEncoderDrawIndirect",
+        NoneType,
+        WGPURenderPassEncoder,
+        WGPUBuffer,
+        UInt64,
+    ](handle, indirect_buffer, indirect_offset)
 
 
 fn render_pass_encoder_draw_indexed_indirect(
@@ -1978,14 +1803,13 @@ fn render_pass_encoder_draw_indexed_indirect(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderDrawIndexedIndirect(
-        handle, indirect_buffer, indirect_offset
-    )
-
-
-var _wgpuRenderPassEncoderExecuteBundles = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, Int32, UnsafePointer[WGPURenderBundle]) -> None
-]("wgpuRenderPassEncoderExecuteBundles")
+    _ = external_call[
+        "wgpuRenderPassEncoderDrawIndexedIndirect",
+        NoneType,
+        WGPURenderPassEncoder,
+        WGPUBuffer,
+        UInt64,
+    ](handle, indirect_buffer, indirect_offset)
 
 
 fn render_pass_encoder_execute_bundles(
@@ -1996,12 +1820,13 @@ fn render_pass_encoder_execute_bundles(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderExecuteBundles(handle, bundle_count, bundles)
-
-
-var _wgpuRenderPassEncoderInsertDebugMarker = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, UnsafePointer[Int8]) -> None
-]("wgpuRenderPassEncoderInsertDebugMarker")
+    _ = external_call[
+        "wgpuRenderPassEncoderExecuteBundles",
+        NoneType,
+        WGPURenderPassEncoder,
+        Int32,
+        UnsafePointer[WGPURenderBundle],
+    ](handle, bundle_count, bundles)
 
 
 fn render_pass_encoder_insert_debug_marker(
@@ -2010,12 +1835,12 @@ fn render_pass_encoder_insert_debug_marker(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderInsertDebugMarker(handle, marker_label)
-
-
-var _wgpuRenderPassEncoderPopDebugGroup = _wgpu.get_function[
-    fn (WGPURenderPassEncoder,) -> None
-]("wgpuRenderPassEncoderPopDebugGroup")
+    _ = external_call[
+        "wgpuRenderPassEncoderInsertDebugMarker",
+        NoneType,
+        WGPURenderPassEncoder,
+        UnsafePointer[Int8],
+    ](handle, marker_label)
 
 
 fn render_pass_encoder_pop_debug_group(
@@ -2024,14 +1849,13 @@ fn render_pass_encoder_pop_debug_group(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderPopDebugGroup(
+    _ = external_call[
+        "wgpuRenderPassEncoderPopDebugGroup",
+        NoneType,
+        WGPURenderPassEncoder,
+    ](
         handle,
     )
-
-
-var _wgpuRenderPassEncoderPushDebugGroup = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, UnsafePointer[Int8]) -> None
-]("wgpuRenderPassEncoderPushDebugGroup")
 
 
 fn render_pass_encoder_push_debug_group(
@@ -2040,12 +1864,12 @@ fn render_pass_encoder_push_debug_group(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderPushDebugGroup(handle, group_label)
-
-
-var _wgpuRenderPassEncoderSetStencilReference = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, UInt32) -> None
-]("wgpuRenderPassEncoderSetStencilReference")
+    _ = external_call[
+        "wgpuRenderPassEncoderPushDebugGroup",
+        NoneType,
+        WGPURenderPassEncoder,
+        UnsafePointer[Int8],
+    ](handle, group_label)
 
 
 fn render_pass_encoder_set_stencil_reference(
@@ -2054,12 +1878,12 @@ fn render_pass_encoder_set_stencil_reference(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderSetStencilReference(handle, reference)
-
-
-var _wgpuRenderPassEncoderSetBlendConstant = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, UnsafePointer[WGPUColor]) -> None
-]("wgpuRenderPassEncoderSetBlendConstant")
+    _ = external_call[
+        "wgpuRenderPassEncoderSetStencilReference",
+        NoneType,
+        WGPURenderPassEncoder,
+        UInt32,
+    ](handle, reference)
 
 
 fn render_pass_encoder_set_blend_constant(
@@ -2068,22 +1892,12 @@ fn render_pass_encoder_set_blend_constant(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderSetBlendConstant(
-        handle, UnsafePointer.address_of(color)
-    )
-
-
-var _wgpuRenderPassEncoderSetViewport = _wgpu.get_function[
-    fn (
+    _ = external_call[
+        "wgpuRenderPassEncoderSetBlendConstant",
+        NoneType,
         WGPURenderPassEncoder,
-        Float32,
-        Float32,
-        Float32,
-        Float32,
-        Float32,
-        Float32,
-    ) -> None
-]("wgpuRenderPassEncoderSetViewport")
+        UnsafePointer[WGPUColor],
+    ](handle, UnsafePointer(to=color))
 
 
 fn render_pass_encoder_set_viewport(
@@ -2098,14 +1912,17 @@ fn render_pass_encoder_set_viewport(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderSetViewport(
-        handle, x, y, width, height, min_depth, max_depth
-    )
-
-
-var _wgpuRenderPassEncoderSetScissorRect = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, UInt32, UInt32, UInt32, UInt32) -> None
-]("wgpuRenderPassEncoderSetScissorRect")
+    _ = external_call[
+        "wgpuRenderPassEncoderSetViewport",
+        NoneType,
+        WGPURenderPassEncoder,
+        Float32,
+        Float32,
+        Float32,
+        Float32,
+        Float32,
+        Float32,
+    ](handle, x, y, width, height, min_depth, max_depth)
 
 
 fn render_pass_encoder_set_scissor_rect(
@@ -2118,12 +1935,15 @@ fn render_pass_encoder_set_scissor_rect(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderSetScissorRect(handle, x, y, width, height)
-
-
-var _wgpuRenderPassEncoderSetVertexBuffer = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, UInt32, WGPUBuffer, UInt64, UInt64) -> None
-]("wgpuRenderPassEncoderSetVertexBuffer")
+    _ = external_call[
+        "wgpuRenderPassEncoderSetScissorRect",
+        NoneType,
+        WGPURenderPassEncoder,
+        UInt32,
+        UInt32,
+        UInt32,
+        UInt32,
+    ](handle, x, y, width, height)
 
 
 fn render_pass_encoder_set_vertex_buffer(
@@ -2136,14 +1956,15 @@ fn render_pass_encoder_set_vertex_buffer(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderSetVertexBuffer(
-        handle, slot, buffer, offset, size
-    )
-
-
-var _wgpuRenderPassEncoderSetIndexBuffer = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, WGPUBuffer, IndexFormat, UInt64, UInt64) -> None
-]("wgpuRenderPassEncoderSetIndexBuffer")
+    _ = external_call[
+        "wgpuRenderPassEncoderSetVertexBuffer",
+        NoneType,
+        WGPURenderPassEncoder,
+        UInt32,
+        WGPUBuffer,
+        UInt64,
+        UInt64,
+    ](handle, slot, buffer, offset, size)
 
 
 fn render_pass_encoder_set_index_buffer(
@@ -2156,14 +1977,15 @@ fn render_pass_encoder_set_index_buffer(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderSetIndexBuffer(
-        handle, buffer, format, offset, size
-    )
-
-
-var _wgpuRenderPassEncoderBeginOcclusionQuery = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, UInt32) -> None
-]("wgpuRenderPassEncoderBeginOcclusionQuery")
+    _ = external_call[
+        "wgpuRenderPassEncoderSetIndexBuffer",
+        NoneType,
+        WGPURenderPassEncoder,
+        WGPUBuffer,
+        IndexFormat,
+        UInt64,
+        UInt64,
+    ](handle, buffer, format, offset, size)
 
 
 fn render_pass_encoder_begin_occlusion_query(
@@ -2172,12 +1994,12 @@ fn render_pass_encoder_begin_occlusion_query(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderBeginOcclusionQuery(handle, query_index)
-
-
-var _wgpuRenderPassEncoderEndOcclusionQuery = _wgpu.get_function[
-    fn (WGPURenderPassEncoder,) -> None
-]("wgpuRenderPassEncoderEndOcclusionQuery")
+    _ = external_call[
+        "wgpuRenderPassEncoderBeginOcclusionQuery",
+        NoneType,
+        WGPURenderPassEncoder,
+        UInt32,
+    ](handle, query_index)
 
 
 fn render_pass_encoder_end_occlusion_query(
@@ -2186,14 +2008,13 @@ fn render_pass_encoder_end_occlusion_query(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderEndOcclusionQuery(
+    _ = external_call[
+        "wgpuRenderPassEncoderEndOcclusionQuery",
+        NoneType,
+        WGPURenderPassEncoder,
+    ](
         handle,
     )
-
-
-var _wgpuRenderPassEncoderEnd = _wgpu.get_function[
-    fn (WGPURenderPassEncoder,) -> None
-]("wgpuRenderPassEncoderEnd")
 
 
 fn render_pass_encoder_end(
@@ -2202,14 +2023,13 @@ fn render_pass_encoder_end(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderEnd(
+    _ = external_call[
+        "wgpuRenderPassEncoderEnd",
+        NoneType,
+        WGPURenderPassEncoder,
+    ](
         handle,
     )
-
-
-var _wgpuRenderPassEncoderSetLabel = _wgpu.get_function[
-    fn (WGPURenderPassEncoder, UnsafePointer[Int8]) -> None
-]("wgpuRenderPassEncoderSetLabel")
 
 
 fn render_pass_encoder_set_label(
@@ -2218,7 +2038,12 @@ fn render_pass_encoder_set_label(
     """
     TODO
     """
-    return _wgpuRenderPassEncoderSetLabel(handle, label)
+    _ = external_call[
+        "wgpuRenderPassEncoderSetLabel",
+        NoneType,
+        WGPURenderPassEncoder,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _RenderPipelineImpl:
@@ -2229,14 +2054,11 @@ alias WGPURenderPipeline = UnsafePointer[_RenderPipelineImpl]
 
 
 fn render_pipeline_release(handle: WGPURenderPipeline):
-    _wgpu.get_function[fn (UnsafePointer[_RenderPipelineImpl]) -> None](
-        "wgpuRenderPipelineRelease"
-    )(handle)
-
-
-var _wgpuRenderPipelineGetBindGroupLayout = _wgpu.get_function[
-    fn (WGPURenderPipeline, UInt32) -> WGPUBindGroupLayout
-]("wgpuRenderPipelineGetBindGroupLayout")
+    _ = external_call[
+        "wgpuRenderPipelineRelease",
+        NoneType,
+        UnsafePointer[_RenderPipelineImpl],
+    ](handle)
 
 
 fn render_pipeline_get_bind_group_layout(
@@ -2245,12 +2067,12 @@ fn render_pipeline_get_bind_group_layout(
     """
     TODO
     """
-    return _wgpuRenderPipelineGetBindGroupLayout(handle, group_index)
-
-
-var _wgpuRenderPipelineSetLabel = _wgpu.get_function[
-    fn (WGPURenderPipeline, UnsafePointer[Int8]) -> None
-]("wgpuRenderPipelineSetLabel")
+    return external_call[
+        "wgpuRenderPipelineGetBindGroupLayout",
+        WGPUBindGroupLayout,
+        WGPURenderPipeline,
+        UInt32,
+    ](handle, group_index)
 
 
 fn render_pipeline_set_label(
@@ -2259,7 +2081,12 @@ fn render_pipeline_set_label(
     """
     TODO
     """
-    return _wgpuRenderPipelineSetLabel(handle, label)
+    _ = external_call[
+        "wgpuRenderPipelineSetLabel",
+        NoneType,
+        WGPURenderPipeline,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _SamplerImpl:
@@ -2270,21 +2097,18 @@ alias WGPUSampler = UnsafePointer[_SamplerImpl]
 
 
 fn sampler_release(handle: WGPUSampler):
-    _wgpu.get_function[fn (UnsafePointer[_SamplerImpl]) -> None](
-        "wgpuSamplerRelease"
-    )(handle)
-
-
-var _wgpuSamplerSetLabel = _wgpu.get_function[
-    fn (WGPUSampler, UnsafePointer[Int8]) -> None
-]("wgpuSamplerSetLabel")
+    _ = external_call[
+        "wgpuSamplerRelease", NoneType, UnsafePointer[_SamplerImpl]
+    ](handle)
 
 
 fn sampler_set_label(handle: WGPUSampler, label: UnsafePointer[Int8]) -> None:
     """
     TODO
     """
-    return _wgpuSamplerSetLabel(handle, label)
+    _ = external_call[
+        "wgpuSamplerSetLabel", NoneType, WGPUSampler, UnsafePointer[Int8]
+    ](handle, label)
 
 
 struct _ShaderModuleImpl:
@@ -2295,22 +2119,9 @@ alias WGPUShaderModule = UnsafePointer[_ShaderModuleImpl]
 
 
 fn shader_module_release(handle: WGPUShaderModule):
-    _wgpu.get_function[fn (UnsafePointer[_ShaderModuleImpl]) -> None](
-        "wgpuShaderModuleRelease"
-    )(handle)
-
-
-var _wgpuShaderModuleGetCompilationInfo = _wgpu.get_function[
-    fn (
-        WGPUShaderModule,
-        fn (
-            CompilationInfoRequestStatus,
-            UnsafePointer[WGPUCompilationInfo],
-            UnsafePointer[NoneType],
-        ) -> None,
-        UnsafePointer[NoneType],
-    ) -> None
-]("wgpuShaderModuleGetCompilationInfo")
+    _ = external_call[
+        "wgpuShaderModuleRelease", NoneType, UnsafePointer[_ShaderModuleImpl]
+    ](handle)
 
 
 fn shader_module_get_compilation_info(
@@ -2325,12 +2136,17 @@ fn shader_module_get_compilation_info(
     """
     TODO
     """
-    return _wgpuShaderModuleGetCompilationInfo(handle, callback, user_data)
-
-
-var _wgpuShaderModuleSetLabel = _wgpu.get_function[
-    fn (WGPUShaderModule, UnsafePointer[Int8]) -> None
-]("wgpuShaderModuleSetLabel")
+    _ = external_call[
+        "wgpuShaderModuleGetCompilationInfo",
+        NoneType,
+        WGPUShaderModule,
+        fn (
+            CompilationInfoRequestStatus,
+            UnsafePointer[WGPUCompilationInfo],
+            UnsafePointer[NoneType],
+        ) -> None,
+        UnsafePointer[NoneType],
+    ](handle, callback, user_data)
 
 
 fn shader_module_set_label(
@@ -2339,7 +2155,12 @@ fn shader_module_set_label(
     """
     TODO
     """
-    return _wgpuShaderModuleSetLabel(handle, label)
+    _ = external_call[
+        "wgpuShaderModuleSetLabel",
+        NoneType,
+        WGPUShaderModule,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
 struct _SurfaceImpl:
@@ -2350,14 +2171,9 @@ alias WGPUSurface = UnsafePointer[_SurfaceImpl]
 
 
 fn surface_release(handle: WGPUSurface):
-    _wgpu.get_function[fn (UnsafePointer[_SurfaceImpl]) -> None](
-        "wgpuSurfaceRelease"
-    )(handle)
-
-
-var _wgpuSurfaceConfigure = _wgpu.get_function[
-    fn (WGPUSurface, UnsafePointer[WGPUSurfaceConfiguration]) -> None
-]("wgpuSurfaceConfigure")
+    _ = external_call[
+        "wgpuSurfaceRelease", NoneType, UnsafePointer[_SurfaceImpl]
+    ](handle)
 
 
 fn surface_configure(
@@ -2366,22 +2182,12 @@ fn surface_configure(
     """
     TODO
     """
-    return _wgpuSurfaceConfigure(handle, UnsafePointer.address_of(config))
-
-
-var _wgpuSurfaceGetCapabilities = _wgpu.get_function[
-    fn (
-        WGPUSurface, WGPUAdapter, UnsafePointer[WGPUSurfaceCapabilities]
-    ) -> None
-]("wgpuSurfaceGetCapabilities")
-
-var _wgpuSurfaceCapabilitiesFreeMembers = _wgpu.get_function[
-    fn (UnsafePointer[WGPUSurfaceCapabilities]) -> None
-]("wgpuSurfaceCapabilitiesFreeMembers")
-
-
-fn surface_capabilities_free_members(capabilities: WGPUSurfaceCapabilities):
-    _wgpuSurfaceCapabilitiesFreeMembers(UnsafePointer.address_of(capabilities))
+    _ = external_call[
+        "wgpuSurfaceConfigure",
+        NoneType,
+        WGPUSurface,
+        UnsafePointer[WGPUSurfaceConfiguration],
+    ](handle, UnsafePointer(to=config))
 
 
 fn surface_get_capabilities(
@@ -2392,14 +2198,13 @@ fn surface_get_capabilities(
     """
     TODO
     """
-    return _wgpuSurfaceGetCapabilities(
-        handle, adapter, UnsafePointer.address_of(capabilities)
-    )
-
-
-var _wgpuSurfaceGetCurrentTexture = _wgpu.get_function[
-    fn (WGPUSurface, UnsafePointer[WGPUSurfaceTexture]) -> None
-]("wgpuSurfaceGetCurrentTexture")
+    _ = external_call[
+        "wgpuSurfaceGetCapabilities",
+        NoneType,
+        WGPUSurface,
+        WGPUAdapter,
+        UnsafePointer[WGPUSurfaceCapabilities],
+    ](handle, adapter, UnsafePointer(to=capabilities))
 
 
 fn surface_get_current_texture(
@@ -2408,14 +2213,12 @@ fn surface_get_current_texture(
     """
     TODO
     """
-    return _wgpuSurfaceGetCurrentTexture(
-        handle, UnsafePointer.address_of(surface_texture)
-    )
-
-
-var _wgpuSurfacePresent = _wgpu.get_function[fn (WGPUSurface,) -> None](
-    "wgpuSurfacePresent"
-)
+    _ = external_call[
+        "wgpuSurfaceGetCurrentTexture",
+        NoneType,
+        WGPUSurface,
+        UnsafePointer[WGPUSurfaceTexture],
+    ](handle, UnsafePointer(to=surface_texture))
 
 
 fn surface_present(
@@ -2424,14 +2227,9 @@ fn surface_present(
     """
     TODO
     """
-    return _wgpuSurfacePresent(
+    _ = external_call["wgpuSurfacePresent", NoneType, WGPUSurface,](
         handle,
     )
-
-
-var _wgpuSurfaceUnconfigure = _wgpu.get_function[fn (WGPUSurface,) -> None](
-    "wgpuSurfaceUnconfigure"
-)
 
 
 fn surface_unconfigure(
@@ -2440,21 +2238,18 @@ fn surface_unconfigure(
     """
     TODO
     """
-    return _wgpuSurfaceUnconfigure(
+    _ = external_call["wgpuSurfaceUnconfigure", NoneType, WGPUSurface,](
         handle,
     )
-
-
-var _wgpuSurfaceSetLabel = _wgpu.get_function[
-    fn (WGPUSurface, UnsafePointer[Int8]) -> None
-]("wgpuSurfaceSetLabel")
 
 
 fn surface_set_label(handle: WGPUSurface, label: UnsafePointer[Int8]) -> None:
     """
     TODO
     """
-    return _wgpuSurfaceSetLabel(handle, label)
+    _ = external_call[
+        "wgpuSurfaceSetLabel", NoneType, WGPUSurface, UnsafePointer[Int8]
+    ](handle, label)
 
 
 struct _TextureImpl:
@@ -2465,16 +2260,9 @@ alias WGPUTexture = UnsafePointer[_TextureImpl]
 
 
 fn texture_release(handle: WGPUTexture):
-    _wgpu.get_function[fn (UnsafePointer[_TextureImpl]) -> None](
-        "wgpuTextureRelease"
-    )(handle)
-
-
-var _wgpuTextureCreateView = _wgpu.get_function[
-    fn (
-        WGPUTexture, UnsafePointer[WGPUTextureViewDescriptor]
-    ) -> WGPUTextureView
-]("wgpuTextureCreateView")
+    _ = external_call[
+        "wgpuTextureRelease", NoneType, UnsafePointer[_TextureImpl]
+    ](handle)
 
 
 fn texture_create_view(
@@ -2484,24 +2272,21 @@ fn texture_create_view(
     """
     TODO
     """
-    return _wgpuTextureCreateView(handle, UnsafePointer.address_of(descriptor))
-
-
-var _wgpuTextureSetLabel = _wgpu.get_function[
-    fn (WGPUTexture, UnsafePointer[Int8]) -> None
-]("wgpuTextureSetLabel")
+    return external_call[
+        "wgpuTextureCreateView",
+        WGPUTextureView,
+        WGPUTexture,
+        UnsafePointer[WGPUTextureViewDescriptor],
+    ](handle, UnsafePointer(to=descriptor))
 
 
 fn texture_set_label(handle: WGPUTexture, label: UnsafePointer[Int8]) -> None:
     """
     TODO
     """
-    return _wgpuTextureSetLabel(handle, label)
-
-
-var _wgpuTextureGetWidth = _wgpu.get_function[fn (WGPUTexture,) -> UInt32](
-    "wgpuTextureGetWidth"
-)
+    _ = external_call[
+        "wgpuTextureSetLabel", NoneType, WGPUTexture, UnsafePointer[Int8]
+    ](handle, label)
 
 
 fn texture_get_width(
@@ -2510,14 +2295,9 @@ fn texture_get_width(
     """
     TODO
     """
-    return _wgpuTextureGetWidth(
+    return external_call["wgpuTextureGetWidth", UInt32, WGPUTexture,](
         handle,
     )
-
-
-var _wgpuTextureGetHeight = _wgpu.get_function[fn (WGPUTexture,) -> UInt32](
-    "wgpuTextureGetHeight"
-)
 
 
 fn texture_get_height(
@@ -2526,14 +2306,9 @@ fn texture_get_height(
     """
     TODO
     """
-    return _wgpuTextureGetHeight(
+    return external_call["wgpuTextureGetHeight", UInt32, WGPUTexture,](
         handle,
     )
-
-
-var _wgpuTextureGetDepthOrArrayLayers = _wgpu.get_function[
-    fn (WGPUTexture,) -> UInt32
-]("wgpuTextureGetDepthOrArrayLayers")
 
 
 fn texture_get_depth_or_array_layers(
@@ -2542,14 +2317,13 @@ fn texture_get_depth_or_array_layers(
     """
     TODO
     """
-    return _wgpuTextureGetDepthOrArrayLayers(
+    return external_call[
+        "wgpuTextureGetDepthOrArrayLayers",
+        UInt32,
+        WGPUTexture,
+    ](
         handle,
     )
-
-
-var _wgpuTextureGetMipLevelCount = _wgpu.get_function[
-    fn (WGPUTexture,) -> UInt32
-]("wgpuTextureGetMipLevelCount")
 
 
 fn texture_get_mip_level_count(
@@ -2558,14 +2332,9 @@ fn texture_get_mip_level_count(
     """
     TODO
     """
-    return _wgpuTextureGetMipLevelCount(
+    return external_call["wgpuTextureGetMipLevelCount", UInt32, WGPUTexture,](
         handle,
     )
-
-
-var _wgpuTextureGetSampleCount = _wgpu.get_function[
-    fn (WGPUTexture,) -> UInt32
-]("wgpuTextureGetSampleCount")
 
 
 fn texture_get_sample_count(
@@ -2574,14 +2343,9 @@ fn texture_get_sample_count(
     """
     TODO
     """
-    return _wgpuTextureGetSampleCount(
+    return external_call["wgpuTextureGetSampleCount", UInt32, WGPUTexture,](
         handle,
     )
-
-
-var _wgpuTextureGetDimension = _wgpu.get_function[
-    fn (WGPUTexture,) -> TextureDimension
-]("wgpuTextureGetDimension")
 
 
 fn texture_get_dimension(
@@ -2590,14 +2354,13 @@ fn texture_get_dimension(
     """
     TODO
     """
-    return _wgpuTextureGetDimension(
+    return external_call[
+        "wgpuTextureGetDimension",
+        TextureDimension,
+        WGPUTexture,
+    ](
         handle,
     )
-
-
-var _wgpuTextureGetFormat = _wgpu.get_function[
-    fn (WGPUTexture,) -> TextureFormat
-]("wgpuTextureGetFormat")
 
 
 fn texture_get_format(
@@ -2606,14 +2369,9 @@ fn texture_get_format(
     """
     TODO
     """
-    return _wgpuTextureGetFormat(
+    return external_call["wgpuTextureGetFormat", TextureFormat, WGPUTexture,](
         handle,
     )
-
-
-var _wgpuTextureGetUsage = _wgpu.get_function[
-    fn (WGPUTexture,) -> TextureUsage
-]("wgpuTextureGetUsage")
 
 
 fn texture_get_usage(
@@ -2622,14 +2380,9 @@ fn texture_get_usage(
     """
     TODO
     """
-    return _wgpuTextureGetUsage(
+    return external_call["wgpuTextureGetUsage", TextureUsage, WGPUTexture,](
         handle,
     )
-
-
-var _wgpuTextureDestroy = _wgpu.get_function[fn (WGPUTexture,) -> None](
-    "wgpuTextureDestroy"
-)
 
 
 fn texture_destroy(
@@ -2638,7 +2391,7 @@ fn texture_destroy(
     """
     TODO
     """
-    return _wgpuTextureDestroy(
+    _ = external_call["wgpuTextureDestroy", NoneType, WGPUTexture,](
         handle,
     )
 
@@ -2651,14 +2404,9 @@ alias WGPUTextureView = UnsafePointer[_TextureViewImpl]
 
 
 fn texture_view_release(handle: WGPUTextureView):
-    _wgpu.get_function[fn (UnsafePointer[_TextureViewImpl]) -> None](
-        "wgpuTextureViewRelease"
-    )(handle)
-
-
-var _wgpuTextureViewSetLabel = _wgpu.get_function[
-    fn (WGPUTextureView, UnsafePointer[Int8]) -> None
-]("wgpuTextureViewSetLabel")
+    _ = external_call[
+        "wgpuTextureViewRelease", NoneType, UnsafePointer[_TextureViewImpl]
+    ](handle)
 
 
 fn texture_view_set_label(
@@ -2667,11 +2415,15 @@ fn texture_view_set_label(
     """
     TODO
     """
-    return _wgpuTextureViewSetLabel(handle, label)
+    _ = external_call[
+        "wgpuTextureViewSetLabel",
+        NoneType,
+        WGPUTextureView,
+        UnsafePointer[Int8],
+    ](handle, label)
 
 
-@value
-struct WGPURequestAdapterOptions:
+struct WGPURequestAdapterOptions(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -2684,10 +2436,8 @@ struct WGPURequestAdapterOptions:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        compatible_surface: WGPUSurface = WGPUSurface(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        compatible_surface: WGPUSurface = {},
         power_preference: PowerPreference = PowerPreference(0),
         backend_type: BackendType = BackendType(0),
         force_fallback_adapter: Bool = False,
@@ -2699,8 +2449,7 @@ struct WGPURequestAdapterOptions:
         self.force_fallback_adapter = force_fallback_adapter
 
 
-@value
-struct WGPUAdapterInfo:
+struct WGPUAdapterInfo(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -2717,17 +2466,15 @@ struct WGPUAdapterInfo:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStructOut] = UnsafePointer[
-            ChainedStructOut
-        ](),
-        vendor: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        architecture: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        device: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        description: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStructOut] = {},
+        vendor: UnsafePointer[Int8] = {},
+        architecture: UnsafePointer[Int8] = {},
+        device: UnsafePointer[Int8] = {},
+        description: UnsafePointer[Int8] = {},
         backend_type: BackendType = BackendType(0),
         adapter_type: AdapterType = AdapterType(0),
-        vendor_ID: UInt32 = UInt32(),
-        device_ID: UInt32 = UInt32(),
+        vendor_ID: UInt32 = {},
+        device_ID: UInt32 = {},
     ):
         self.next_in_chain = next_in_chain
         self.vendor = vendor
@@ -2740,8 +2487,7 @@ struct WGPUAdapterInfo:
         self.device_ID = device_ID
 
 
-@value
-struct WGPUDeviceDescriptor:
+struct WGPUDeviceDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -2758,27 +2504,17 @@ struct WGPUDeviceDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         required_feature_count: Int = Int(),
         required_features: UnsafePointer[FeatureName] = UnsafePointer[
             FeatureName
         ](),
-        required_limits: UnsafePointer[WGPURequiredLimits] = UnsafePointer[
-            WGPURequiredLimits
-        ](),
-        owned default_queue: WGPUQueueDescriptor = WGPUQueueDescriptor(),
-        device_lost_callback: UnsafePointer[NoneType] = UnsafePointer[
-            NoneType
-        ](),
-        device_lost_userdata: UnsafePointer[NoneType] = UnsafePointer[
-            NoneType
-        ](),
-        uncaptured_error_callback_info: UnsafePointer[NoneType] = UnsafePointer[
-            NoneType
-        ](),
+        required_limits: UnsafePointer[WGPURequiredLimits] = {},
+        var default_queue: WGPUQueueDescriptor = {},
+        device_lost_callback: UnsafePointer[NoneType] = {},
+        device_lost_userdata: UnsafePointer[NoneType] = {},
+        uncaptured_error_callback_info: UnsafePointer[NoneType] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -2791,8 +2527,7 @@ struct WGPUDeviceDescriptor:
         self.uncaptured_error_callback_info = uncaptured_error_callback_info
 
 
-@value
-struct WGPUBindGroupEntry:
+struct WGPUBindGroupEntry(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -2807,15 +2542,13 @@ struct WGPUBindGroupEntry:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        binding: UInt32 = UInt32(),
-        buffer: WGPUBuffer = WGPUBuffer(),
-        offset: UInt64 = UInt64(),
-        size: UInt64 = UInt64(),
-        sampler: WGPUSampler = WGPUSampler(),
-        texture_view: WGPUTextureView = WGPUTextureView(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        binding: UInt32 = {},
+        buffer: WGPUBuffer = {},
+        offset: UInt64 = {},
+        size: UInt64 = {},
+        sampler: WGPUSampler = {},
+        texture_view: WGPUTextureView = {},
     ):
         self.next_in_chain = next_in_chain
         self.binding = binding
@@ -2826,8 +2559,7 @@ struct WGPUBindGroupEntry:
         self.texture_view = texture_view
 
 
-@value
-struct WGPUBindGroupDescriptor:
+struct WGPUBindGroupDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -2840,11 +2572,9 @@ struct WGPUBindGroupDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        layout: WGPUBindGroupLayout = WGPUBindGroupLayout(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
+        layout: WGPUBindGroupLayout = {},
         entrie_count: Int = Int(),
         entries: UnsafePointer[WGPUBindGroupEntry] = UnsafePointer[
             WGPUBindGroupEntry
@@ -2857,8 +2587,7 @@ struct WGPUBindGroupDescriptor:
         self.entries = entries
 
 
-@value
-struct WGPUBufferBindingLayout:
+struct WGPUBufferBindingLayout(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -2870,12 +2599,10 @@ struct WGPUBufferBindingLayout:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
         type: BufferBindingType = BufferBindingType(0),
         has_dynamic_offset: Bool = False,
-        min_binding_size: UInt64 = UInt64(),
+        min_binding_size: UInt64 = {},
     ):
         self.next_in_chain = next_in_chain
         self.type = type
@@ -2883,8 +2610,7 @@ struct WGPUBufferBindingLayout:
         self.min_binding_size = min_binding_size
 
 
-@value
-struct WGPUSamplerBindingLayout:
+struct WGPUSamplerBindingLayout(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -2894,17 +2620,14 @@ struct WGPUSamplerBindingLayout:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
         type: SamplerBindingType = SamplerBindingType(0),
     ):
         self.next_in_chain = next_in_chain
         self.type = type
 
 
-@value
-struct WGPUTextureBindingLayout:
+struct WGPUTextureBindingLayout(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -2916,9 +2639,7 @@ struct WGPUTextureBindingLayout:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
         sample_type: TextureSampleType = TextureSampleType(0),
         view_dimension: TextureViewDimension = TextureViewDimension(0),
         multisampled: Bool = False,
@@ -2929,8 +2650,7 @@ struct WGPUTextureBindingLayout:
         self.multisampled = multisampled
 
 
-@value
-struct WGPUSurfaceCapabilities:
+struct WGPUSurfaceCapabilities(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -2946,9 +2666,7 @@ struct WGPUSurfaceCapabilities:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStructOut] = UnsafePointer[
-            ChainedStructOut
-        ](),
+        next_in_chain: UnsafePointer[ChainedStructOut] = {},
         usages: TextureUsage = TextureUsage(0),
         format_count: Int = Int(),
         formats: UnsafePointer[TextureFormat] = UnsafePointer[TextureFormat](),
@@ -2971,8 +2689,7 @@ struct WGPUSurfaceCapabilities:
         self.alpha_modes = alpha_modes
 
 
-@value
-struct WGPUSurfaceConfiguration:
+struct WGPUSurfaceConfiguration(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -2990,10 +2707,8 @@ struct WGPUSurfaceConfiguration:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        device: WGPUDevice = WGPUDevice(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        device: WGPUDevice = {},
         format: TextureFormat = TextureFormat(0),
         usage: TextureUsage = TextureUsage(0),
         view_format_count: Int = Int(),
@@ -3001,8 +2716,8 @@ struct WGPUSurfaceConfiguration:
             TextureFormat
         ](),
         alpha_mode: CompositeAlphaMode = CompositeAlphaMode(0),
-        width: UInt32 = UInt32(),
-        height: UInt32 = UInt32(),
+        width: UInt32 = {},
+        height: UInt32 = {},
         present_mode: PresentMode = PresentMode(0),
     ):
         self.next_in_chain = next_in_chain
@@ -3017,8 +2732,7 @@ struct WGPUSurfaceConfiguration:
         self.present_mode = present_mode
 
 
-@value
-struct WGPUStorageTextureBindingLayout:
+struct WGPUStorageTextureBindingLayout(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3030,9 +2744,7 @@ struct WGPUStorageTextureBindingLayout:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
         access: StorageTextureAccess = StorageTextureAccess(0),
         format: TextureFormat = TextureFormat(0),
         view_dimension: TextureViewDimension = TextureViewDimension(0),
@@ -3043,8 +2755,7 @@ struct WGPUStorageTextureBindingLayout:
         self.view_dimension = view_dimension
 
 
-@value
-struct WGPUBindGroupLayoutEntry:
+struct WGPUBindGroupLayoutEntry(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3059,15 +2770,13 @@ struct WGPUBindGroupLayoutEntry:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        binding: UInt32 = UInt32(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        binding: UInt32 = {},
         visibility: ShaderStage = ShaderStage(0),
-        owned buffer: WGPUBufferBindingLayout = WGPUBufferBindingLayout(),
-        owned sampler: WGPUSamplerBindingLayout = WGPUSamplerBindingLayout(),
-        owned texture: WGPUTextureBindingLayout = WGPUTextureBindingLayout(),
-        owned storage_texture: WGPUStorageTextureBindingLayout = WGPUStorageTextureBindingLayout(),
+        var buffer: WGPUBufferBindingLayout = {},
+        var sampler: WGPUSamplerBindingLayout = {},
+        var texture: WGPUTextureBindingLayout = {},
+        var storage_texture: WGPUStorageTextureBindingLayout = {},
     ):
         self.next_in_chain = next_in_chain
         self.binding = binding
@@ -3078,8 +2787,7 @@ struct WGPUBindGroupLayoutEntry:
         self.storage_texture = storage_texture^
 
 
-@value
-struct WGPUBindGroupLayoutDescriptor:
+struct WGPUBindGroupLayoutDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3091,10 +2799,8 @@ struct WGPUBindGroupLayoutDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         entrie_count: Int = Int(),
         entries: UnsafePointer[WGPUBindGroupLayoutEntry] = UnsafePointer[
             WGPUBindGroupLayoutEntry
@@ -3106,8 +2812,7 @@ struct WGPUBindGroupLayoutDescriptor:
         self.entries = entries
 
 
-@value
-struct WGPUBlendComponent:
+struct WGPUBlendComponent(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3127,8 +2832,7 @@ struct WGPUBlendComponent:
         self.dst_factor = dst_factor
 
 
-@value
-struct WGPUBufferDescriptor:
+struct WGPUBufferDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3141,12 +2845,10 @@ struct WGPUBufferDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         usage: BufferUsage = BufferUsage(0),
-        size: UInt64 = UInt64(),
+        size: UInt64 = {},
         mapped_at_creation: Bool = False,
     ):
         self.next_in_chain = next_in_chain
@@ -3156,8 +2858,7 @@ struct WGPUBufferDescriptor:
         self.mapped_at_creation = mapped_at_creation
 
 
-@value
-struct WGPUColor:
+struct WGPUColor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3169,10 +2870,10 @@ struct WGPUColor:
 
     fn __init__(
         out self,
-        r: Float64 = Float64(),
-        g: Float64 = Float64(),
-        b: Float64 = Float64(),
-        a: Float64 = Float64(),
+        r: Float64 = {},
+        g: Float64 = {},
+        b: Float64 = {},
+        a: Float64 = {},
     ):
         self.r = r
         self.g = g
@@ -3180,8 +2881,7 @@ struct WGPUColor:
         self.a = a
 
 
-@value
-struct WGPUConstantEntry:
+struct WGPUConstantEntry(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3192,19 +2892,16 @@ struct WGPUConstantEntry:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        key: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        value: Float64 = Float64(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        key: UnsafePointer[Int8] = {},
+        value: Float64 = {},
     ):
         self.next_in_chain = next_in_chain
         self.key = key
         self.value = value
 
 
-@value
-struct WGPUCommandBufferDescriptor:
+struct WGPUCommandBufferDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3214,17 +2911,14 @@ struct WGPUCommandBufferDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
 
 
-@value
-struct WGPUCommandEncoderDescriptor:
+struct WGPUCommandEncoderDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3234,17 +2928,14 @@ struct WGPUCommandEncoderDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
 
 
-@value
-struct WGPUCompilationInfo:
+struct WGPUCompilationInfo(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3255,9 +2946,7 @@ struct WGPUCompilationInfo:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
         message_count: Int = Int(),
         messages: UnsafePointer[WGPUCompilationMessage] = UnsafePointer[
             WGPUCompilationMessage
@@ -3268,8 +2957,7 @@ struct WGPUCompilationInfo:
         self.messages = messages
 
 
-@value
-struct WGPUCompilationMessage:
+struct WGPUCompilationMessage(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3287,18 +2975,16 @@ struct WGPUCompilationMessage:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        message: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        message: UnsafePointer[Int8] = {},
         type: CompilationMessageType = CompilationMessageType(0),
-        line_num: UInt64 = UInt64(),
-        line_pos: UInt64 = UInt64(),
-        offset: UInt64 = UInt64(),
-        length: UInt64 = UInt64(),
-        utf16_line_pos: UInt64 = UInt64(),
-        utf16_offset: UInt64 = UInt64(),
-        utf16_length: UInt64 = UInt64(),
+        line_num: UInt64 = {},
+        line_pos: UInt64 = {},
+        offset: UInt64 = {},
+        length: UInt64 = {},
+        utf16_line_pos: UInt64 = {},
+        utf16_offset: UInt64 = {},
+        utf16_length: UInt64 = {},
     ):
         self.next_in_chain = next_in_chain
         self.message = message
@@ -3312,8 +2998,7 @@ struct WGPUCompilationMessage:
         self.utf16_length = utf16_length
 
 
-@value
-struct WGPUComputePassDescriptor:
+struct WGPUComputePassDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3324,21 +3009,16 @@ struct WGPUComputePassDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        timestamp_writes: UnsafePointer[
-            WGPUComputePassTimestampWrites
-        ] = UnsafePointer[WGPUComputePassTimestampWrites](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
+        timestamp_writes: UnsafePointer[WGPUComputePassTimestampWrites] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
         self.timestamp_writes = timestamp_writes
 
 
-@value
-struct WGPUComputePassTimestampWrites:
+struct WGPUComputePassTimestampWrites(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3349,17 +3029,16 @@ struct WGPUComputePassTimestampWrites:
 
     fn __init__(
         out self,
-        query_set: WGPUQuerySet = WGPUQuerySet(),
-        beginning_of_pass_write_index: UInt32 = UInt32(),
-        end_of_pass_write_index: UInt32 = UInt32(),
+        query_set: WGPUQuerySet = {},
+        beginning_of_pass_write_index: UInt32 = {},
+        end_of_pass_write_index: UInt32 = {},
     ):
         self.query_set = query_set
         self.beginning_of_pass_write_index = beginning_of_pass_write_index
         self.end_of_pass_write_index = end_of_pass_write_index
 
 
-@value
-struct WGPUComputePipelineDescriptor:
+struct WGPUComputePipelineDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3371,12 +3050,10 @@ struct WGPUComputePipelineDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        layout: WGPUPipelineLayout = WGPUPipelineLayout(),
-        owned compute: WGPUProgrammableStageDescriptor = WGPUProgrammableStageDescriptor(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
+        layout: WGPUPipelineLayout = {},
+        var compute: WGPUProgrammableStageDescriptor = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -3384,8 +3061,7 @@ struct WGPUComputePipelineDescriptor:
         self.compute = compute^
 
 
-@value
-struct WGPULimits:
+struct WGPULimits(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3425,38 +3101,38 @@ struct WGPULimits:
 
     fn __init__(
         out self,
-        max_texture_dimension_1D: UInt32 = UInt32(),
-        max_texture_dimension_2D: UInt32 = UInt32(),
-        max_texture_dimension_3D: UInt32 = UInt32(),
-        max_texture_array_layers: UInt32 = UInt32(),
-        max_bind_groups: UInt32 = UInt32(),
-        max_bind_groups_plus_vertex_buffers: UInt32 = UInt32(),
-        max_bindings_per_bind_group: UInt32 = UInt32(),
-        max_dynamic_uniform_buffers_per_pipeline_layout: UInt32 = UInt32(),
-        max_dynamic_storage_buffers_per_pipeline_layout: UInt32 = UInt32(),
-        max_sampled_textures_per_shader_stage: UInt32 = UInt32(),
-        max_samplers_per_shader_stage: UInt32 = UInt32(),
-        max_storage_buffers_per_shader_stage: UInt32 = UInt32(),
-        max_storage_textures_per_shader_stage: UInt32 = UInt32(),
-        max_uniform_buffers_per_shader_stage: UInt32 = UInt32(),
-        max_uniform_buffer_binding_size: UInt64 = UInt64(),
-        max_storage_buffer_binding_size: UInt64 = UInt64(),
-        min_uniform_buffer_offset_alignment: UInt32 = UInt32(),
-        min_storage_buffer_offset_alignment: UInt32 = UInt32(),
-        max_vertex_buffers: UInt32 = UInt32(),
-        max_buffer_size: UInt64 = UInt64(),
-        max_vertex_attributes: UInt32 = UInt32(),
-        max_vertex_buffer_array_stride: UInt32 = UInt32(),
-        max_inter_stage_shader_components: UInt32 = UInt32(),
-        max_inter_stage_shader_variables: UInt32 = UInt32(),
-        max_color_attachments: UInt32 = UInt32(),
-        max_color_attachment_bytes_per_sample: UInt32 = UInt32(),
-        max_compute_workgroup_storage_size: UInt32 = UInt32(),
-        max_compute_invocations_per_workgroup: UInt32 = UInt32(),
-        max_compute_workgroup_size_x: UInt32 = UInt32(),
-        max_compute_workgroup_size_y: UInt32 = UInt32(),
-        max_compute_workgroup_size_z: UInt32 = UInt32(),
-        max_compute_workgroups_per_dimension: UInt32 = UInt32(),
+        max_texture_dimension_1D: UInt32 = {},
+        max_texture_dimension_2D: UInt32 = {},
+        max_texture_dimension_3D: UInt32 = {},
+        max_texture_array_layers: UInt32 = {},
+        max_bind_groups: UInt32 = {},
+        max_bind_groups_plus_vertex_buffers: UInt32 = {},
+        max_bindings_per_bind_group: UInt32 = {},
+        max_dynamic_uniform_buffers_per_pipeline_layout: UInt32 = {},
+        max_dynamic_storage_buffers_per_pipeline_layout: UInt32 = {},
+        max_sampled_textures_per_shader_stage: UInt32 = {},
+        max_samplers_per_shader_stage: UInt32 = {},
+        max_storage_buffers_per_shader_stage: UInt32 = {},
+        max_storage_textures_per_shader_stage: UInt32 = {},
+        max_uniform_buffers_per_shader_stage: UInt32 = {},
+        max_uniform_buffer_binding_size: UInt64 = {},
+        max_storage_buffer_binding_size: UInt64 = {},
+        min_uniform_buffer_offset_alignment: UInt32 = {},
+        min_storage_buffer_offset_alignment: UInt32 = {},
+        max_vertex_buffers: UInt32 = {},
+        max_buffer_size: UInt64 = {},
+        max_vertex_attributes: UInt32 = {},
+        max_vertex_buffer_array_stride: UInt32 = {},
+        max_inter_stage_shader_components: UInt32 = {},
+        max_inter_stage_shader_variables: UInt32 = {},
+        max_color_attachments: UInt32 = {},
+        max_color_attachment_bytes_per_sample: UInt32 = {},
+        max_compute_workgroup_storage_size: UInt32 = {},
+        max_compute_invocations_per_workgroup: UInt32 = {},
+        max_compute_workgroup_size_x: UInt32 = {},
+        max_compute_workgroup_size_y: UInt32 = {},
+        max_compute_workgroup_size_z: UInt32 = {},
+        max_compute_workgroups_per_dimension: UInt32 = {},
     ):
         self.max_texture_dimension_1D = max_texture_dimension_1D
         self.max_texture_dimension_2D = max_texture_dimension_2D
@@ -3520,8 +3196,7 @@ struct WGPULimits:
         )
 
 
-@value
-struct WGPURequiredLimits:
+struct WGPURequiredLimits(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3531,17 +3206,14 @@ struct WGPURequiredLimits:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        owned limits: WGPULimits = WGPULimits(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        var limits: WGPULimits = {},
     ):
         self.next_in_chain = next_in_chain
         self.limits = limits^
 
 
-@value
-struct WGPUSupportedLimits:
+struct WGPUSupportedLimits(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3551,17 +3223,14 @@ struct WGPUSupportedLimits:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStructOut] = UnsafePointer[
-            ChainedStructOut
-        ](),
-        owned limits: WGPULimits = WGPULimits(),
+        next_in_chain: UnsafePointer[ChainedStructOut] = {},
+        var limits: WGPULimits = {},
     ):
         self.next_in_chain = next_in_chain
         self.limits = limits^
 
 
-@value
-struct WGPUExtent3D:
+struct WGPUExtent3D(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3572,17 +3241,16 @@ struct WGPUExtent3D:
 
     fn __init__(
         out self,
-        width: UInt32 = UInt32(),
-        height: UInt32 = UInt32(),
-        depth_or_array_layers: UInt32 = UInt32(),
+        width: UInt32 = {},
+        height: UInt32 = {},
+        depth_or_array_layers: UInt32 = {},
     ):
         self.width = width
         self.height = height
         self.depth_or_array_layers = depth_or_array_layers
 
 
-@value
-struct WGPUImageCopyBuffer:
+struct WGPUImageCopyBuffer(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3593,19 +3261,16 @@ struct WGPUImageCopyBuffer:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        owned layout: WGPUTextureDataLayout = WGPUTextureDataLayout(),
-        buffer: WGPUBuffer = WGPUBuffer(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        var layout: WGPUTextureDataLayout = {},
+        buffer: WGPUBuffer = {},
     ):
         self.next_in_chain = next_in_chain
         self.layout = layout^
         self.buffer = buffer
 
 
-@value
-struct WGPUImageCopyTexture:
+struct WGPUImageCopyTexture(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3618,12 +3283,10 @@ struct WGPUImageCopyTexture:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        texture: WGPUTexture = WGPUTexture(),
-        mip_level: UInt32 = UInt32(),
-        owned origin: WGPUOrigin3D = WGPUOrigin3D(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        texture: WGPUTexture = {},
+        mip_level: UInt32 = {},
+        var origin: WGPUOrigin3D = {},
         aspect: TextureAspect = TextureAspect(0),
     ):
         self.next_in_chain = next_in_chain
@@ -3633,8 +3296,7 @@ struct WGPUImageCopyTexture:
         self.aspect = aspect
 
 
-@value
-struct WGPUInstanceDescriptor:
+struct WGPUInstanceDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3643,15 +3305,12 @@ struct WGPUInstanceDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
     ):
         self.next_in_chain = next_in_chain
 
 
-@value
-struct WGPUVertexAttribute:
+struct WGPUVertexAttribute(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3663,16 +3322,15 @@ struct WGPUVertexAttribute:
     fn __init__(
         out self,
         format: VertexFormat = VertexFormat(0),
-        offset: UInt64 = UInt64(),
-        shader_location: UInt32 = UInt32(),
+        offset: UInt64 = {},
+        shader_location: UInt32 = {},
     ):
         self.format = format
         self.offset = offset
         self.shader_location = shader_location
 
 
-@value
-struct WGPUVertexBufferLayout:
+struct WGPUVertexBufferLayout(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3684,7 +3342,7 @@ struct WGPUVertexBufferLayout:
 
     fn __init__(
         out self,
-        array_stride: UInt64 = UInt64(),
+        array_stride: UInt64 = {},
         step_mode: VertexStepMode = VertexStepMode(0),
         attribute_count: Int = Int(),
         attributes: UnsafePointer[WGPUVertexAttribute] = UnsafePointer[
@@ -3697,8 +3355,7 @@ struct WGPUVertexBufferLayout:
         self.attributes = attributes
 
 
-@value
-struct WGPUOrigin3D:
+struct WGPUOrigin3D(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3709,17 +3366,16 @@ struct WGPUOrigin3D:
 
     fn __init__(
         out self,
-        x: UInt32 = UInt32(),
-        y: UInt32 = UInt32(),
-        z: UInt32 = UInt32(),
+        x: UInt32 = {},
+        y: UInt32 = {},
+        z: UInt32 = {},
     ):
         self.x = x
         self.y = y
         self.z = z
 
 
-@value
-struct WGPUPipelineLayoutDescriptor:
+struct WGPUPipelineLayoutDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3731,10 +3387,8 @@ struct WGPUPipelineLayoutDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         bind_group_layout_count: Int = Int(),
         bind_group_layouts: UnsafePointer[WGPUBindGroupLayout] = UnsafePointer[
             WGPUBindGroupLayout
@@ -3746,8 +3400,7 @@ struct WGPUPipelineLayoutDescriptor:
         self.bind_group_layouts = bind_group_layouts
 
 
-@value
-struct WGPUProgrammableStageDescriptor:
+struct WGPUProgrammableStageDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3760,11 +3413,9 @@ struct WGPUProgrammableStageDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        module: WGPUShaderModule = WGPUShaderModule(),
-        entry_point: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        module: WGPUShaderModule = {},
+        entry_point: UnsafePointer[Int8] = {},
         constant_count: Int = Int(),
         constants: UnsafePointer[WGPUConstantEntry] = UnsafePointer[
             WGPUConstantEntry
@@ -3777,8 +3428,7 @@ struct WGPUProgrammableStageDescriptor:
         self.constants = constants
 
 
-@value
-struct WGPUQuerySetDescriptor:
+struct WGPUQuerySetDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3790,12 +3440,10 @@ struct WGPUQuerySetDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         type: QueryType = QueryType(0),
-        count: UInt32 = UInt32(),
+        count: UInt32 = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -3803,8 +3451,7 @@ struct WGPUQuerySetDescriptor:
         self.count = count
 
 
-@value
-struct WGPUQueueDescriptor:
+struct WGPUQueueDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3814,17 +3461,14 @@ struct WGPUQueueDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
 
 
-@value
-struct WGPURenderBundleDescriptor:
+struct WGPURenderBundleDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3834,17 +3478,14 @@ struct WGPURenderBundleDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
 
 
-@value
-struct WGPURenderBundleEncoderDescriptor:
+struct WGPURenderBundleEncoderDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3860,16 +3501,14 @@ struct WGPURenderBundleEncoderDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         color_format_count: Int = Int(),
         color_formats: UnsafePointer[TextureFormat] = UnsafePointer[
             TextureFormat
         ](),
         depth_stencil_format: TextureFormat = TextureFormat(0),
-        sample_count: UInt32 = UInt32(),
+        sample_count: UInt32 = {},
         depth_read_only: Bool = False,
         stencil_read_only: Bool = False,
     ):
@@ -3883,8 +3522,7 @@ struct WGPURenderBundleEncoderDescriptor:
         self.stencil_read_only = stencil_read_only
 
 
-@value
-struct WGPURenderPassColorAttachment:
+struct WGPURenderPassColorAttachment(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3899,15 +3537,13 @@ struct WGPURenderPassColorAttachment:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        view: WGPUTextureView = WGPUTextureView(),
-        depth_slice: UInt32 = UInt32(),
-        resolve_target: WGPUTextureView = WGPUTextureView(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        view: WGPUTextureView = {},
+        depth_slice: UInt32 = {},
+        resolve_target: WGPUTextureView = {},
         load_op: LoadOp = LoadOp(0),
         store_op: StoreOp = StoreOp(0),
-        clear_value: WGPUColor = WGPUColor(),
+        var clear_value: WGPUColor = {},
     ):
         self.next_in_chain = next_in_chain
         self.view = view
@@ -3915,11 +3551,12 @@ struct WGPURenderPassColorAttachment:
         self.resolve_target = resolve_target
         self.load_op = load_op
         self.store_op = store_op
-        self.clear_value = clear_value
+        self.clear_value = clear_value^
 
 
-@value
-struct WGPURenderPassDepthStencilAttachment:
+struct WGPURenderPassDepthStencilAttachment(
+    Copyable, ImplicitlyCopyable, Movable
+):
     """
     TODO
     """
@@ -3936,14 +3573,14 @@ struct WGPURenderPassDepthStencilAttachment:
 
     fn __init__(
         out self,
-        view: WGPUTextureView = WGPUTextureView(),
+        view: WGPUTextureView = {},
         depth_load_op: LoadOp = LoadOp(0),
         depth_store_op: StoreOp = StoreOp(0),
-        depth_clear_value: Float32 = Float32(),
+        depth_clear_value: Float32 = {},
         depth_read_only: Bool = False,
         stencil_load_op: LoadOp = LoadOp(0),
         stencil_store_op: StoreOp = StoreOp(0),
-        stencil_clear_value: UInt32 = UInt32(),
+        stencil_clear_value: UInt32 = {},
         stencil_read_only: Bool = False,
     ):
         self.view = view
@@ -3957,8 +3594,7 @@ struct WGPURenderPassDepthStencilAttachment:
         self.stencil_read_only = stencil_read_only
 
 
-@value
-struct WGPURenderPassDescriptor:
+struct WGPURenderPassDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -3975,21 +3611,17 @@ struct WGPURenderPassDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         color_attachment_count: Int = Int(),
         color_attachments: UnsafePointer[
             WGPURenderPassColorAttachment
         ] = UnsafePointer[WGPURenderPassColorAttachment](),
         depth_stencil_attachment: UnsafePointer[
             WGPURenderPassDepthStencilAttachment
-        ] = UnsafePointer[WGPURenderPassDepthStencilAttachment](),
-        occlusion_query_set: WGPUQuerySet = WGPUQuerySet(),
-        timestamp_writes: UnsafePointer[
-            WGPURenderPassTimestampWrites
-        ] = UnsafePointer[WGPURenderPassTimestampWrites](),
+        ] = {},
+        occlusion_query_set: WGPUQuerySet = {},
+        timestamp_writes: UnsafePointer[WGPURenderPassTimestampWrites] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -4000,8 +3632,9 @@ struct WGPURenderPassDescriptor:
         self.timestamp_writes = timestamp_writes
 
 
-@value
-struct WGPURenderPassDescriptorMaxDrawCount:
+struct WGPURenderPassDescriptorMaxDrawCount(
+    Copyable, ImplicitlyCopyable, Movable
+):
     """
     TODO
     """
@@ -4011,15 +3644,14 @@ struct WGPURenderPassDescriptorMaxDrawCount:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
-        max_draw_count: UInt64 = UInt64(),
+        chain: ChainedStruct = {},
+        max_draw_count: UInt64 = {},
     ):
         self.chain = chain
         self.max_draw_count = max_draw_count
 
 
-@value
-struct WGPURenderPassTimestampWrites:
+struct WGPURenderPassTimestampWrites(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4030,17 +3662,16 @@ struct WGPURenderPassTimestampWrites:
 
     fn __init__(
         out self,
-        query_set: WGPUQuerySet = WGPUQuerySet(),
-        beginning_of_pass_write_index: UInt32 = UInt32(),
-        end_of_pass_write_index: UInt32 = UInt32(),
+        query_set: WGPUQuerySet = {},
+        beginning_of_pass_write_index: UInt32 = {},
+        end_of_pass_write_index: UInt32 = {},
     ):
         self.query_set = query_set
         self.beginning_of_pass_write_index = beginning_of_pass_write_index
         self.end_of_pass_write_index = end_of_pass_write_index
 
 
-@value
-struct WGPUVertexState:
+struct WGPUVertexState(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4055,11 +3686,9 @@ struct WGPUVertexState:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        module: WGPUShaderModule = WGPUShaderModule(),
-        entry_point: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        module: WGPUShaderModule = {},
+        entry_point: UnsafePointer[Int8] = {},
         constant_count: Int = Int(),
         constants: UnsafePointer[WGPUConstantEntry] = UnsafePointer[
             WGPUConstantEntry
@@ -4078,8 +3707,7 @@ struct WGPUVertexState:
         self.buffers = buffers
 
 
-@value
-struct WGPUPrimitiveState:
+struct WGPUPrimitiveState(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4092,9 +3720,7 @@ struct WGPUPrimitiveState:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
         topology: PrimitiveTopology = PrimitiveTopology(0),
         strip_index_format: IndexFormat = IndexFormat(0),
         front_face: FrontFace = FrontFace(0),
@@ -4107,8 +3733,7 @@ struct WGPUPrimitiveState:
         self.cull_mode = cull_mode
 
 
-@value
-struct WGPUPrimitiveDepthClipControl:
+struct WGPUPrimitiveDepthClipControl(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4118,15 +3743,14 @@ struct WGPUPrimitiveDepthClipControl:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
+        chain: ChainedStruct = {},
         unclipped_depth: Bool = False,
     ):
         self.chain = chain
         self.unclipped_depth = unclipped_depth
 
 
-@value
-struct WGPUDepthStencilState:
+struct WGPUDepthStencilState(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4145,19 +3769,17 @@ struct WGPUDepthStencilState:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
         format: TextureFormat = TextureFormat(0),
         depth_write_enabled: Bool = False,
         depth_compare: CompareFunction = CompareFunction(0),
-        owned stencil_front: WGPUStencilFaceState = WGPUStencilFaceState(),
-        owned stencil_back: WGPUStencilFaceState = WGPUStencilFaceState(),
-        stencil_read_mask: UInt32 = UInt32(),
-        stencil_write_mask: UInt32 = UInt32(),
-        depth_bias: Int32 = Int32(),
-        depth_bias_slope_scale: Float32 = Float32(),
-        depth_bias_clamp: Float32 = Float32(),
+        var stencil_front: WGPUStencilFaceState = {},
+        var stencil_back: WGPUStencilFaceState = {},
+        stencil_read_mask: UInt32 = {},
+        stencil_write_mask: UInt32 = {},
+        depth_bias: Int32 = {},
+        depth_bias_slope_scale: Float32 = {},
+        depth_bias_clamp: Float32 = {},
     ):
         self.next_in_chain = next_in_chain
         self.format = format
@@ -4172,8 +3794,7 @@ struct WGPUDepthStencilState:
         self.depth_bias_clamp = depth_bias_clamp
 
 
-@value
-struct WGPUMultisampleState:
+struct WGPUMultisampleState(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4185,11 +3806,9 @@ struct WGPUMultisampleState:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        count: UInt32 = UInt32(),
-        mask: UInt32 = UInt32(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        count: UInt32 = {},
+        mask: UInt32 = {},
         alpha_to_coverage_enabled: Bool = False,
     ):
         self.next_in_chain = next_in_chain
@@ -4198,8 +3817,7 @@ struct WGPUMultisampleState:
         self.alpha_to_coverage_enabled = alpha_to_coverage_enabled
 
 
-@value
-struct WGPUFragmentState:
+struct WGPUFragmentState(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4214,11 +3832,9 @@ struct WGPUFragmentState:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        module: WGPUShaderModule = WGPUShaderModule(),
-        entry_point: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        module: WGPUShaderModule = {},
+        entry_point: UnsafePointer[Int8] = {},
         constant_count: Int = Int(),
         constants: UnsafePointer[WGPUConstantEntry] = UnsafePointer[
             WGPUConstantEntry
@@ -4237,8 +3853,7 @@ struct WGPUFragmentState:
         self.targets = targets
 
 
-@value
-struct WGPUColorTargetState:
+struct WGPUColorTargetState(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4250,11 +3865,9 @@ struct WGPUColorTargetState:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
         format: TextureFormat = TextureFormat(0),
-        blend: UnsafePointer[WGPUBlendState] = UnsafePointer[WGPUBlendState](),
+        blend: UnsafePointer[WGPUBlendState] = {},
         write_mask: ColorWriteMask = ColorWriteMask(0),
     ):
         self.next_in_chain = next_in_chain
@@ -4263,8 +3876,7 @@ struct WGPUColorTargetState:
         self.write_mask = write_mask
 
 
-@value
-struct WGPUBlendState:
+struct WGPUBlendState(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4274,15 +3886,14 @@ struct WGPUBlendState:
 
     fn __init__(
         out self,
-        owned color: WGPUBlendComponent = WGPUBlendComponent(),
-        owned alpha: WGPUBlendComponent = WGPUBlendComponent(),
+        var color: WGPUBlendComponent = {},
+        var alpha: WGPUBlendComponent = {},
     ):
         self.color = color^
         self.alpha = alpha^
 
 
-@value
-struct WGPURenderPipelineDescriptor:
+struct WGPURenderPipelineDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4298,20 +3909,14 @@ struct WGPURenderPipelineDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        layout: WGPUPipelineLayout = WGPUPipelineLayout(),
-        owned vertex: WGPUVertexState = WGPUVertexState(),
-        owned primitive: WGPUPrimitiveState = WGPUPrimitiveState(),
-        depth_stencil: UnsafePointer[WGPUDepthStencilState] = UnsafePointer[
-            WGPUDepthStencilState
-        ](),
-        owned multisample: WGPUMultisampleState = WGPUMultisampleState(),
-        fragment: UnsafePointer[WGPUFragmentState] = UnsafePointer[
-            WGPUFragmentState
-        ](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
+        layout: WGPUPipelineLayout = {},
+        var vertex: WGPUVertexState = {},
+        var primitive: WGPUPrimitiveState = {},
+        depth_stencil: UnsafePointer[WGPUDepthStencilState] = {},
+        var multisample: WGPUMultisampleState = {},
+        fragment: UnsafePointer[WGPUFragmentState] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -4323,8 +3928,7 @@ struct WGPURenderPipelineDescriptor:
         self.fragment = fragment
 
 
-@value
-struct WGPUSamplerDescriptor:
+struct WGPUSamplerDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4344,20 +3948,18 @@ struct WGPUSamplerDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         address_mode_u: AddressMode = AddressMode(0),
         address_mode_v: AddressMode = AddressMode(0),
         address_mode_w: AddressMode = AddressMode(0),
         mag_filter: FilterMode = FilterMode(0),
         min_filter: FilterMode = FilterMode(0),
         mipmap_filter: MipmapFilterMode = MipmapFilterMode(0),
-        lod_min_clamp: Float32 = Float32(),
-        lod_max_clamp: Float32 = Float32(),
+        lod_min_clamp: Float32 = {},
+        lod_max_clamp: Float32 = {},
         compare: CompareFunction = CompareFunction(0),
-        max_anisotropy: UInt16 = UInt16(),
+        max_anisotropy: UInt16 = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -4373,8 +3975,7 @@ struct WGPUSamplerDescriptor:
         self.max_anisotropy = max_anisotropy
 
 
-@value
-struct WGPUShaderModuleDescriptor:
+struct WGPUShaderModuleDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4386,10 +3987,8 @@ struct WGPUShaderModuleDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         hint_count: Int = Int(),
         hints: UnsafePointer[WGPUShaderModuleCompilationHint] = UnsafePointer[
             WGPUShaderModuleCompilationHint
@@ -4401,8 +4000,7 @@ struct WGPUShaderModuleDescriptor:
         self.hints = hints
 
 
-@value
-struct WGPUShaderModuleCompilationHint:
+struct WGPUShaderModuleCompilationHint(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4413,19 +4011,16 @@ struct WGPUShaderModuleCompilationHint:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        entry_point: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        layout: WGPUPipelineLayout = WGPUPipelineLayout(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        entry_point: UnsafePointer[Int8] = {},
+        layout: WGPUPipelineLayout = {},
     ):
         self.next_in_chain = next_in_chain
         self.entry_point = entry_point
         self.layout = layout
 
 
-@value
-struct WGPUShaderModuleSpirvDescriptor:
+struct WGPUShaderModuleSpirvDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4436,17 +4031,16 @@ struct WGPUShaderModuleSpirvDescriptor:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
-        code_size: UInt32 = UInt32(),
-        code: UInt32 = UInt32(),
+        chain: ChainedStruct = {},
+        code_size: UInt32 = {},
+        code: UInt32 = {},
     ):
         self.chain = chain
         self.code_size = code_size
         self.code = code
 
 
-@value
-struct WGPUShaderModuleWgslDescriptor:
+struct WGPUShaderModuleWgslDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4456,15 +4050,14 @@ struct WGPUShaderModuleWgslDescriptor:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
-        code: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        chain: ChainedStruct = {},
+        code: UnsafePointer[Int8] = {},
     ):
         self.chain = chain
         self.code = code
 
 
-@value
-struct WGPUStencilFaceState:
+struct WGPUStencilFaceState(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4487,8 +4080,7 @@ struct WGPUStencilFaceState:
         self.pass_op = pass_op
 
 
-@value
-struct WGPUSurfaceDescriptor:
+struct WGPUSurfaceDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4498,17 +4090,16 @@ struct WGPUSurfaceDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
 
 
-@value
-struct WGPUSurfaceDescriptorFromAndroidNativeWindow:
+struct WGPUSurfaceDescriptorFromAndroidNativeWindow(
+    Copyable, ImplicitlyCopyable, Movable
+):
     """
     TODO
     """
@@ -4518,15 +4109,16 @@ struct WGPUSurfaceDescriptorFromAndroidNativeWindow:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
-        window: UnsafePointer[NoneType] = UnsafePointer[NoneType](),
+        chain: ChainedStruct = {},
+        window: UnsafePointer[NoneType] = {},
     ):
         self.chain = chain
         self.window = window
 
 
-@value
-struct WGPUSurfaceDescriptorFromCanvasHtmlSelector:
+struct WGPUSurfaceDescriptorFromCanvasHtmlSelector(
+    Copyable, ImplicitlyCopyable, Movable
+):
     """
     TODO
     """
@@ -4536,15 +4128,16 @@ struct WGPUSurfaceDescriptorFromCanvasHtmlSelector:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
-        selector: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        chain: ChainedStruct = {},
+        selector: UnsafePointer[Int8] = {},
     ):
         self.chain = chain
         self.selector = selector
 
 
-@value
-struct WGPUSurfaceDescriptorFromMetalLayer:
+struct WGPUSurfaceDescriptorFromMetalLayer(
+    Copyable, ImplicitlyCopyable, Movable
+):
     """
     TODO
     """
@@ -4554,15 +4147,16 @@ struct WGPUSurfaceDescriptorFromMetalLayer:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
-        layer: UnsafePointer[NoneType] = UnsafePointer[NoneType](),
+        chain: ChainedStruct = {},
+        layer: UnsafePointer[NoneType] = {},
     ):
         self.chain = chain
         self.layer = layer
 
 
-@value
-struct WGPUSurfaceDescriptorFromWindowsHwnd:
+struct WGPUSurfaceDescriptorFromWindowsHwnd(
+    Copyable, ImplicitlyCopyable, Movable
+):
     """
     TODO
     """
@@ -4573,17 +4167,18 @@ struct WGPUSurfaceDescriptorFromWindowsHwnd:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
-        hinstance: UnsafePointer[NoneType] = UnsafePointer[NoneType](),
-        hwnd: UnsafePointer[NoneType] = UnsafePointer[NoneType](),
+        chain: ChainedStruct = {},
+        hinstance: UnsafePointer[NoneType] = {},
+        hwnd: UnsafePointer[NoneType] = {},
     ):
         self.chain = chain
         self.hinstance = hinstance
         self.hwnd = hwnd
 
 
-@value
-struct WGPUSurfaceDescriptorFromXcbWindow:
+struct WGPUSurfaceDescriptorFromXcbWindow(
+    Copyable, ImplicitlyCopyable, Movable
+):
     """
     TODO
     """
@@ -4594,17 +4189,18 @@ struct WGPUSurfaceDescriptorFromXcbWindow:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
-        connection: UnsafePointer[NoneType] = UnsafePointer[NoneType](),
-        window: UInt32 = UInt32(),
+        chain: ChainedStruct = {},
+        connection: UnsafePointer[NoneType] = {},
+        window: UInt32 = {},
     ):
         self.chain = chain
         self.connection = connection
         self.window = window
 
 
-@value
-struct WGPUSurfaceDescriptorFromXlibWindow:
+struct WGPUSurfaceDescriptorFromXlibWindow(
+    Copyable, ImplicitlyCopyable, Movable
+):
     """
     TODO
     """
@@ -4615,17 +4211,18 @@ struct WGPUSurfaceDescriptorFromXlibWindow:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
-        display: UnsafePointer[NoneType] = UnsafePointer[NoneType](),
-        window: UInt64 = UInt64(),
+        chain: ChainedStruct = {},
+        display: UnsafePointer[NoneType] = {},
+        window: UInt64 = {},
     ):
         self.chain = chain
         self.display = display
         self.window = window
 
 
-@value
-struct WGPUSurfaceDescriptorFromWaylandSurface:
+struct WGPUSurfaceDescriptorFromWaylandSurface(
+    Copyable, ImplicitlyCopyable, Movable
+):
     """
     TODO
     """
@@ -4636,17 +4233,16 @@ struct WGPUSurfaceDescriptorFromWaylandSurface:
 
     fn __init__(
         out self,
-        chain: ChainedStruct = ChainedStruct(),
-        display: UnsafePointer[NoneType] = UnsafePointer[NoneType](),
-        surface: UnsafePointer[NoneType] = UnsafePointer[NoneType](),
+        chain: ChainedStruct = {},
+        display: UnsafePointer[NoneType] = {},
+        surface: UnsafePointer[NoneType] = {},
     ):
         self.chain = chain
         self.display = display
         self.surface = surface
 
 
-@value
-struct WGPUSurfaceTexture:
+struct WGPUSurfaceTexture(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4657,7 +4253,7 @@ struct WGPUSurfaceTexture:
 
     fn __init__(
         out self,
-        texture: WGPUTexture = WGPUTexture(),
+        texture: WGPUTexture = {},
         suboptimal: Bool = False,
         status: SurfaceGetCurrentTextureStatus = SurfaceGetCurrentTextureStatus(
             0
@@ -4668,8 +4264,7 @@ struct WGPUSurfaceTexture:
         self.status = status
 
 
-@value
-struct WGPUTextureDataLayout:
+struct WGPUTextureDataLayout(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4681,12 +4276,10 @@ struct WGPUTextureDataLayout:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        offset: UInt64 = UInt64(),
-        bytes_per_row: UInt32 = UInt32(),
-        rows_per_image: UInt32 = UInt32(),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        offset: UInt64 = {},
+        bytes_per_row: UInt32 = {},
+        rows_per_image: UInt32 = {},
     ):
         self.next_in_chain = next_in_chain
         self.offset = offset
@@ -4694,8 +4287,7 @@ struct WGPUTextureDataLayout:
         self.rows_per_image = rows_per_image
 
 
-@value
-struct WGPUTextureDescriptor:
+struct WGPUTextureDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4713,16 +4305,14 @@ struct WGPUTextureDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         usage: TextureUsage = TextureUsage(0),
         dimension: TextureDimension = TextureDimension(0),
-        owned size: WGPUExtent3D = WGPUExtent3D(),
+        var size: WGPUExtent3D = {},
         format: TextureFormat = TextureFormat(0),
-        mip_level_count: UInt32 = UInt32(),
-        sample_count: UInt32 = UInt32(),
+        mip_level_count: UInt32 = {},
+        sample_count: UInt32 = {},
         view_format_count: Int = Int(),
         view_formats: UnsafePointer[TextureFormat] = UnsafePointer[
             TextureFormat
@@ -4740,8 +4330,7 @@ struct WGPUTextureDescriptor:
         self.view_formats = view_formats
 
 
-@value
-struct WGPUTextureViewDescriptor:
+struct WGPUTextureViewDescriptor(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4758,16 +4347,14 @@ struct WGPUTextureViewDescriptor:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        label: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        label: UnsafePointer[Int8] = {},
         format: TextureFormat = TextureFormat(0),
         dimension: TextureViewDimension = TextureViewDimension(0),
-        base_mip_level: UInt32 = UInt32(),
-        mip_level_count: UInt32 = MIP_LEVEL_COUNT_UNDEFINED,
-        base_array_layer: UInt32 = UInt32(),
-        array_layer_count: UInt32 = ARRAY_LAYER_COUNT_UNDEFINED,
+        base_mip_level: UInt32 = {},
+        mip_level_count: UInt32 = {},
+        base_array_layer: UInt32 = {},
+        array_layer_count: UInt32 = {},
         aspect: TextureAspect = TextureAspect(0),
     ):
         self.next_in_chain = next_in_chain
@@ -4781,8 +4368,7 @@ struct WGPUTextureViewDescriptor:
         self.aspect = aspect
 
 
-@value
-struct WGPUUncapturedErrorCallbackInfo:
+struct WGPUUncapturedErrorCallbackInfo(Copyable, ImplicitlyCopyable, Movable):
     """
     TODO
     """
@@ -4793,20 +4379,13 @@ struct WGPUUncapturedErrorCallbackInfo:
 
     fn __init__(
         out self,
-        next_in_chain: UnsafePointer[ChainedStruct] = UnsafePointer[
-            ChainedStruct
-        ](),
-        callback: UnsafePointer[NoneType] = UnsafePointer[NoneType](),
-        userdata: UnsafePointer[NoneType] = UnsafePointer[NoneType](),
+        next_in_chain: UnsafePointer[ChainedStruct] = {},
+        callback: UnsafePointer[NoneType] = {},
+        userdata: UnsafePointer[NoneType] = {},
     ):
         self.next_in_chain = next_in_chain
         self.callback = callback
         self.userdata = userdata
-
-
-var _wgpuCreateInstance = _wgpu.get_function[
-    fn (UnsafePointer[WGPUInstanceDescriptor]) -> WGPUInstance
-]("wgpuCreateInstance")
 
 
 fn create_instance(
@@ -4815,7 +4394,11 @@ fn create_instance(
     """
     TODO
     """
-    return _wgpuCreateInstance(UnsafePointer.address_of(descriptor))
+    return external_call[
+        "wgpuCreateInstance",
+        WGPUInstance,
+        UnsafePointer[WGPUInstanceDescriptor],
+    ](UnsafePointer(to=descriptor))
 
 
 alias DeviceLostCallback = fn (
@@ -4836,8 +4419,7 @@ alias ErrorCallback = fn (
 # WGPU SPECIFIC DEFS
 
 
-@value
-struct WGPUInstanceExtras:
+struct WGPUInstanceExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var backends: InstanceBackend
     var flags: InstanceFlag
@@ -4865,8 +4447,7 @@ struct WGPUInstanceExtras:
         self.dxc_path = dxc_path
 
 
-@value
-struct WGPUDeviceExtras:
+struct WGPUDeviceExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var trace_path: UnsafePointer[Int8]
 
@@ -4879,8 +4460,7 @@ struct WGPUDeviceExtras:
         self.trace_path = trace_path
 
 
-@value
-struct WGPUNativeLimits:
+struct WGPUNativeLimits(Copyable, ImplicitlyCopyable, Movable):
     var max_push_constant_size: UInt32
     var max_non_sampler_bindings: UInt32
 
@@ -4893,8 +4473,7 @@ struct WGPUNativeLimits:
         self.max_non_sampler_bindings = max_non_sampler_bindings
 
 
-@value
-struct WGPURequiredLimitsExtras:
+struct WGPURequiredLimitsExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var limits: WGPUNativeLimits
 
@@ -4907,8 +4486,7 @@ struct WGPURequiredLimitsExtras:
         self.limits = limits
 
 
-@value
-struct WGPUSupportedLimitsExtras:
+struct WGPUSupportedLimitsExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var limits: WGPUNativeLimits
 
@@ -4921,8 +4499,7 @@ struct WGPUSupportedLimitsExtras:
         self.limits = limits
 
 
-@value
-struct WGPUPushConstantRange:
+struct WGPUPushConstantRange(Copyable, ImplicitlyCopyable, Movable):
     var stages: ShaderStage
     var start: UInt32
     var end: UInt32
@@ -4938,8 +4515,7 @@ struct WGPUPushConstantRange:
         self.end = end
 
 
-@value
-struct WGPUPipelineLayoutExtras:
+struct WGPUPipelineLayoutExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var push_constant_range_count: Int
     var push_constant_ranges: UnsafePointer[WGPUPushConstantRange]
@@ -4960,8 +4536,7 @@ struct WGPUPipelineLayoutExtras:
 alias WGPUSubmissionIndex = UInt64
 
 
-@value
-struct WGPUWrappedSubmissionIndex:
+struct WGPUWrappedSubmissionIndex(Copyable, ImplicitlyCopyable, Movable):
     var queue: WGPUQueue
     var submission_index: WGPUSubmissionIndex
 
@@ -4974,8 +4549,7 @@ struct WGPUWrappedSubmissionIndex:
         self.submission_index = submission_index
 
 
-@value
-struct WGPUShaderDefine:
+struct WGPUShaderDefine(Copyable, ImplicitlyCopyable, Movable):
     var name: UnsafePointer[Int8]
     var value: UnsafePointer[Int8]
 
@@ -4988,8 +4562,7 @@ struct WGPUShaderDefine:
         self.value = value
 
 
-@value
-struct WGPUShaderModuleGLSLDescriptor:
+struct WGPUShaderModuleGLSLDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var stage: ShaderStage
     var code: UnsafePointer[Int8]
@@ -5013,8 +4586,7 @@ struct WGPUShaderModuleGLSLDescriptor:
         self.defines = defines
 
 
-@value
-struct WGPURegistryReport:
+struct WGPURegistryReport(Copyable, ImplicitlyCopyable, Movable):
     var num_allocated: Int
     var num_kept_from_user: Int
     var num_released_from_user: Int
@@ -5036,8 +4608,7 @@ struct WGPURegistryReport:
         self.element_size = element_size
 
 
-@value
-struct WGPUHubReport:
+struct WGPUHubReport(Copyable, ImplicitlyCopyable, Movable):
     var adapters: WGPURegistryReport
     var devices: WGPURegistryReport
     var queues: WGPURegistryReport
@@ -5092,8 +4663,7 @@ struct WGPUHubReport:
         self.samplers = samplers
 
 
-@value
-struct WGPUGlobalReport:
+struct WGPUGlobalReport(Copyable, ImplicitlyCopyable, Movable):
     var surfaces: WGPURegistryReport
     var backend_type: BackendType
     var vulkan: WGPUHubReport
@@ -5118,8 +4688,9 @@ struct WGPUGlobalReport:
         self.gl = gl
 
 
-@value
-struct WGPUInstanceEnumerateAdapterOptions:
+struct WGPUInstanceEnumerateAdapterOptions(
+    Copyable, ImplicitlyCopyable, Movable
+):
     var chain: ChainedStruct
     var backends: InstanceBackend
 
@@ -5132,8 +4703,7 @@ struct WGPUInstanceEnumerateAdapterOptions:
         self.backends = backends
 
 
-@value
-struct WGPUBindGroupEntryExtras:
+struct WGPUBindGroupEntryExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var buffers: UnsafePointer[WGPUBuffer]
     var buffer_count: Int
@@ -5163,8 +4733,7 @@ struct WGPUBindGroupEntryExtras:
         self.texture_view_count = texture_view_count
 
 
-@value
-struct WGPUBindGroupLayoutEntryExtras:
+struct WGPUBindGroupLayoutEntryExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var count: UInt32
 
@@ -5175,8 +4744,7 @@ struct WGPUBindGroupLayoutEntryExtras:
         self.count = count
 
 
-@value
-struct WGPUQuerySetDescriptorExtras:
+struct WGPUQuerySetDescriptorExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var pipeline_statistics: UnsafePointer[PipelineStatisticName]
     var pipeline_statistics_count: Int
@@ -5194,8 +4762,7 @@ struct WGPUQuerySetDescriptorExtras:
         self.pipeline_statistics_count = pipeline_statistics_count
 
 
-@value
-struct WGPUSurfaceConfigurationExtras:
+struct WGPUSurfaceConfigurationExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var desired_maximum_frame_latency: UInt32
 
@@ -5216,9 +4783,12 @@ alias WGPULogCallback = fn (
 
 
 fn generate_report(instance: WGPUInstance, report: WGPUGlobalReport):
-    _wgpu.get_function[
-        fn (WGPUInstance, UnsafePointer[WGPUGlobalReport]) -> None
-    ]("wgpuGenerateReport")(instance, UnsafePointer.address_of(report))
+    external_call[
+        "wgpuGenerateReport",
+        NoneType,
+        WGPUInstance,
+        UnsafePointer[WGPUGlobalReport],
+    ](instance, UnsafePointer(to=report))
 
 
 fn instance_enumerate_adapters(
@@ -5226,15 +4796,13 @@ fn instance_enumerate_adapters(
     options: WGPUInstanceEnumerateAdapterOptions,
     adapters: UnsafePointer[WGPUAdapter],
 ) -> Int:
-    return _wgpu.get_function[
-        fn (
-            WGPUInstance,
-            UnsafePointer[WGPUInstanceEnumerateAdapterOptions],
-            UnsafePointer[WGPUAdapter],
-        ) -> Int
-    ]("wgpuInstanceEnumerateAdapters")(
-        instance, UnsafePointer.address_of(options), adapters
-    )
+    return external_call[
+        "wgpuInstanceEnumerateAdapters",
+        Int,
+        WGPUInstance,
+        UnsafePointer[WGPUInstanceEnumerateAdapterOptions],
+        UnsafePointer[WGPUAdapter],
+    ](instance, UnsafePointer(to=options), adapters)
 
 
 fn queue_submit_for_index(
@@ -5242,11 +4810,13 @@ fn queue_submit_for_index(
     command_count: Int,
     commands: UnsafePointer[WGPUCommandBuffer],
 ) -> WGPUSubmissionIndex:
-    return _wgpu.get_function[
-        fn (
-            WGPUQueue, Int, UnsafePointer[WGPUCommandBuffer]
-        ) -> WGPUSubmissionIndex
-    ]("wgpuQueueSubmitForIndex")(queue, command_count, commands)
+    return external_call[
+        "wgpuQueueSubmitForIndex",
+        WGPUSubmissionIndex,
+        WGPUQueue,
+        Int,
+        UnsafePointer[WGPUCommandBuffer],
+    ](queue, command_count, commands)
 
 
 fn device_poll(
@@ -5256,29 +4826,37 @@ fn device_poll(
 ) -> Bool:
     """Returns true if the queue is empty, or false if there are more queue submissions still in flight.
     """
-    return _wgpu.get_function[
-        fn (WGPUDevice, Bool, UnsafePointer[WGPUWrappedSubmissionIndex]) -> Bool
-    ]("wgpuDevicePoll")(
+    return external_call[
+        "wgpuDevicePoll",
+        Bool,
+        WGPUDevice,
+        Bool,
+        UnsafePointer[WGPUWrappedSubmissionIndex],
+    ](
         device,
         wait,
-        UnsafePointer[WGPUWrappedSubmissionIndex, mut=False](),
+        UnsafePointer(
+            to=wrapped_submission_index.value()
+        ) if wrapped_submission_index else UnsafePointer[
+            WGPUWrappedSubmissionIndex
+        ](),
     )
 
 
 fn set_log_callback(
     callback: WGPULogCallback, userdata: UnsafePointer[NoneType]
 ):
-    _wgpu.get_function[fn (WGPULogCallback, UnsafePointer[NoneType]) -> None](
-        "wgpuSetLogCallback"
-    )(callback, userdata)
+    _ = external_call[
+        "wgpuSetLogCallback", NoneType, WGPULogCallback, UnsafePointer[NoneType]
+    ](callback, userdata)
 
 
 fn set_log_level(level: LogLevel):
-    _wgpu.get_function[fn (Int) -> None]("wgpuSetLogLevel")(level.value)
+    _ = external_call["wgpuSetLogLevel", NoneType, Int](level.value)
 
 
 fn get_version() -> UInt32:
-    return _wgpu.get_function[fn () -> UInt32]("wgpuGetVersion")()
+    return external_call["wgpuGetVersion", UInt32]()
 
 
 fn render_pass_encoder_set_push_constants(
@@ -5288,17 +4866,15 @@ fn render_pass_encoder_set_push_constants(
     size_bytes: UInt32,
     data: UnsafePointer[NoneType],
 ):
-    _wgpu.get_function[
-        fn (
-            WGPURenderPassEncoder,
-            ShaderStage,
-            UInt32,
-            UInt32,
-            UnsafePointer[NoneType],
-        ) -> None
-    ]("wgpuRenderPassEncoderSetPushConstants")(
-        encoder, stages, offset, size_bytes, data
-    )
+    _ = external_call[
+        "wgpuRenderPassEncoderSetPushConstants",
+        NoneType,
+        WGPURenderPassEncoder,
+        ShaderStage,
+        UInt32,
+        UInt32,
+        UnsafePointer[NoneType],
+    ](encoder, stages, offset, size_bytes, data)
 
 
 fn render_pass_encoder_multi_draw_indirect(
@@ -5307,9 +4883,14 @@ fn render_pass_encoder_multi_draw_indirect(
     offset: UInt64,
     count: UInt32,
 ):
-    _wgpu.get_function[
-        fn (WGPURenderPassEncoder, WGPUBuffer, UInt64, UInt32) -> None
-    ]("wgpuRenderPassEncoderMultiDrawIndirect")(encoder, buffer, offset, count)
+    _ = external_call[
+        "wgpuRenderPassEncoderMultiDrawIndirect",
+        NoneType,
+        WGPURenderPassEncoder,
+        WGPUBuffer,
+        UInt64,
+        UInt32,
+    ](encoder, buffer, offset, count)
 
 
 fn render_pass_encoder_multi_draw_indexed_indirect(
@@ -5318,11 +4899,14 @@ fn render_pass_encoder_multi_draw_indexed_indirect(
     offset: UInt64,
     count: UInt32,
 ):
-    _wgpu.get_function[
-        fn (WGPURenderPassEncoder, WGPUBuffer, UInt64, UInt32) -> None
-    ]("wgpuRenderPassEncoderMultiDrawIndexedIndirect")(
-        encoder, buffer, offset, count
-    )
+    _ = external_call[
+        "wgpuRenderPassEncoderMultiDrawIndexedIndirect",
+        NoneType,
+        WGPURenderPassEncoder,
+        WGPUBuffer,
+        UInt64,
+        UInt32,
+    ](encoder, buffer, offset, count)
 
 
 fn render_pass_encoder_multi_draw_indirect_count(
@@ -5333,18 +4917,16 @@ fn render_pass_encoder_multi_draw_indirect_count(
     count_buffer_offset: UInt64,
     max_count: UInt32,
 ):
-    _wgpu.get_function[
-        fn (
-            WGPURenderPassEncoder,
-            WGPUBuffer,
-            UInt64,
-            WGPUBuffer,
-            UInt64,
-            UInt32,
-        ) -> None
-    ]("wgpuRenderPassEncoderMultiDrawIndirectCount")(
-        encoder, buffer, offset, count_buffer, count_buffer_offset, max_count
-    )
+    _ = external_call[
+        "wgpuRenderPassEncoderMultiDrawIndirectCount",
+        NoneType,
+        WGPURenderPassEncoder,
+        WGPUBuffer,
+        UInt64,
+        WGPUBuffer,
+        UInt64,
+        UInt32,
+    ](encoder, buffer, offset, count_buffer, count_buffer_offset, max_count)
 
 
 fn render_pass_encoder_multi_draw_indexed_indirect_count(
@@ -5355,18 +4937,16 @@ fn render_pass_encoder_multi_draw_indexed_indirect_count(
     count_buffer_offset: UInt64,
     max_count: UInt32,
 ):
-    _wgpu.get_function[
-        fn (
-            WGPURenderPassEncoder,
-            WGPUBuffer,
-            UInt64,
-            WGPUBuffer,
-            UInt64,
-            UInt32,
-        ) -> None
-    ]("wgpuRenderPassEncoderMultiDrawIndexedIndirectCount")(
-        encoder, buffer, offset, count_buffer, count_buffer_offset, max_count
-    )
+    _ = external_call[
+        "wgpuRenderPassEncoderMultiDrawIndexedIndirectCount",
+        NoneType,
+        WGPURenderPassEncoder,
+        WGPUBuffer,
+        UInt64,
+        WGPUBuffer,
+        UInt64,
+        UInt32,
+    ](encoder, buffer, offset, count_buffer, count_buffer_offset, max_count)
 
 
 fn compute_pass_encoder_begin_pipeline_statistics_query(
@@ -5374,19 +4954,23 @@ fn compute_pass_encoder_begin_pipeline_statistics_query(
     query_set: WGPUQuerySet,
     query_index: UInt32,
 ):
-    _wgpu.get_function[
-        fn (WGPUComputePassEncoder, WGPUQuerySet, UInt32) -> None
-    ]("wgpuComputePassEncoderBeginPipelineStatisticsQuery")(
-        compute_pass_encoder, query_set, query_index
-    )
+    _ = external_call[
+        "wgpuComputePassEncoderBeginPipelineStatisticsQuery",
+        NoneType,
+        WGPUComputePassEncoder,
+        WGPUQuerySet,
+        UInt32,
+    ](compute_pass_encoder, query_set, query_index)
 
 
 fn compute_pass_encoder_end_pipeline_statistics_query(
     compute_pass_encoder: WGPUComputePassEncoder,
 ):
-    _wgpu.get_function[fn (WGPUComputePassEncoder) -> None](
-        "wgpuComputePassEncoderEndPipelineStatisticsQuery"
-    )(compute_pass_encoder)
+    _ = external_call[
+        "wgpuComputePassEncoderEndPipelineStatisticsQuery",
+        NoneType,
+        WGPUComputePassEncoder,
+    ](compute_pass_encoder)
 
 
 fn render_pass_encoder_begin_pipeline_statistics_query(
@@ -5394,16 +4978,28 @@ fn render_pass_encoder_begin_pipeline_statistics_query(
     query_set: WGPUQuerySet,
     query_index: UInt32,
 ):
-    _wgpu.get_function[
-        fn (WGPURenderPassEncoder, WGPUQuerySet, UInt32) -> None
-    ]("wgpuRenderPassEncoderBeginPipelineStatisticsQuery")(
-        render_pass_encoder, query_set, query_index
-    )
+    _ = external_call[
+        "wgpuRenderPassEncoderBeginPipelineStatisticsQuery",
+        NoneType,
+        WGPURenderPassEncoder,
+        WGPUQuerySet,
+        UInt32,
+    ](render_pass_encoder, query_set, query_index)
 
 
 fn render_pass_encoder_end_pipeline_statistics_query(
     render_pass_encoder: WGPURenderPassEncoder,
 ):
-    _wgpu.get_function[fn (WGPURenderPassEncoder) -> None](
-        "wgpuRenderPassEncoderEndPipelineStatisticsQuery"
-    )(render_pass_encoder)
+    _ = external_call[
+        "wgpuRenderPassEncoderEndPipelineStatisticsQuery",
+        NoneType,
+        WGPURenderPassEncoder,
+    ](render_pass_encoder)
+
+
+fn surface_capabilities_free_members(capabilities: WGPUSurfaceCapabilities):
+    external_call[
+        "wgpuSurfaceCapabilitiesFreeMembers",
+        NoneType,
+        UnsafePointer[WGPUSurfaceCapabilities],
+    ](UnsafePointer(to=capabilities))
