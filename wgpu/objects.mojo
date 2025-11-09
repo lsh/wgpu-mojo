@@ -39,7 +39,7 @@ struct Adapter(Movable):
         """
         return _c.adapter_has_feature(self._handle, feature)
 
-    # fn adapter_enumerate_features(
+    # fn enumerate_features(
     #     handle: WGPUAdapter, features: FeatureName
     # ) -> UInt:
     #     """
@@ -49,7 +49,7 @@ struct Adapter(Movable):
     #         "wgpuAdapterEnumerateFeatures"
     #     )(handle, features)
 
-    # fn adapter_get_info(handle: WGPUAdapter, info: WGPUAdapterInfo) -> None:
+    # fn get_info(handle: WGPUAdapter, info: WGPUAdapterInfo) -> None:
     #     """
     #     TODO
     #     """
@@ -57,7 +57,7 @@ struct Adapter(Movable):
     #         fn (WGPUAdapter, UnsafePointer[WGPUAdapterInfo]) -> None
     #     ]("wgpuAdapterGetInfo")(handle, UnsafePointer(to=info))
 
-    fn adapter_request_device(
+    fn request_device(
         self,
         label: String = "",
         required_features: List[FeatureName] = List[FeatureName](),

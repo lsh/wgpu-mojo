@@ -1,6 +1,10 @@
 @fieldwise_init
 @register_passable("trivial")
 struct BufferUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -50,6 +54,10 @@ struct BufferUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 struct ColorWriteMask(
     Copyable, EqualityComparable, ImplicitlyCopyable, Movable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -87,6 +95,10 @@ struct ColorWriteMask(
 @fieldwise_init
 @register_passable("trivial")
 struct MapMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -118,6 +130,10 @@ struct MapMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct ShaderStage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -151,6 +167,10 @@ struct ShaderStage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct TextureUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:

@@ -1,12 +1,12 @@
-import json
 import enum
-import sys
+import json
 import math
-from pathlib import Path
-from typing import Optional
+import sys
 from dataclasses import dataclass
+from itertools import filterfalse, tee
+from pathlib import Path
 from types import SimpleNamespace
-from itertools import tee, filterfalse
+from typing import Optional
 
 
 def partition(predicate, iterable):
@@ -139,7 +139,7 @@ def gen_enum(entry: Enum) -> str:
     output = f"""
 @fieldwise_init
 @register_passable("trivial")
-struct {entry.name.title().replace("_", "")}(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct {entry.name.title().replace("_", "")}(Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable):
     \"\"\"
     {entry.doc.strip()}
     \"\"\"

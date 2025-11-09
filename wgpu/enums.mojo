@@ -1,8 +1,12 @@
 @fieldwise_init
 @register_passable("trivial")
 struct RequestAdapterStatus(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -33,7 +37,13 @@ struct RequestAdapterStatus(
 
 @fieldwise_init
 @register_passable("trivial")
-struct AdapterType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct AdapterType(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -64,7 +74,13 @@ struct AdapterType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 
 @fieldwise_init
 @register_passable("trivial")
-struct AddressMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct AddressMode(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -90,7 +106,13 @@ struct AddressMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 
 @fieldwise_init
 @register_passable("trivial")
-struct BackendType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct BackendType(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -147,8 +169,12 @@ struct BackendType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct BufferBindingType(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -180,8 +206,12 @@ struct BufferBindingType(
 @fieldwise_init
 @register_passable("trivial")
 struct SamplerBindingType(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -213,8 +243,12 @@ struct SamplerBindingType(
 @fieldwise_init
 @register_passable("trivial")
 struct TextureSampleType(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -256,8 +290,12 @@ struct TextureSampleType(
 @fieldwise_init
 @register_passable("trivial")
 struct StorageTextureAccess(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -288,7 +326,13 @@ struct StorageTextureAccess(
 
 @fieldwise_init
 @register_passable("trivial")
-struct BlendFactor(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct BlendFactor(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -365,8 +409,12 @@ struct BlendFactor(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct BlendOperation(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -403,8 +451,12 @@ struct BlendOperation(
 @fieldwise_init
 @register_passable("trivial")
 struct BufferMapAsyncStatus(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -461,8 +513,12 @@ struct BufferMapAsyncStatus(
 @fieldwise_init
 @register_passable("trivial")
 struct BufferMapState(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -489,8 +545,12 @@ struct BufferMapState(
 @fieldwise_init
 @register_passable("trivial")
 struct CompareFunction(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -547,8 +607,12 @@ struct CompareFunction(
 @fieldwise_init
 @register_passable("trivial")
 struct CompilationInfoRequestStatus(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -580,8 +644,12 @@ struct CompilationInfoRequestStatus(
 @fieldwise_init
 @register_passable("trivial")
 struct CompilationMessageType(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -608,8 +676,12 @@ struct CompilationMessageType(
 @fieldwise_init
 @register_passable("trivial")
 struct CompositeAlphaMode(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -646,8 +718,12 @@ struct CompositeAlphaMode(
 @fieldwise_init
 @register_passable("trivial")
 struct CreatePipelineAsyncStatus(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -688,7 +764,13 @@ struct CreatePipelineAsyncStatus(
 
 @fieldwise_init
 @register_passable("trivial")
-struct CullMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct CullMode(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -715,8 +797,12 @@ struct CullMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct DeviceLostReason(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -737,7 +823,13 @@ struct DeviceLostReason(
 
 @fieldwise_init
 @register_passable("trivial")
-struct ErrorFilter(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct ErrorFilter(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -763,7 +855,13 @@ struct ErrorFilter(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 
 @fieldwise_init
 @register_passable("trivial")
-struct ErrorType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct ErrorType(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -804,7 +902,13 @@ struct ErrorType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 
 @fieldwise_init
 @register_passable("trivial")
-struct FeatureName(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct FeatureName(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -875,7 +979,13 @@ struct FeatureName(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 
 @fieldwise_init
 @register_passable("trivial")
-struct FilterMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct FilterMode(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -896,7 +1006,13 @@ struct FilterMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 
 @fieldwise_init
 @register_passable("trivial")
-struct FrontFace(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct FrontFace(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -917,7 +1033,13 @@ struct FrontFace(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 
 @fieldwise_init
 @register_passable("trivial")
-struct IndexFormat(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct IndexFormat(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -944,8 +1066,12 @@ struct IndexFormat(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct VertexStepMode(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -971,7 +1097,13 @@ struct VertexStepMode(
 
 @fieldwise_init
 @register_passable("trivial")
-struct LoadOp(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct LoadOp(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -998,8 +1130,12 @@ struct LoadOp(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct MipmapFilterMode(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1020,7 +1156,13 @@ struct MipmapFilterMode(
 
 @fieldwise_init
 @register_passable("trivial")
-struct StoreOp(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct StoreOp(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1047,8 +1189,12 @@ struct StoreOp(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct PowerPreference(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1074,7 +1220,13 @@ struct PowerPreference(
 
 @fieldwise_init
 @register_passable("trivial")
-struct PresentMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct PresentMode(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1106,8 +1258,12 @@ struct PresentMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct PrimitiveTopology(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1143,7 +1299,13 @@ struct PrimitiveTopology(
 
 @fieldwise_init
 @register_passable("trivial")
-struct QueryType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct QueryType(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1165,8 +1327,12 @@ struct QueryType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct QueueWorkDoneStatus(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1198,8 +1364,12 @@ struct QueueWorkDoneStatus(
 @fieldwise_init
 @register_passable("trivial")
 struct RequestDeviceStatus(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1226,8 +1396,12 @@ struct RequestDeviceStatus(
 @fieldwise_init
 @register_passable("trivial")
 struct StencilOperation(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1278,7 +1452,13 @@ struct StencilOperation(
 
 @fieldwise_init
 @register_passable("trivial")
-struct SType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct SType(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1350,8 +1530,12 @@ struct SType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct SurfaceGetCurrentTextureStatus(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1392,7 +1576,13 @@ struct SurfaceGetCurrentTextureStatus(
 
 @fieldwise_init
 @register_passable("trivial")
-struct TextureAspect(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct TextureAspect(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1419,8 +1609,12 @@ struct TextureAspect(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct TextureDimension(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1446,7 +1640,13 @@ struct TextureDimension(
 
 @fieldwise_init
 @register_passable("trivial")
-struct TextureFormat(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct TextureFormat(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1938,8 +2138,12 @@ struct TextureFormat(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct TextureViewDimension(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -1985,7 +2189,13 @@ struct TextureViewDimension(
 
 @fieldwise_init
 @register_passable("trivial")
-struct VertexFormat(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
+struct VertexFormat(
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
+):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -2152,8 +2362,12 @@ struct VertexFormat(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 @fieldwise_init
 @register_passable("trivial")
 struct WgslFeatureName(
-    Copyable, EqualityComparable, ImplicitlyCopyable, Movable
+    Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable
 ):
+    """
+    TODO
+    """
+
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
