@@ -29,7 +29,10 @@ struct Adapter(Movable):
 
     fn limits(self) raises -> Limits:
         var limits = _cffi.WGPUSupportedLimits()
-        if _cffi.adapter_get_limits(self._handle, limits) != 0:
+        if (
+            _cffi.adapter_get_limits(self._handle, UnsafePointer(to=limits))
+            != 0
+        ):
             raise Error("Failed to get limits")
         return limits.limits
 
@@ -280,12 +283,12 @@ struct CommandEncoder(Movable):
         """
         TODO
         """
-        return CommandBuffer(
-            _c.command_encoder_finish(
-                self._handle,
-                _c.WGPUCommandBufferDescriptor(label=label.unsafe_cstr_ptr()),
-            )
+        desc = _c.WGPUCommandBufferDescriptor(label=label.unsafe_cstr_ptr())
+        var buffer = CommandBuffer(
+            _c.command_encoder_finish(self._handle, UnsafePointer(to=desc))
         )
+        _ = desc
+        return buffer^
 
     # fn command_encoder_begin_compute_pass(
     #     handle: WGPUCommandEncoder,
@@ -331,15 +334,17 @@ struct CommandEncoder(Movable):
                     clear_value=attachment.clear_value,
                 )
             )
+
+        desc = _c.WGPURenderPassDescriptor(
+            label=label.unsafe_cstr_ptr(),
+            color_attachment_count=len(attachments),
+            color_attachments=attachments.unsafe_ptr(),
+        )
         handle = _c.command_encoder_begin_render_pass(
-            self._handle,
-            _c.WGPURenderPassDescriptor(
-                label=label.unsafe_cstr_ptr(),
-                color_attachment_count=len(attachments),
-                color_attachments=attachments.unsafe_ptr(),
-            ),
+            self._handle, UnsafePointer(to=desc)
         )
         _ = attachments
+        _ = desc
         return RenderPassEncoder(handle)
 
     fn copy_buffer_to_buffer(
@@ -731,16 +736,17 @@ struct Device(Movable):
                         size=entry.resource.buffer().size,
                     )
                 )
+        desc = _c.WGPUBindGroupDescriptor(
+            label=descriptor.label.unsafe_cstr_ptr(),
+            layout=descriptor.layout[]._handle,
+            entrie_count=len(descriptor.entries),
+            entries=entries.unsafe_ptr(),
+        )
         handle = _c.device_create_bind_group(
-            self._handle,
-            _c.WGPUBindGroupDescriptor(
-                label=descriptor.label.unsafe_cstr_ptr(),
-                layout=descriptor.layout[]._handle,
-                entrie_count=len(descriptor.entries),
-                entries=entries.unsafe_ptr(),
-            ),
+            self._handle, UnsafePointer(to=desc)
         )
         _ = entries
+        _ = desc
         return BindGroup(handle)
 
     fn create_bind_group_layout(
@@ -779,43 +785,49 @@ struct Device(Movable):
                 )
             entries.append(c_entry)
 
-        return BindGroupLayout(
+        desc = _c.WGPUBindGroupLayoutDescriptor(
+            label=descriptor.label.unsafe_cstr_ptr(),
+            entrie_count=len(descriptor.entries),
+            entries=entries.unsafe_ptr(),
+        )
+        layout = BindGroupLayout(
             _c.device_create_bind_group_layout(
-                self._handle,
-                _c.WGPUBindGroupLayoutDescriptor(
-                    label=descriptor.label.unsafe_cstr_ptr(),
-                    entrie_count=len(descriptor.entries),
-                    entries=entries.unsafe_ptr(),
-                ),
+                self._handle, UnsafePointer(to=desc)
             )
         )
+        _ = desc
+        return layout^
 
     fn create_buffer(self, var descriptor: BufferDescriptor) -> Buffer:
         """
         TODO
         """
+
+        desc = _c.WGPUBufferDescriptor(
+            label=descriptor.label.unsafe_cstr_ptr(),
+            usage=descriptor.usage,
+            size=descriptor.size,
+            mapped_at_creation=descriptor.mapped_at_creation,
+        )
         return Buffer(
-            _c.device_create_buffer(
-                self._handle,
-                _c.WGPUBufferDescriptor(
-                    label=descriptor.label.unsafe_cstr_ptr(),
-                    usage=descriptor.usage,
-                    size=descriptor.size,
-                    mapped_at_creation=descriptor.mapped_at_creation,
-                ),
-            )
+            _c.device_create_buffer(self._handle, UnsafePointer(to=desc))
         )
 
     fn create_command_encoder(self, var label: String = "") -> CommandEncoder:
         """
         TODO
         """
-        return CommandEncoder(
+
+        var desc = _c.WGPUCommandEncoderDescriptor(
+            label=label.unsafe_cstr_ptr()
+        )
+        var encoder = CommandEncoder(
             _c.device_create_command_encoder(
-                self._handle,
-                _c.WGPUCommandEncoderDescriptor(label=label.unsafe_cstr_ptr()),
+                self._handle, UnsafePointer(to=desc)
             )
         )
+        _ = desc
+        return encoder^
 
     # fn device_create_compute_pipeline(
     #     handle: WGPUDevice, descriptor: WGPUComputePipelineDescriptor
@@ -872,31 +884,35 @@ struct Device(Movable):
         )
         for layout in descriptor.bind_group_layouts:
             layouts.append(layout[]._handle)
-        return PipelineLayout(
+
+        desc = _c.WGPUPipelineLayoutDescriptor(
+            label=descriptor.label.unsafe_cstr_ptr(),
+            bind_group_layout_count=len(descriptor.bind_group_layouts),
+            bind_group_layouts=layouts.unsafe_ptr(),
+        )
+        layout = PipelineLayout(
             _c.device_create_pipeline_layout(
-                self._handle,
-                _c.WGPUPipelineLayoutDescriptor(
-                    label=descriptor.label.unsafe_cstr_ptr(),
-                    bind_group_layout_count=len(descriptor.bind_group_layouts),
-                    bind_group_layouts=layouts.unsafe_ptr(),
-                ),
+                self._handle, UnsafePointer(to=desc)
             )
         )
+        _ = desc
+        return layout^
 
     fn create_query_set(self, var descriptor: QuerySetDescriptor) -> QuerySet:
         """
         TODO
         """
-        return QuerySet(
-            _c.device_create_query_set(
-                self._handle,
-                _c.WGPUQuerySetDescriptor(
-                    label=descriptor.label.unsafe_cstr_ptr(),
-                    type=descriptor.type,
-                    count=descriptor.count,
-                ),
-            )
+        desc = _c.WGPUQuerySetDescriptor(
+            label=descriptor.label.unsafe_cstr_ptr(),
+            type=descriptor.type,
+            count=descriptor.count,
         )
+
+        query_set = QuerySet(
+            _c.device_create_query_set(self._handle, UnsafePointer(to=desc))
+        )
+        _ = desc
+        return query_set^
 
     # fn device_create_render_pipeline_async(
     #     handle: WGPUDevice,
@@ -991,54 +1007,56 @@ struct Device(Movable):
 
         depth_stencil = UnsafePointer[_c.WGPUDepthStencilState]()
 
-        handle = _c.device_create_render_pipeline(
-            self._handle,
-            _c.WGPURenderPipelineDescriptor(
-                label=descriptor.label.unsafe_cstr_ptr(),
-                vertex=_c.WGPUVertexState(
-                    module=descriptor.vertex.module[]._handle,
-                    entry_point=descriptor.vertex.entry_point.unsafe_ptr().bitcast[
-                        Int8
-                    ](),
-                    buffer_count=len(buffers),
-                    buffers=buffers.unsafe_ptr(),
-                ),
-                layout=layout_ptr,
-                depth_stencil=depth_stencil,
-                multisample=multisample,
-                primitive=_c.WGPUPrimitiveState(
-                    topology=descriptor.primitive.topology,
-                    strip_index_format=descriptor.primitive.strip_index_format,
-                    front_face=descriptor.primitive.front_face,
-                    cull_mode=descriptor.primitive.cull_mode,
-                ),
-                fragment=UnsafePointer(to=frag),
+        desc = _c.WGPURenderPipelineDescriptor(
+            label=descriptor.label.unsafe_cstr_ptr(),
+            vertex=_c.WGPUVertexState(
+                module=descriptor.vertex.module[]._handle,
+                entry_point=descriptor.vertex.entry_point.unsafe_ptr().bitcast[
+                    Int8
+                ](),
+                buffer_count=len(buffers),
+                buffers=buffers.unsafe_ptr(),
             ),
+            layout=layout_ptr,
+            depth_stencil=depth_stencil,
+            multisample=multisample,
+            primitive=_c.WGPUPrimitiveState(
+                topology=descriptor.primitive.topology,
+                strip_index_format=descriptor.primitive.strip_index_format,
+                front_face=descriptor.primitive.front_face,
+                cull_mode=descriptor.primitive.cull_mode,
+            ),
+            fragment=UnsafePointer(to=frag),
         )
+        handle = _c.device_create_render_pipeline(
+            self._handle, UnsafePointer(to=desc)
+        )
+        _ = desc
         return RenderPipeline(handle)
 
     fn create_sampler(self, var descriptor: SamplerDescriptor) -> Sampler:
         """
         TODO
         """
-        return Sampler(
-            _c.device_create_sampler(
-                self._handle,
-                _c.WGPUSamplerDescriptor(
-                    label=descriptor.label.unsafe_cstr_ptr(),
-                    address_mode_u=descriptor.address_mode_u,
-                    address_mode_v=descriptor.address_mode_v,
-                    address_mode_w=descriptor.address_mode_w,
-                    mag_filter=descriptor.mag_filter,
-                    min_filter=descriptor.min_filter,
-                    mipmap_filter=descriptor.mipmap_filter,
-                    lod_min_clamp=descriptor.lod_min_clamp,
-                    lod_max_clamp=descriptor.lod_max_clamp,
-                    compare=descriptor.compare,
-                    max_anisotropy=descriptor.max_anisotropy,
-                ),
-            )
+
+        desc = _c.WGPUSamplerDescriptor(
+            label=descriptor.label.unsafe_cstr_ptr(),
+            address_mode_u=descriptor.address_mode_u,
+            address_mode_v=descriptor.address_mode_v,
+            address_mode_w=descriptor.address_mode_w,
+            mag_filter=descriptor.mag_filter,
+            min_filter=descriptor.min_filter,
+            mipmap_filter=descriptor.mipmap_filter,
+            lod_min_clamp=descriptor.lod_min_clamp,
+            lod_max_clamp=descriptor.lod_max_clamp,
+            compare=descriptor.compare,
+            max_anisotropy=descriptor.max_anisotropy,
         )
+        sampler = Sampler(
+            _c.device_create_sampler(self._handle, UnsafePointer(to=desc))
+        )
+        _ = desc
+        return sampler^
 
     fn create_wgsl_shader_module(
         self, code: StringSlice
@@ -1051,14 +1069,15 @@ struct Device(Movable):
             chain=_c.ChainedStruct(s_type=SType.shader_module_wgsl_descriptor),
             code=code.unsafe_ptr().bitcast[Int8](),
         )
-        handle = _c.device_create_shader_module(
-            self._handle,
-            _c.WGPUShaderModuleDescriptor(
-                next_in_chain=UnsafePointer(to=wgsl_shader).bitcast[
-                    _c.ChainedStruct
-                ]()
-            ),
+        desc = _c.WGPUShaderModuleDescriptor(
+            next_in_chain=UnsafePointer(to=wgsl_shader).bitcast[
+                _c.ChainedStruct
+            ]()
         )
+        handle = _c.device_create_shader_module(
+            self._handle, UnsafePointer(to=desc)
+        )
+        _ = desc
         _ = wgsl_shader^
         if not handle:
             raise Error("failed to create shader module.")
@@ -1068,22 +1087,22 @@ struct Device(Movable):
         """
         TODO
         """
-        return Texture(
-            _c.device_create_texture(
-                self._handle,
-                _c.WGPUTextureDescriptor(
-                    label=descriptor.label.unsafe_cstr_ptr(),
-                    usage=descriptor.usage,
-                    dimension=descriptor.dimension,
-                    size=descriptor.size,
-                    format=descriptor.format,
-                    mip_level_count=descriptor.mip_level_count,
-                    sample_count=descriptor.sample_count,
-                    view_format_count=len(descriptor.view_formats),
-                    view_formats=descriptor.view_formats.unsafe_ptr(),
-                ),
-            )
+        desc = _c.WGPUTextureDescriptor(
+            label=descriptor.label.unsafe_cstr_ptr(),
+            usage=descriptor.usage,
+            dimension=descriptor.dimension,
+            size=descriptor.size,
+            format=descriptor.format,
+            mip_level_count=descriptor.mip_level_count,
+            sample_count=descriptor.sample_count,
+            view_format_count=len(descriptor.view_formats),
+            view_formats=descriptor.view_formats.unsafe_ptr(),
         )
+        tex = Texture(
+            _c.device_create_texture(self._handle, UnsafePointer(to=desc))
+        )
+        _ = desc
+        return tex^
 
     fn destroy(self):
         """
@@ -1166,7 +1185,7 @@ struct Instance(Movable):
             next_in_chain=UnsafePointer(to=extras).bitcast[_c.ChainedStruct]()
         )
 
-        self._handle = _c.create_instance(descriptor)
+        self._handle = _c.create_instance(UnsafePointer(to=descriptor))
         _ = extras^
         _ = descriptor^
         if not self._handle:
@@ -2094,20 +2113,19 @@ struct Surface:
         """
         TODO
         """
-        _c.surface_configure(
-            self._handle,
-            _c.WGPUSurfaceConfiguration(
-                device=device._handle,
-                format=config.format,
-                usage=config.usage,
-                view_format_count=len(config.view_formats),
-                view_formats=config.view_formats.unsafe_ptr(),
-                alpha_mode=config.alpha_mode,
-                width=config.width,
-                height=config.height,
-                present_mode=config.present_mode,
-            ),
+        var desc = _c.WGPUSurfaceConfiguration(
+            device=device._handle,
+            format=config.format,
+            usage=config.usage,
+            view_format_count=len(config.view_formats),
+            view_formats=config.view_formats.unsafe_ptr(),
+            alpha_mode=config.alpha_mode,
+            width=config.width,
+            height=config.height,
+            present_mode=config.present_mode,
         )
+        _c.surface_configure(self._handle, UnsafePointer(to=desc))
+        _ = desc
 
     fn get_capabilities(
         self,
@@ -2117,7 +2135,9 @@ struct Surface:
         TODO
         """
         caps = _c.WGPUSurfaceCapabilities()
-        _c.surface_get_capabilities(self._handle, adapter._handle, caps)
+        _c.surface_get_capabilities(
+            self._handle, adapter._handle, UnsafePointer(to=caps)
+        )
         return SurfaceCapabilities(caps)
 
     fn get_current_texture(self) -> SurfaceTexture:
@@ -2125,7 +2145,7 @@ struct Surface:
         TODO
         """
         tex = _c.WGPUSurfaceTexture()
-        _c.surface_get_current_texture(self._handle, tex)
+        _c.surface_get_current_texture(self._handle, UnsafePointer(to=tex))
         return SurfaceTexture(
             texture=ArcPointer(Texture(tex.texture)),
             suboptimal=tex.suboptimal,
@@ -2180,23 +2200,24 @@ struct Texture(Movable):
         """
         TODO
         """
-        return ArcPointer(
+
+        var desc = _c.WGPUTextureViewDescriptor(
+            label=label.unsafe_cstr_ptr(),
+            format=format,
+            dimension=dimension,
+            base_mip_level=base_mip_level,
+            mip_level_count=mip_level_count,
+            base_array_layer=base_array_layer,
+            array_layer_count=array_layer_count,
+            aspect=aspect,
+        )
+        view = ArcPointer(
             TextureView(
-                _c.texture_create_view(
-                    self._handle,
-                    _c.WGPUTextureViewDescriptor(
-                        label=label.unsafe_cstr_ptr(),
-                        format=format,
-                        dimension=dimension,
-                        base_mip_level=base_mip_level,
-                        mip_level_count=mip_level_count,
-                        base_array_layer=base_array_layer,
-                        array_layer_count=array_layer_count,
-                        aspect=aspect,
-                    ),
-                )
+                _c.texture_create_view(self._handle, UnsafePointer(to=desc))
             )
         )
+        _ = desc
+        return view^
 
     # fn texture_set_label(handle: WGPUTexture, label: UnsafePointer[Int8]) -> None:
     #     """
@@ -2377,7 +2398,9 @@ fn _glfw_get_wgpu_surface(
             ](),
             label=UnsafePointer[Int8](),
         )
-        var surf = _c.instance_create_surface(instance, descriptor)
+        var surf = _c.instance_create_surface(
+            instance, UnsafePointer(to=descriptor)
+        )
         _ = from_metal_layer^  # keep layer alive
         return surf
     # elif platform == glfw.Platform.x11:
@@ -2408,7 +2431,7 @@ fn _request_adapter_sync(
         instance,
         _req_adapter,
         UnsafePointer(to=adapter_user_data).bitcast[NoneType](),
-        opts,
+        UnsafePointer(to=opts),
     )
     debug_assert(adapter_user_data[1], "adapter request did not finish")
     adapter = adapter_user_data[0]
