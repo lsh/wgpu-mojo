@@ -21,18 +21,16 @@ alias BlendState = _c.WGPUBlendState
 alias StencilFaceState = _c.WGPUStencilFaceState
 
 
-struct RequestAdapterOptions[surface: ImmutOrigin, window: ImmutOrigin](
-    Copyable, Movable
-):
+struct RequestAdapterOptions[surface: ImmutOrigin](Copyable, Movable):
     var power_preference: PowerPreference
     var force_fallback_adapter: Bool
-    var compatible_surface: Optional[Pointer[Surface[window], surface]]
+    var compatible_surface: Optional[Pointer[Surface, surface]]
 
     fn __init__(
         out self,
         power_preference: PowerPreference = PowerPreference.undefined,
         force_fallback_adapter: Bool = False,
-        compatible_surface: Optional[Pointer[Surface[window], surface]] = None,
+        compatible_surface: Optional[Pointer[Surface, surface]] = None,
     ):
         self.power_preference = power_preference
         self.force_fallback_adapter = force_fallback_adapter

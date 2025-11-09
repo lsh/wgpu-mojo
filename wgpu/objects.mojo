@@ -1180,16 +1180,14 @@ struct Instance(Movable):
         if self._handle:
             _c.instance_release(self._handle)
 
-    fn create_surface(
-        self, window: glfw.Window
-    ) raises -> Surface[origin_of(window)]:
+    fn create_surface(self, window: glfw.Window) raises -> Surface:
         """
         TODO
         """
         surface = _glfw_get_wgpu_surface(self._handle, window)
         if not surface:
             raise Error("failed to get surface.")
-        return Surface[origin_of(window)](surface)
+        return Surface(surface)
 
     fn has_wgsl_language_feature(self, feature: WgslFeatureName) -> Bool:
         """
@@ -2073,7 +2071,7 @@ struct ShaderModule(Movable):
 #     ]("wgpuShaderModuleSetLabel")(handle, label)
 
 
-struct Surface[window: ImmutOrigin]:
+struct Surface:
     var _handle: _c.WGPUSurface
 
     fn __init__(out self, unsafe_ptr: _c.WGPUSurface):
