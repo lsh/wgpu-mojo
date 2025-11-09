@@ -317,11 +317,15 @@ def gen_function(
     args = entry.args if hasattr(entry, "args") else []
     args_ordered = partition(lambda x: hasattr(x, "optional"), args)
     params_pre_opt = ", ".join(
-        gen_parameter_type(e, default_assign=True, in_function=True)
+        gen_parameter_type(
+            e, default_assign=True, in_function=True, struct_pointer=True
+        )
         for e in args_ordered[0]
     )
     params_post_opt = ", ".join(
-        gen_parameter_type(e, default_assign=True, in_function=True)
+        gen_parameter_type(
+            e, default_assign=True, in_function=True, struct_pointer=True
+        )
         for e in args_ordered[1]
     )
     params_no_default = ", ".join(
@@ -376,16 +380,10 @@ def gen_function(
             params_no_default = f"WGPU{type}, {params_no_default}"
     try:
         ret = gen_parameter_type(entry.returns, type_only=True, object_pointer=True)
-        ret_ptr = gen_parameter_type(entry.returns, type_only=True, object_pointer=True)
     except:
         ret = "None"
-        ret_ptr = "None"
     call_args = ", ".join(
-        f"UnsafePointer(to={e.name})"
-        if e.type.startswith("struct")
-        else (
-            f"{e.name[:-1]}_count, {e.name}" if e.type.startswith("array<") else e.name
-        )
+        f"{e.name[:-1]}_count, {e.name}" if e.type.startswith("array<") else e.name
         for e in args
     )
     if contains_self:
