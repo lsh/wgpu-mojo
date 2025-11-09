@@ -43,7 +43,9 @@ fn adapter_release(handle: WGPUAdapter):
     ](handle)
 
 
-fn adapter_get_limits(handle: WGPUAdapter, limits: WGPUSupportedLimits) -> Bool:
+fn adapter_get_limits(
+    handle: WGPUAdapter, limits: UnsafePointer[WGPUSupportedLimits]
+) -> Bool:
     """
     TODO
     """
@@ -52,7 +54,7 @@ fn adapter_get_limits(handle: WGPUAdapter, limits: WGPUSupportedLimits) -> Bool:
         Bool,
         WGPUAdapter,
         UnsafePointer[WGPUSupportedLimits],
-    ](handle, UnsafePointer(to=limits))
+    ](handle, limits)
 
 
 fn adapter_has_feature(handle: WGPUAdapter, feature: FeatureName) -> Bool:
@@ -75,7 +77,9 @@ fn adapter_enumerate_features(
     ](handle, features)
 
 
-fn adapter_get_info(handle: WGPUAdapter, info: WGPUAdapterInfo) -> None:
+fn adapter_get_info(
+    handle: WGPUAdapter, info: UnsafePointer[WGPUAdapterInfo]
+) -> None:
     """
     TODO
     """
@@ -84,7 +88,7 @@ fn adapter_get_info(handle: WGPUAdapter, info: WGPUAdapterInfo) -> None:
         NoneType,
         WGPUAdapter,
         UnsafePointer[WGPUAdapterInfo],
-    ](handle, UnsafePointer(to=info))
+    ](handle, info)
 
 
 fn adapter_request_device(
@@ -96,7 +100,9 @@ fn adapter_request_device(
         UnsafePointer[NoneType],
     ) -> None,
     user_data: UnsafePointer[NoneType],
-    descriptor: WGPUDeviceDescriptor = WGPUDeviceDescriptor(),
+    descriptor: UnsafePointer[WGPUDeviceDescriptor] = UnsafePointer[
+        WGPUDeviceDescriptor
+    ](),
 ) -> None:
     """
     TODO
@@ -113,7 +119,7 @@ fn adapter_request_device(
             UnsafePointer[NoneType],
         ) -> None,
         UnsafePointer[NoneType],
-    ](handle, UnsafePointer(to=descriptor), callback, user_data)
+    ](handle, descriptor, callback, user_data)
 
 
 struct _BindGroupImpl:
@@ -343,7 +349,9 @@ fn command_encoder_release(handle: WGPUCommandEncoder):
 
 fn command_encoder_finish(
     handle: WGPUCommandEncoder,
-    descriptor: WGPUCommandBufferDescriptor = WGPUCommandBufferDescriptor(),
+    descriptor: UnsafePointer[WGPUCommandBufferDescriptor] = UnsafePointer[
+        WGPUCommandBufferDescriptor
+    ](),
 ) -> WGPUCommandBuffer:
     """
     TODO
@@ -353,12 +361,14 @@ fn command_encoder_finish(
         WGPUCommandBuffer,
         WGPUCommandEncoder,
         UnsafePointer[WGPUCommandBufferDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn command_encoder_begin_compute_pass(
     handle: WGPUCommandEncoder,
-    descriptor: WGPUComputePassDescriptor = WGPUComputePassDescriptor(),
+    descriptor: UnsafePointer[WGPUComputePassDescriptor] = UnsafePointer[
+        WGPUComputePassDescriptor
+    ](),
 ) -> WGPUComputePassEncoder:
     """
     TODO
@@ -368,11 +378,12 @@ fn command_encoder_begin_compute_pass(
         WGPUComputePassEncoder,
         WGPUCommandEncoder,
         UnsafePointer[WGPUComputePassDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn command_encoder_begin_render_pass(
-    handle: WGPUCommandEncoder, descriptor: WGPURenderPassDescriptor
+    handle: WGPUCommandEncoder,
+    descriptor: UnsafePointer[WGPURenderPassDescriptor],
 ) -> WGPURenderPassEncoder:
     """
     TODO
@@ -382,7 +393,7 @@ fn command_encoder_begin_render_pass(
         WGPURenderPassEncoder,
         WGPUCommandEncoder,
         UnsafePointer[WGPURenderPassDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn command_encoder_copy_buffer_to_buffer(
@@ -410,9 +421,9 @@ fn command_encoder_copy_buffer_to_buffer(
 
 fn command_encoder_copy_buffer_to_texture(
     handle: WGPUCommandEncoder,
-    source: WGPUImageCopyBuffer,
-    destination: WGPUImageCopyTexture,
-    copy_size: WGPUExtent3D,
+    source: UnsafePointer[WGPUImageCopyBuffer],
+    destination: UnsafePointer[WGPUImageCopyTexture],
+    copy_size: UnsafePointer[WGPUExtent3D],
 ) -> None:
     """
     TODO
@@ -424,19 +435,14 @@ fn command_encoder_copy_buffer_to_texture(
         UnsafePointer[WGPUImageCopyBuffer],
         UnsafePointer[WGPUImageCopyTexture],
         UnsafePointer[WGPUExtent3D],
-    ](
-        handle,
-        UnsafePointer(to=source),
-        UnsafePointer(to=destination),
-        UnsafePointer(to=copy_size),
-    )
+    ](handle, source, destination, copy_size)
 
 
 fn command_encoder_copy_texture_to_buffer(
     handle: WGPUCommandEncoder,
-    source: WGPUImageCopyTexture,
-    destination: WGPUImageCopyBuffer,
-    copy_size: WGPUExtent3D,
+    source: UnsafePointer[WGPUImageCopyTexture],
+    destination: UnsafePointer[WGPUImageCopyBuffer],
+    copy_size: UnsafePointer[WGPUExtent3D],
 ) -> None:
     """
     TODO
@@ -448,19 +454,14 @@ fn command_encoder_copy_texture_to_buffer(
         UnsafePointer[WGPUImageCopyTexture],
         UnsafePointer[WGPUImageCopyBuffer],
         UnsafePointer[WGPUExtent3D],
-    ](
-        handle,
-        UnsafePointer(to=source),
-        UnsafePointer(to=destination),
-        UnsafePointer(to=copy_size),
-    )
+    ](handle, source, destination, copy_size)
 
 
 fn command_encoder_copy_texture_to_texture(
     handle: WGPUCommandEncoder,
-    source: WGPUImageCopyTexture,
-    destination: WGPUImageCopyTexture,
-    copy_size: WGPUExtent3D,
+    source: UnsafePointer[WGPUImageCopyTexture],
+    destination: UnsafePointer[WGPUImageCopyTexture],
+    copy_size: UnsafePointer[WGPUExtent3D],
 ) -> None:
     """
     TODO
@@ -472,12 +473,7 @@ fn command_encoder_copy_texture_to_texture(
         UnsafePointer[WGPUImageCopyTexture],
         UnsafePointer[WGPUImageCopyTexture],
         UnsafePointer[WGPUExtent3D],
-    ](
-        handle,
-        UnsafePointer(to=source),
-        UnsafePointer(to=destination),
-        UnsafePointer(to=copy_size),
-    )
+    ](handle, source, destination, copy_size)
 
 
 fn command_encoder_clear_buffer(
@@ -813,7 +809,7 @@ fn device_release(handle: WGPUDevice):
 
 
 fn device_create_bind_group(
-    handle: WGPUDevice, descriptor: WGPUBindGroupDescriptor
+    handle: WGPUDevice, descriptor: UnsafePointer[WGPUBindGroupDescriptor]
 ) -> WGPUBindGroup:
     """
     TODO
@@ -823,11 +819,11 @@ fn device_create_bind_group(
         WGPUBindGroup,
         WGPUDevice,
         UnsafePointer[WGPUBindGroupDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_bind_group_layout(
-    handle: WGPUDevice, descriptor: WGPUBindGroupLayoutDescriptor
+    handle: WGPUDevice, descriptor: UnsafePointer[WGPUBindGroupLayoutDescriptor]
 ) -> WGPUBindGroupLayout:
     """
     TODO
@@ -837,11 +833,11 @@ fn device_create_bind_group_layout(
         WGPUBindGroupLayout,
         WGPUDevice,
         UnsafePointer[WGPUBindGroupLayoutDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_buffer(
-    handle: WGPUDevice, descriptor: WGPUBufferDescriptor
+    handle: WGPUDevice, descriptor: UnsafePointer[WGPUBufferDescriptor]
 ) -> WGPUBuffer:
     """
     TODO
@@ -851,12 +847,14 @@ fn device_create_buffer(
         WGPUBuffer,
         WGPUDevice,
         UnsafePointer[WGPUBufferDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_command_encoder(
     handle: WGPUDevice,
-    descriptor: WGPUCommandEncoderDescriptor = WGPUCommandEncoderDescriptor(),
+    descriptor: UnsafePointer[WGPUCommandEncoderDescriptor] = UnsafePointer[
+        WGPUCommandEncoderDescriptor
+    ](),
 ) -> WGPUCommandEncoder:
     """
     TODO
@@ -866,11 +864,11 @@ fn device_create_command_encoder(
         WGPUCommandEncoder,
         WGPUDevice,
         UnsafePointer[WGPUCommandEncoderDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_compute_pipeline(
-    handle: WGPUDevice, descriptor: WGPUComputePipelineDescriptor
+    handle: WGPUDevice, descriptor: UnsafePointer[WGPUComputePipelineDescriptor]
 ) -> WGPUComputePipeline:
     """
     TODO
@@ -880,12 +878,12 @@ fn device_create_compute_pipeline(
         WGPUComputePipeline,
         WGPUDevice,
         UnsafePointer[WGPUComputePipelineDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_compute_pipeline_async(
     handle: WGPUDevice,
-    descriptor: WGPUComputePipelineDescriptor,
+    descriptor: UnsafePointer[WGPUComputePipelineDescriptor],
     callback: fn (
         CreatePipelineAsyncStatus,
         WGPUComputePipeline,
@@ -909,11 +907,11 @@ fn device_create_compute_pipeline_async(
             UnsafePointer[NoneType],
         ) -> None,
         UnsafePointer[NoneType],
-    ](handle, UnsafePointer(to=descriptor), callback, user_data)
+    ](handle, descriptor, callback, user_data)
 
 
 fn device_create_pipeline_layout(
-    handle: WGPUDevice, descriptor: WGPUPipelineLayoutDescriptor
+    handle: WGPUDevice, descriptor: UnsafePointer[WGPUPipelineLayoutDescriptor]
 ) -> WGPUPipelineLayout:
     """
     TODO
@@ -923,11 +921,11 @@ fn device_create_pipeline_layout(
         WGPUPipelineLayout,
         WGPUDevice,
         UnsafePointer[WGPUPipelineLayoutDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_query_set(
-    handle: WGPUDevice, descriptor: WGPUQuerySetDescriptor
+    handle: WGPUDevice, descriptor: UnsafePointer[WGPUQuerySetDescriptor]
 ) -> WGPUQuerySet:
     """
     TODO
@@ -937,12 +935,12 @@ fn device_create_query_set(
         WGPUQuerySet,
         WGPUDevice,
         UnsafePointer[WGPUQuerySetDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_render_pipeline_async(
     handle: WGPUDevice,
-    descriptor: WGPURenderPipelineDescriptor,
+    descriptor: UnsafePointer[WGPURenderPipelineDescriptor],
     callback: fn (
         CreatePipelineAsyncStatus,
         WGPURenderPipeline,
@@ -966,11 +964,12 @@ fn device_create_render_pipeline_async(
             UnsafePointer[NoneType],
         ) -> None,
         UnsafePointer[NoneType],
-    ](handle, UnsafePointer(to=descriptor), callback, user_data)
+    ](handle, descriptor, callback, user_data)
 
 
 fn device_create_render_bundle_encoder(
-    handle: WGPUDevice, descriptor: WGPURenderBundleEncoderDescriptor
+    handle: WGPUDevice,
+    descriptor: UnsafePointer[WGPURenderBundleEncoderDescriptor],
 ) -> WGPURenderBundleEncoder:
     """
     TODO
@@ -980,11 +979,11 @@ fn device_create_render_bundle_encoder(
         WGPURenderBundleEncoder,
         WGPUDevice,
         UnsafePointer[WGPURenderBundleEncoderDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_render_pipeline(
-    handle: WGPUDevice, descriptor: WGPURenderPipelineDescriptor
+    handle: WGPUDevice, descriptor: UnsafePointer[WGPURenderPipelineDescriptor]
 ) -> WGPURenderPipeline:
     """
     TODO
@@ -994,12 +993,14 @@ fn device_create_render_pipeline(
         WGPURenderPipeline,
         WGPUDevice,
         UnsafePointer[WGPURenderPipelineDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_sampler(
     handle: WGPUDevice,
-    descriptor: WGPUSamplerDescriptor = WGPUSamplerDescriptor(),
+    descriptor: UnsafePointer[WGPUSamplerDescriptor] = UnsafePointer[
+        WGPUSamplerDescriptor
+    ](),
 ) -> WGPUSampler:
     """
     TODO
@@ -1009,11 +1010,11 @@ fn device_create_sampler(
         WGPUSampler,
         WGPUDevice,
         UnsafePointer[WGPUSamplerDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_shader_module(
-    handle: WGPUDevice, descriptor: WGPUShaderModuleDescriptor
+    handle: WGPUDevice, descriptor: UnsafePointer[WGPUShaderModuleDescriptor]
 ) -> WGPUShaderModule:
     """
     TODO
@@ -1023,11 +1024,11 @@ fn device_create_shader_module(
         WGPUShaderModule,
         WGPUDevice,
         UnsafePointer[WGPUShaderModuleDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_create_texture(
-    handle: WGPUDevice, descriptor: WGPUTextureDescriptor
+    handle: WGPUDevice, descriptor: UnsafePointer[WGPUTextureDescriptor]
 ) -> WGPUTexture:
     """
     TODO
@@ -1037,7 +1038,7 @@ fn device_create_texture(
         WGPUTexture,
         WGPUDevice,
         UnsafePointer[WGPUTextureDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn device_destroy(
@@ -1051,7 +1052,9 @@ fn device_destroy(
     )
 
 
-fn device_get_limits(handle: WGPUDevice, limits: WGPUSupportedLimits) -> Bool:
+fn device_get_limits(
+    handle: WGPUDevice, limits: UnsafePointer[WGPUSupportedLimits]
+) -> Bool:
     """
     TODO
     """
@@ -1060,7 +1063,7 @@ fn device_get_limits(handle: WGPUDevice, limits: WGPUSupportedLimits) -> Bool:
         Bool,
         WGPUDevice,
         UnsafePointer[WGPUSupportedLimits],
-    ](handle, UnsafePointer(to=limits))
+    ](handle, limits)
 
 
 fn device_has_feature(handle: WGPUDevice, feature: FeatureName) -> Bool:
@@ -1141,7 +1144,7 @@ fn instance_release(handle: WGPUInstance):
 
 
 fn instance_create_surface(
-    handle: WGPUInstance, descriptor: WGPUSurfaceDescriptor
+    handle: WGPUInstance, descriptor: UnsafePointer[WGPUSurfaceDescriptor]
 ) -> WGPUSurface:
     """
     TODO
@@ -1151,7 +1154,7 @@ fn instance_create_surface(
         WGPUSurface,
         WGPUInstance,
         UnsafePointer[WGPUSurfaceDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn instance_has_WGSL_language_feature(
@@ -1188,7 +1191,9 @@ fn instance_request_adapter(
         UnsafePointer[NoneType],
     ) -> None,
     user_data: UnsafePointer[NoneType],
-    options: WGPURequestAdapterOptions = WGPURequestAdapterOptions(),
+    options: UnsafePointer[WGPURequestAdapterOptions] = UnsafePointer[
+        WGPURequestAdapterOptions
+    ](),
 ) -> None:
     """
     TODO
@@ -1205,7 +1210,7 @@ fn instance_request_adapter(
             UnsafePointer[NoneType],
         ) -> None,
         UnsafePointer[NoneType],
-    ](handle, UnsafePointer(to=options), callback, user_data)
+    ](handle, options, callback, user_data)
 
 
 struct _PipelineLayoutImpl:
@@ -1364,11 +1369,11 @@ fn queue_write_buffer(
 
 fn queue_write_texture(
     handle: WGPUQueue,
-    destination: WGPUImageCopyTexture,
+    destination: UnsafePointer[WGPUImageCopyTexture],
     data: UnsafePointer[NoneType],
     data_size: Int,
-    data_layout: WGPUTextureDataLayout,
-    write_size: WGPUExtent3D,
+    data_layout: UnsafePointer[WGPUTextureDataLayout],
+    write_size: UnsafePointer[WGPUExtent3D],
 ) -> None:
     """
     TODO
@@ -1382,14 +1387,7 @@ fn queue_write_texture(
         Int,
         UnsafePointer[WGPUTextureDataLayout],
         UnsafePointer[WGPUExtent3D],
-    ](
-        handle,
-        UnsafePointer(to=destination),
-        data,
-        data_size,
-        UnsafePointer(to=data_layout),
-        UnsafePointer(to=write_size),
-    )
+    ](handle, destination, data, data_size, data_layout, write_size)
 
 
 fn queue_set_label(handle: WGPUQueue, label: UnsafePointer[Int8]) -> None:
@@ -1650,7 +1648,9 @@ fn render_bundle_encoder_set_index_buffer(
 
 fn render_bundle_encoder_finish(
     handle: WGPURenderBundleEncoder,
-    descriptor: WGPURenderBundleDescriptor = WGPURenderBundleDescriptor(),
+    descriptor: UnsafePointer[WGPURenderBundleDescriptor] = UnsafePointer[
+        WGPURenderBundleDescriptor
+    ](),
 ) -> WGPURenderBundle:
     """
     TODO
@@ -1660,7 +1660,7 @@ fn render_bundle_encoder_finish(
         WGPURenderBundle,
         WGPURenderBundleEncoder,
         UnsafePointer[WGPURenderBundleDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn render_bundle_encoder_set_label(
@@ -1887,7 +1887,7 @@ fn render_pass_encoder_set_stencil_reference(
 
 
 fn render_pass_encoder_set_blend_constant(
-    handle: WGPURenderPassEncoder, color: WGPUColor
+    handle: WGPURenderPassEncoder, color: UnsafePointer[WGPUColor]
 ) -> None:
     """
     TODO
@@ -1897,7 +1897,7 @@ fn render_pass_encoder_set_blend_constant(
         NoneType,
         WGPURenderPassEncoder,
         UnsafePointer[WGPUColor],
-    ](handle, UnsafePointer(to=color))
+    ](handle, color)
 
 
 fn render_pass_encoder_set_viewport(
@@ -2177,7 +2177,7 @@ fn surface_release(handle: WGPUSurface):
 
 
 fn surface_configure(
-    handle: WGPUSurface, config: WGPUSurfaceConfiguration
+    handle: WGPUSurface, config: UnsafePointer[WGPUSurfaceConfiguration]
 ) -> None:
     """
     TODO
@@ -2187,13 +2187,13 @@ fn surface_configure(
         NoneType,
         WGPUSurface,
         UnsafePointer[WGPUSurfaceConfiguration],
-    ](handle, UnsafePointer(to=config))
+    ](handle, config)
 
 
 fn surface_get_capabilities(
     handle: WGPUSurface,
     adapter: WGPUAdapter,
-    capabilities: WGPUSurfaceCapabilities,
+    capabilities: UnsafePointer[WGPUSurfaceCapabilities],
 ) -> None:
     """
     TODO
@@ -2204,11 +2204,11 @@ fn surface_get_capabilities(
         WGPUSurface,
         WGPUAdapter,
         UnsafePointer[WGPUSurfaceCapabilities],
-    ](handle, adapter, UnsafePointer(to=capabilities))
+    ](handle, adapter, capabilities)
 
 
 fn surface_get_current_texture(
-    handle: WGPUSurface, surface_texture: WGPUSurfaceTexture
+    handle: WGPUSurface, surface_texture: UnsafePointer[WGPUSurfaceTexture]
 ) -> None:
     """
     TODO
@@ -2218,7 +2218,7 @@ fn surface_get_current_texture(
         NoneType,
         WGPUSurface,
         UnsafePointer[WGPUSurfaceTexture],
-    ](handle, UnsafePointer(to=surface_texture))
+    ](handle, surface_texture)
 
 
 fn surface_present(
@@ -2267,7 +2267,9 @@ fn texture_release(handle: WGPUTexture):
 
 fn texture_create_view(
     handle: WGPUTexture,
-    descriptor: WGPUTextureViewDescriptor = WGPUTextureViewDescriptor(),
+    descriptor: UnsafePointer[WGPUTextureViewDescriptor] = UnsafePointer[
+        WGPUTextureViewDescriptor
+    ](),
 ) -> WGPUTextureView:
     """
     TODO
@@ -2277,7 +2279,7 @@ fn texture_create_view(
         WGPUTextureView,
         WGPUTexture,
         UnsafePointer[WGPUTextureViewDescriptor],
-    ](handle, UnsafePointer(to=descriptor))
+    ](handle, descriptor)
 
 
 fn texture_set_label(handle: WGPUTexture, label: UnsafePointer[Int8]) -> None:
@@ -4389,7 +4391,9 @@ struct WGPUUncapturedErrorCallbackInfo(Copyable, ImplicitlyCopyable, Movable):
 
 
 fn create_instance(
-    descriptor: WGPUInstanceDescriptor = WGPUInstanceDescriptor(),
+    descriptor: UnsafePointer[WGPUInstanceDescriptor] = UnsafePointer[
+        WGPUInstanceDescriptor
+    ](),
 ) -> WGPUInstance:
     """
     TODO
@@ -4398,7 +4402,7 @@ fn create_instance(
         "wgpuCreateInstance",
         WGPUInstance,
         UnsafePointer[WGPUInstanceDescriptor],
-    ](UnsafePointer(to=descriptor))
+    ](descriptor)
 
 
 alias DeviceLostCallback = fn (
