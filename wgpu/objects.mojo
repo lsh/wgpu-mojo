@@ -1234,13 +1234,14 @@ struct Instance(Movable):
 
     fn generate_report(self) -> _c.WGPUGlobalReport:
         report = _c.WGPUGlobalReport()
-        _c.generate_report(self._handle, report)
+        _c.generate_report(self._handle, UnsafePointer(to=report))
         return report
 
     fn enumerate_adapters(self) -> Span[_c.WGPUAdapter, origin_of(self)]:
         ptr = UnsafePointer[_c.WGPUAdapter]()
+        options = _c.WGPUInstanceEnumerateAdapterOptions()
         len = _c.instance_enumerate_adapters(
-            self._handle, _c.WGPUInstanceEnumerateAdapterOptions(), ptr
+            self._handle, UnsafePointer(to=options), ptr
         )
         return Span[_c.WGPUAdapter, origin_of(self)](ptr=ptr, length=len)
 

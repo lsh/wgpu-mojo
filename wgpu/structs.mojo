@@ -213,7 +213,7 @@ struct SurfaceCapabilities(Copyable, Movable):
         rhs._handle = {}
 
     fn __del__(deinit self):
-        _c.surface_capabilities_free_members(self._handle)
+        _c.surface_capabilities_free_members(UnsafePointer(to=self._handle))
 
     fn usages(self) -> TextureUsage:
         return self._handle.usages
