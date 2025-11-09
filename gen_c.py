@@ -1191,17 +1191,17 @@ alias WGPULogCallback = fn (
 ) -> None
 
 
-fn generate_report(instance: WGPUInstance, report: WGPUGlobalReport):
+fn generate_report(instance: WGPUInstance, report: UnsafePointer[WGPUGlobalReport]):
     external_call[
         "wgpuGenerateReport",
         NoneType,
         WGPUInstance, UnsafePointer[WGPUGlobalReport]
-    ](instance, UnsafePointer(to=report))
+    ](instance, report)
 
 
 fn instance_enumerate_adapters(
     instance: WGPUInstance,
-    options: WGPUInstanceEnumerateAdapterOptions,
+    options: UnsafePointer[WGPUInstanceEnumerateAdapterOptions],
     adapters: UnsafePointer[WGPUAdapter],
 ) -> Int:
     return external_call[
@@ -1211,7 +1211,7 @@ fn instance_enumerate_adapters(
         UnsafePointer[WGPUInstanceEnumerateAdapterOptions],
         UnsafePointer[WGPUAdapter],
     ](
-        instance, UnsafePointer(to=options), adapters
+        instance, options, adapters
     )
 
 
@@ -1232,7 +1232,7 @@ fn queue_submit_for_index(
 fn device_poll(
     device: WGPUDevice,
     wait: Bool = False,
-    wrapped_submission_index: Optional[WGPUWrappedSubmissionIndex] = None,
+    wrapped_submission_index: UnsafePointer[WGPUWrappedSubmissionIndex] = {},
 ) -> Bool:
     \"\"\"Returns true if the queue is empty, or false if there are more queue submissions still in flight.
     \"\"\"
@@ -1245,11 +1245,7 @@ fn device_poll(
     ](
         device,
         wait,
-        UnsafePointer(
-            to=wrapped_submission_index.value()
-        ) if wrapped_submission_index else UnsafePointer[
-            WGPUWrappedSubmissionIndex
-        ](),
+        wrapped_submission_index,
     )
 
 
@@ -1418,8 +1414,8 @@ fn render_pass_encoder_end_pipeline_statistics_query(
         WGPURenderPassEncoder
     ](render_pass_encoder)
 
-fn surface_capabilities_free_members(capabilities: WGPUSurfaceCapabilities):
-   external_call["wgpuSurfaceCapabilitiesFreeMembers", NoneType, UnsafePointer[WGPUSurfaceCapabilities]](UnsafePointer(to=capabilities))
+fn surface_capabilities_free_members(capabilities: UnsafePointer[WGPUSurfaceCapabilities]):
+   external_call["wgpuSurfaceCapabilitiesFreeMembers", NoneType, UnsafePointer[WGPUSurfaceCapabilities]](capabilities)
 """
 
     with open("wgpu/_cffi.mojo", "w+") as f:
