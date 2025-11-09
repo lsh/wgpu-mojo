@@ -57,7 +57,7 @@ fn main() raises:
 
     adapter = instance.request_adapter_sync(surface)
 
-    device = adapter.adapter_request_device()
+    device = adapter.request_device()
 
     queue = device.get_queue()
 

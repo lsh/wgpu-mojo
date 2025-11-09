@@ -43,9 +43,10 @@ fn adapter_release(handle: WGPUAdapter):
     ](handle)
 
 
-fn adapter_get_limits(
-    handle: WGPUAdapter, mut limits: WGPUSupportedLimits
-) -> Bool:
+fn adapter_get_limits(handle: WGPUAdapter, limits: WGPUSupportedLimits) -> Bool:
+    """
+    TODO
+    """
     return external_call[
         "wgpuAdapterGetLimits",
         Bool,
@@ -55,6 +56,9 @@ fn adapter_get_limits(
 
 
 fn adapter_has_feature(handle: WGPUAdapter, feature: FeatureName) -> Bool:
+    """
+    TODO
+    """
     return external_call[
         "wgpuAdapterHasFeature", Bool, WGPUAdapter, FeatureName
     ](handle, feature)
@@ -63,12 +67,18 @@ fn adapter_has_feature(handle: WGPUAdapter, feature: FeatureName) -> Bool:
 fn adapter_enumerate_features(
     handle: WGPUAdapter, features: FeatureName
 ) -> Int:
+    """
+    TODO
+    """
     return external_call[
         "wgpuAdapterEnumerateFeatures", Int, WGPUAdapter, FeatureName
     ](handle, features)
 
 
 fn adapter_get_info(handle: WGPUAdapter, info: WGPUAdapterInfo) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuAdapterGetInfo",
         NoneType,
@@ -88,6 +98,9 @@ fn adapter_request_device(
     user_data: UnsafePointer[NoneType],
     descriptor: WGPUDeviceDescriptor = WGPUDeviceDescriptor(),
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuAdapterRequestDevice",
         NoneType,
@@ -119,6 +132,9 @@ fn bind_group_release(handle: WGPUBindGroup):
 fn bind_group_set_label(
     handle: WGPUBindGroup, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuBindGroupSetLabel", NoneType, WGPUBindGroup, UnsafePointer[Int8]
     ](handle, label)
@@ -142,6 +158,9 @@ fn bind_group_layout_release(handle: WGPUBindGroupLayout):
 fn bind_group_layout_set_label(
     handle: WGPUBindGroupLayout, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuBindGroupLayoutSetLabel",
         NoneType,
@@ -171,6 +190,9 @@ fn buffer_map_async(
     callback: fn (BufferMapAsyncStatus, UnsafePointer[NoneType]) -> None,
     user_data: UnsafePointer[NoneType],
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuBufferMapAsync",
         NoneType,
@@ -186,6 +208,9 @@ fn buffer_map_async(
 fn buffer_get_mapped_range(
     handle: WGPUBuffer, offset: Int, size: Int
 ) -> UnsafePointer[NoneType]:
+    """
+    TODO
+    """
     return external_call[
         "wgpuBufferGetMappedRange",
         UnsafePointer[NoneType],
@@ -198,6 +223,9 @@ fn buffer_get_mapped_range(
 fn buffer_get_const_mapped_range(
     handle: WGPUBuffer, offset: Int, size: Int
 ) -> UnsafePointer[NoneType]:
+    """
+    TODO
+    """
     return external_call[
         "wgpuBufferGetConstMappedRange",
         UnsafePointer[NoneType],
@@ -208,6 +236,9 @@ fn buffer_get_const_mapped_range(
 
 
 fn buffer_set_label(handle: WGPUBuffer, label: UnsafePointer[Int8]) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuBufferSetLabel", NoneType, WGPUBuffer, UnsafePointer[Int8]
     ](handle, label)
@@ -216,6 +247,9 @@ fn buffer_set_label(handle: WGPUBuffer, label: UnsafePointer[Int8]) -> None:
 fn buffer_get_usage(
     handle: WGPUBuffer,
 ) -> BufferUsage:
+    """
+    TODO
+    """
     return external_call["wgpuBufferGetUsage", BufferUsage, WGPUBuffer,](
         handle,
     )
@@ -224,6 +258,9 @@ fn buffer_get_usage(
 fn buffer_get_size(
     handle: WGPUBuffer,
 ) -> UInt64:
+    """
+    TODO
+    """
     return external_call["wgpuBufferGetSize", UInt64, WGPUBuffer,](
         handle,
     )
@@ -232,6 +269,9 @@ fn buffer_get_size(
 fn buffer_get_map_state(
     handle: WGPUBuffer,
 ) -> BufferMapState:
+    """
+    TODO
+    """
     return external_call["wgpuBufferGetMapState", BufferMapState, WGPUBuffer,](
         handle,
     )
@@ -240,6 +280,9 @@ fn buffer_get_map_state(
 fn buffer_unmap(
     handle: WGPUBuffer,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call["wgpuBufferUnmap", NoneType, WGPUBuffer,](
         handle,
     )
@@ -248,6 +291,9 @@ fn buffer_unmap(
 fn buffer_destroy(
     handle: WGPUBuffer,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call["wgpuBufferDestroy", NoneType, WGPUBuffer,](
         handle,
     )
@@ -269,6 +315,9 @@ fn command_buffer_release(handle: WGPUCommandBuffer):
 fn command_buffer_set_label(
     handle: WGPUCommandBuffer, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandBufferSetLabel",
         NoneType,
@@ -296,6 +345,9 @@ fn command_encoder_finish(
     handle: WGPUCommandEncoder,
     descriptor: WGPUCommandBufferDescriptor = WGPUCommandBufferDescriptor(),
 ) -> WGPUCommandBuffer:
+    """
+    TODO
+    """
     return external_call[
         "wgpuCommandEncoderFinish",
         WGPUCommandBuffer,
@@ -308,6 +360,9 @@ fn command_encoder_begin_compute_pass(
     handle: WGPUCommandEncoder,
     descriptor: WGPUComputePassDescriptor = WGPUComputePassDescriptor(),
 ) -> WGPUComputePassEncoder:
+    """
+    TODO
+    """
     return external_call[
         "wgpuCommandEncoderBeginComputePass",
         WGPUComputePassEncoder,
@@ -319,6 +374,9 @@ fn command_encoder_begin_compute_pass(
 fn command_encoder_begin_render_pass(
     handle: WGPUCommandEncoder, descriptor: WGPURenderPassDescriptor
 ) -> WGPURenderPassEncoder:
+    """
+    TODO
+    """
     return external_call[
         "wgpuCommandEncoderBeginRenderPass",
         WGPURenderPassEncoder,
@@ -335,6 +393,9 @@ fn command_encoder_copy_buffer_to_buffer(
     destination_offset: UInt64,
     size: UInt64,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderCopyBufferToBuffer",
         NoneType,
@@ -353,6 +414,9 @@ fn command_encoder_copy_buffer_to_texture(
     destination: WGPUImageCopyTexture,
     copy_size: WGPUExtent3D,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderCopyBufferToTexture",
         NoneType,
@@ -374,6 +438,9 @@ fn command_encoder_copy_texture_to_buffer(
     destination: WGPUImageCopyBuffer,
     copy_size: WGPUExtent3D,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderCopyTextureToBuffer",
         NoneType,
@@ -395,6 +462,9 @@ fn command_encoder_copy_texture_to_texture(
     destination: WGPUImageCopyTexture,
     copy_size: WGPUExtent3D,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderCopyTextureToTexture",
         NoneType,
@@ -413,6 +483,9 @@ fn command_encoder_copy_texture_to_texture(
 fn command_encoder_clear_buffer(
     handle: WGPUCommandEncoder, buffer: WGPUBuffer, offset: UInt64, size: UInt64
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderClearBuffer",
         NoneType,
@@ -426,6 +499,9 @@ fn command_encoder_clear_buffer(
 fn command_encoder_insert_debug_marker(
     handle: WGPUCommandEncoder, marker_label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderInsertDebugMarker",
         NoneType,
@@ -437,6 +513,9 @@ fn command_encoder_insert_debug_marker(
 fn command_encoder_pop_debug_group(
     handle: WGPUCommandEncoder,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderPopDebugGroup",
         NoneType,
@@ -449,6 +528,9 @@ fn command_encoder_pop_debug_group(
 fn command_encoder_push_debug_group(
     handle: WGPUCommandEncoder, group_label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderPushDebugGroup",
         NoneType,
@@ -465,6 +547,9 @@ fn command_encoder_resolve_query_set(
     destination: WGPUBuffer,
     destination_offset: UInt64,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderResolveQuerySet",
         NoneType,
@@ -487,6 +572,9 @@ fn command_encoder_resolve_query_set(
 fn command_encoder_write_timestamp(
     handle: WGPUCommandEncoder, query_set: WGPUQuerySet, query_index: UInt32
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderWriteTimestamp",
         NoneType,
@@ -499,6 +587,9 @@ fn command_encoder_write_timestamp(
 fn command_encoder_set_label(
     handle: WGPUCommandEncoder, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuCommandEncoderSetLabel",
         NoneType,
@@ -525,6 +616,9 @@ fn compute_pass_encoder_release(handle: WGPUComputePassEncoder):
 fn compute_pass_encoder_insert_debug_marker(
     handle: WGPUComputePassEncoder, marker_label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuComputePassEncoderInsertDebugMarker",
         NoneType,
@@ -536,6 +630,9 @@ fn compute_pass_encoder_insert_debug_marker(
 fn compute_pass_encoder_pop_debug_group(
     handle: WGPUComputePassEncoder,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuComputePassEncoderPopDebugGroup",
         NoneType,
@@ -548,6 +645,9 @@ fn compute_pass_encoder_pop_debug_group(
 fn compute_pass_encoder_push_debug_group(
     handle: WGPUComputePassEncoder, group_label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuComputePassEncoderPushDebugGroup",
         NoneType,
@@ -559,6 +659,9 @@ fn compute_pass_encoder_push_debug_group(
 fn compute_pass_encoder_set_pipeline(
     handle: WGPUComputePassEncoder, pipeline: WGPUComputePipeline
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuComputePassEncoderSetPipeline",
         NoneType,
@@ -574,6 +677,9 @@ fn compute_pass_encoder_set_bind_group(
     dynamic_offsets: UnsafePointer[UInt32],
     group: WGPUBindGroup = WGPUBindGroup(),
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuComputePassEncoderSetBindGroup",
         NoneType,
@@ -591,6 +697,9 @@ fn compute_pass_encoder_dispatch_workgroups(
     workgroupCountY: UInt32,
     workgroupCountZ: UInt32,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuComputePassEncoderDispatchWorkgroups",
         NoneType,
@@ -606,6 +715,9 @@ fn compute_pass_encoder_dispatch_workgroups_indirect(
     indirect_buffer: WGPUBuffer,
     indirect_offset: UInt64,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuComputePassEncoderDispatchWorkgroupsIndirect",
         NoneType,
@@ -618,6 +730,9 @@ fn compute_pass_encoder_dispatch_workgroups_indirect(
 fn compute_pass_encoder_end(
     handle: WGPUComputePassEncoder,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuComputePassEncoderEnd",
         NoneType,
@@ -630,6 +745,9 @@ fn compute_pass_encoder_end(
 fn compute_pass_encoder_set_label(
     handle: WGPUComputePassEncoder, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuComputePassEncoderSetLabel",
         NoneType,
@@ -656,6 +774,9 @@ fn compute_pipeline_release(handle: WGPUComputePipeline):
 fn compute_pipeline_get_bind_group_layout(
     handle: WGPUComputePipeline, group_index: UInt32
 ) -> WGPUBindGroupLayout:
+    """
+    TODO
+    """
     return external_call[
         "wgpuComputePipelineGetBindGroupLayout",
         WGPUBindGroupLayout,
@@ -667,6 +788,9 @@ fn compute_pipeline_get_bind_group_layout(
 fn compute_pipeline_set_label(
     handle: WGPUComputePipeline, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuComputePipelineSetLabel",
         NoneType,
@@ -691,6 +815,9 @@ fn device_release(handle: WGPUDevice):
 fn device_create_bind_group(
     handle: WGPUDevice, descriptor: WGPUBindGroupDescriptor
 ) -> WGPUBindGroup:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateBindGroup",
         WGPUBindGroup,
@@ -702,6 +829,9 @@ fn device_create_bind_group(
 fn device_create_bind_group_layout(
     handle: WGPUDevice, descriptor: WGPUBindGroupLayoutDescriptor
 ) -> WGPUBindGroupLayout:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateBindGroupLayout",
         WGPUBindGroupLayout,
@@ -713,6 +843,9 @@ fn device_create_bind_group_layout(
 fn device_create_buffer(
     handle: WGPUDevice, descriptor: WGPUBufferDescriptor
 ) -> WGPUBuffer:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateBuffer",
         WGPUBuffer,
@@ -725,6 +858,9 @@ fn device_create_command_encoder(
     handle: WGPUDevice,
     descriptor: WGPUCommandEncoderDescriptor = WGPUCommandEncoderDescriptor(),
 ) -> WGPUCommandEncoder:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateCommandEncoder",
         WGPUCommandEncoder,
@@ -736,6 +872,9 @@ fn device_create_command_encoder(
 fn device_create_compute_pipeline(
     handle: WGPUDevice, descriptor: WGPUComputePipelineDescriptor
 ) -> WGPUComputePipeline:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateComputePipeline",
         WGPUComputePipeline,
@@ -755,6 +894,9 @@ fn device_create_compute_pipeline_async(
     ) -> None,
     user_data: UnsafePointer[NoneType],
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuDeviceCreateComputePipelineAsync",
         NoneType,
@@ -773,6 +915,9 @@ fn device_create_compute_pipeline_async(
 fn device_create_pipeline_layout(
     handle: WGPUDevice, descriptor: WGPUPipelineLayoutDescriptor
 ) -> WGPUPipelineLayout:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreatePipelineLayout",
         WGPUPipelineLayout,
@@ -784,6 +929,9 @@ fn device_create_pipeline_layout(
 fn device_create_query_set(
     handle: WGPUDevice, descriptor: WGPUQuerySetDescriptor
 ) -> WGPUQuerySet:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateQuerySet",
         WGPUQuerySet,
@@ -803,6 +951,9 @@ fn device_create_render_pipeline_async(
     ) -> None,
     user_data: UnsafePointer[NoneType],
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuDeviceCreateRenderPipelineAsync",
         NoneType,
@@ -821,6 +972,9 @@ fn device_create_render_pipeline_async(
 fn device_create_render_bundle_encoder(
     handle: WGPUDevice, descriptor: WGPURenderBundleEncoderDescriptor
 ) -> WGPURenderBundleEncoder:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateRenderBundleEncoder",
         WGPURenderBundleEncoder,
@@ -832,6 +986,9 @@ fn device_create_render_bundle_encoder(
 fn device_create_render_pipeline(
     handle: WGPUDevice, descriptor: WGPURenderPipelineDescriptor
 ) -> WGPURenderPipeline:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateRenderPipeline",
         WGPURenderPipeline,
@@ -844,6 +1001,9 @@ fn device_create_sampler(
     handle: WGPUDevice,
     descriptor: WGPUSamplerDescriptor = WGPUSamplerDescriptor(),
 ) -> WGPUSampler:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateSampler",
         WGPUSampler,
@@ -855,6 +1015,9 @@ fn device_create_sampler(
 fn device_create_shader_module(
     handle: WGPUDevice, descriptor: WGPUShaderModuleDescriptor
 ) -> WGPUShaderModule:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateShaderModule",
         WGPUShaderModule,
@@ -866,6 +1029,9 @@ fn device_create_shader_module(
 fn device_create_texture(
     handle: WGPUDevice, descriptor: WGPUTextureDescriptor
 ) -> WGPUTexture:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceCreateTexture",
         WGPUTexture,
@@ -877,12 +1043,18 @@ fn device_create_texture(
 fn device_destroy(
     handle: WGPUDevice,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call["wgpuDeviceDestroy", NoneType, WGPUDevice,](
         handle,
     )
 
 
 fn device_get_limits(handle: WGPUDevice, limits: WGPUSupportedLimits) -> Bool:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceGetLimits",
         Bool,
@@ -892,12 +1064,18 @@ fn device_get_limits(handle: WGPUDevice, limits: WGPUSupportedLimits) -> Bool:
 
 
 fn device_has_feature(handle: WGPUDevice, feature: FeatureName) -> Bool:
+    """
+    TODO
+    """
     return external_call["wgpuDeviceHasFeature", Bool, WGPUDevice, FeatureName](
         handle, feature
     )
 
 
 fn device_enumerate_features(handle: WGPUDevice, features: FeatureName) -> Int:
+    """
+    TODO
+    """
     return external_call[
         "wgpuDeviceEnumerateFeatures", Int, WGPUDevice, FeatureName
     ](handle, features)
@@ -906,12 +1084,18 @@ fn device_enumerate_features(handle: WGPUDevice, features: FeatureName) -> Int:
 fn device_get_queue(
     handle: WGPUDevice,
 ) -> WGPUQueue:
+    """
+    TODO
+    """
     return external_call["wgpuDeviceGetQueue", WGPUQueue, WGPUDevice,](
         handle,
     )
 
 
 fn device_push_error_scope(handle: WGPUDevice, filter: ErrorFilter) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuDevicePushErrorScope", NoneType, WGPUDevice, ErrorFilter
     ](handle, filter)
@@ -922,6 +1106,9 @@ fn device_pop_error_scope(
     callback: ErrorCallback,
     userdata: UnsafePointer[NoneType],
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuDevicePopErrorScope",
         NoneType,
@@ -932,6 +1119,9 @@ fn device_pop_error_scope(
 
 
 fn device_set_label(handle: WGPUDevice, label: UnsafePointer[Int8]) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuDeviceSetLabel", NoneType, WGPUDevice, UnsafePointer[Int8]
     ](handle, label)
@@ -953,6 +1143,9 @@ fn instance_release(handle: WGPUInstance):
 fn instance_create_surface(
     handle: WGPUInstance, descriptor: WGPUSurfaceDescriptor
 ) -> WGPUSurface:
+    """
+    TODO
+    """
     return external_call[
         "wgpuInstanceCreateSurface",
         WGPUSurface,
@@ -964,6 +1157,9 @@ fn instance_create_surface(
 fn instance_has_WGSL_language_feature(
     handle: WGPUInstance, feature: WgslFeatureName
 ) -> Bool:
+    """
+    TODO
+    """
     return external_call[
         "wgpuInstanceHasWgslLanguageFeature",
         Bool,
@@ -975,6 +1171,9 @@ fn instance_has_WGSL_language_feature(
 fn instance_process_events(
     handle: WGPUInstance,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call["wgpuInstanceProcessEvents", NoneType, WGPUInstance,](
         handle,
     )
@@ -991,6 +1190,9 @@ fn instance_request_adapter(
     user_data: UnsafePointer[NoneType],
     options: WGPURequestAdapterOptions = WGPURequestAdapterOptions(),
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuInstanceRequestAdapter",
         NoneType,
@@ -1024,6 +1226,9 @@ fn pipeline_layout_release(handle: WGPUPipelineLayout):
 fn pipeline_layout_set_label(
     handle: WGPUPipelineLayout, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuPipelineLayoutSetLabel",
         NoneType,
@@ -1048,6 +1253,9 @@ fn query_set_release(handle: WGPUQuerySet):
 fn query_set_set_label(
     handle: WGPUQuerySet, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuQuerySetSetLabel", NoneType, WGPUQuerySet, UnsafePointer[Int8]
     ](handle, label)
@@ -1056,6 +1264,9 @@ fn query_set_set_label(
 fn query_set_get_type(
     handle: WGPUQuerySet,
 ) -> QueryType:
+    """
+    TODO
+    """
     return external_call["wgpuQuerySetGetType", QueryType, WGPUQuerySet,](
         handle,
     )
@@ -1064,6 +1275,9 @@ fn query_set_get_type(
 fn query_set_get_count(
     handle: WGPUQuerySet,
 ) -> UInt32:
+    """
+    TODO
+    """
     return external_call["wgpuQuerySetGetCount", UInt32, WGPUQuerySet,](
         handle,
     )
@@ -1072,6 +1286,9 @@ fn query_set_get_count(
 fn query_set_destroy(
     handle: WGPUQuerySet,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call["wgpuQuerySetDestroy", NoneType, WGPUQuerySet,](
         handle,
     )
@@ -1095,6 +1312,9 @@ fn queue_submit(
     command_count: Int,
     commands: UnsafePointer[WGPUCommandBuffer],
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuQueueSubmit",
         NoneType,
@@ -1109,6 +1329,9 @@ fn queue_on_submitted_work_done(
     callback: fn (QueueWorkDoneStatus, UnsafePointer[NoneType]) -> None,
     user_data: UnsafePointer[NoneType],
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuQueueOnSubmittedWorkDone",
         NoneType,
@@ -1125,6 +1348,9 @@ fn queue_write_buffer(
     data: UnsafePointer[NoneType],
     size: Int,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuQueueWriteBuffer",
         NoneType,
@@ -1144,6 +1370,9 @@ fn queue_write_texture(
     data_layout: WGPUTextureDataLayout,
     write_size: WGPUExtent3D,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuQueueWriteTexture",
         NoneType,
@@ -1164,6 +1393,9 @@ fn queue_write_texture(
 
 
 fn queue_set_label(handle: WGPUQueue, label: UnsafePointer[Int8]) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuQueueSetLabel", NoneType, WGPUQueue, UnsafePointer[Int8]
     ](handle, label)
@@ -1185,6 +1417,9 @@ fn render_bundle_release(handle: WGPURenderBundle):
 fn render_bundle_set_label(
     handle: WGPURenderBundle, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleSetLabel",
         NoneType,
@@ -1211,6 +1446,9 @@ fn render_bundle_encoder_release(handle: WGPURenderBundleEncoder):
 fn render_bundle_encoder_set_pipeline(
     handle: WGPURenderBundleEncoder, pipeline: WGPURenderPipeline
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderSetPipeline",
         NoneType,
@@ -1226,6 +1464,9 @@ fn render_bundle_encoder_set_bind_group(
     dynamic_offsets: UnsafePointer[UInt32],
     group: WGPUBindGroup = WGPUBindGroup(),
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderSetBindGroup",
         NoneType,
@@ -1244,6 +1485,9 @@ fn render_bundle_encoder_draw(
     first_vertex: UInt32,
     first_instance: UInt32,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderDraw",
         NoneType,
@@ -1263,6 +1507,9 @@ fn render_bundle_encoder_draw_indexed(
     base_vertex: Int32,
     first_instance: UInt32,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderDrawIndexed",
         NoneType,
@@ -1287,6 +1534,9 @@ fn render_bundle_encoder_draw_indirect(
     indirect_buffer: WGPUBuffer,
     indirect_offset: UInt64,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderDrawIndirect",
         NoneType,
@@ -1301,6 +1551,9 @@ fn render_bundle_encoder_draw_indexed_indirect(
     indirect_buffer: WGPUBuffer,
     indirect_offset: UInt64,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderDrawIndexedIndirect",
         NoneType,
@@ -1313,6 +1566,9 @@ fn render_bundle_encoder_draw_indexed_indirect(
 fn render_bundle_encoder_insert_debug_marker(
     handle: WGPURenderBundleEncoder, marker_label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderInsertDebugMarker",
         NoneType,
@@ -1324,6 +1580,9 @@ fn render_bundle_encoder_insert_debug_marker(
 fn render_bundle_encoder_pop_debug_group(
     handle: WGPURenderBundleEncoder,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderPopDebugGroup",
         NoneType,
@@ -1336,6 +1595,9 @@ fn render_bundle_encoder_pop_debug_group(
 fn render_bundle_encoder_push_debug_group(
     handle: WGPURenderBundleEncoder, group_label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderPushDebugGroup",
         NoneType,
@@ -1351,6 +1613,9 @@ fn render_bundle_encoder_set_vertex_buffer(
     size: UInt64,
     buffer: WGPUBuffer = WGPUBuffer(),
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderSetVertexBuffer",
         NoneType,
@@ -1369,6 +1634,9 @@ fn render_bundle_encoder_set_index_buffer(
     offset: UInt64,
     size: UInt64,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderSetIndexBuffer",
         NoneType,
@@ -1384,6 +1652,9 @@ fn render_bundle_encoder_finish(
     handle: WGPURenderBundleEncoder,
     descriptor: WGPURenderBundleDescriptor = WGPURenderBundleDescriptor(),
 ) -> WGPURenderBundle:
+    """
+    TODO
+    """
     return external_call[
         "wgpuRenderBundleEncoderFinish",
         WGPURenderBundle,
@@ -1395,6 +1666,9 @@ fn render_bundle_encoder_finish(
 fn render_bundle_encoder_set_label(
     handle: WGPURenderBundleEncoder, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderBundleEncoderSetLabel",
         NoneType,
@@ -1421,6 +1695,9 @@ fn render_pass_encoder_release(handle: WGPURenderPassEncoder):
 fn render_pass_encoder_set_pipeline(
     handle: WGPURenderPassEncoder, pipeline: WGPURenderPipeline
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderSetPipeline",
         NoneType,
@@ -1436,6 +1713,9 @@ fn render_pass_encoder_set_bind_group(
     dynamic_offsets: UnsafePointer[UInt32],
     group: WGPUBindGroup = WGPUBindGroup(),
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderSetBindGroup",
         NoneType,
@@ -1454,6 +1734,9 @@ fn render_pass_encoder_draw(
     first_vertex: UInt32,
     first_instance: UInt32,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderDraw",
         NoneType,
@@ -1473,6 +1756,9 @@ fn render_pass_encoder_draw_indexed(
     base_vertex: Int32,
     first_instance: UInt32,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderDrawIndexed",
         NoneType,
@@ -1497,6 +1783,9 @@ fn render_pass_encoder_draw_indirect(
     indirect_buffer: WGPUBuffer,
     indirect_offset: UInt64,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderDrawIndirect",
         NoneType,
@@ -1511,6 +1800,9 @@ fn render_pass_encoder_draw_indexed_indirect(
     indirect_buffer: WGPUBuffer,
     indirect_offset: UInt64,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderDrawIndexedIndirect",
         NoneType,
@@ -1525,6 +1817,9 @@ fn render_pass_encoder_execute_bundles(
     bundle_count: Int,
     bundles: UnsafePointer[WGPURenderBundle],
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderExecuteBundles",
         NoneType,
@@ -1537,6 +1832,9 @@ fn render_pass_encoder_execute_bundles(
 fn render_pass_encoder_insert_debug_marker(
     handle: WGPURenderPassEncoder, marker_label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderInsertDebugMarker",
         NoneType,
@@ -1548,6 +1846,9 @@ fn render_pass_encoder_insert_debug_marker(
 fn render_pass_encoder_pop_debug_group(
     handle: WGPURenderPassEncoder,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderPopDebugGroup",
         NoneType,
@@ -1560,6 +1861,9 @@ fn render_pass_encoder_pop_debug_group(
 fn render_pass_encoder_push_debug_group(
     handle: WGPURenderPassEncoder, group_label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderPushDebugGroup",
         NoneType,
@@ -1571,6 +1875,9 @@ fn render_pass_encoder_push_debug_group(
 fn render_pass_encoder_set_stencil_reference(
     handle: WGPURenderPassEncoder, reference: UInt32
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderSetStencilReference",
         NoneType,
@@ -1582,6 +1889,9 @@ fn render_pass_encoder_set_stencil_reference(
 fn render_pass_encoder_set_blend_constant(
     handle: WGPURenderPassEncoder, color: WGPUColor
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderSetBlendConstant",
         NoneType,
@@ -1599,6 +1909,9 @@ fn render_pass_encoder_set_viewport(
     min_depth: Float32,
     max_depth: Float32,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderSetViewport",
         NoneType,
@@ -1619,6 +1932,9 @@ fn render_pass_encoder_set_scissor_rect(
     width: UInt32,
     height: UInt32,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderSetScissorRect",
         NoneType,
@@ -1637,6 +1953,9 @@ fn render_pass_encoder_set_vertex_buffer(
     size: UInt64,
     buffer: WGPUBuffer = WGPUBuffer(),
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderSetVertexBuffer",
         NoneType,
@@ -1655,6 +1974,9 @@ fn render_pass_encoder_set_index_buffer(
     offset: UInt64,
     size: UInt64,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderSetIndexBuffer",
         NoneType,
@@ -1669,6 +1991,9 @@ fn render_pass_encoder_set_index_buffer(
 fn render_pass_encoder_begin_occlusion_query(
     handle: WGPURenderPassEncoder, query_index: UInt32
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderBeginOcclusionQuery",
         NoneType,
@@ -1680,6 +2005,9 @@ fn render_pass_encoder_begin_occlusion_query(
 fn render_pass_encoder_end_occlusion_query(
     handle: WGPURenderPassEncoder,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderEndOcclusionQuery",
         NoneType,
@@ -1692,6 +2020,9 @@ fn render_pass_encoder_end_occlusion_query(
 fn render_pass_encoder_end(
     handle: WGPURenderPassEncoder,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderEnd",
         NoneType,
@@ -1704,6 +2035,9 @@ fn render_pass_encoder_end(
 fn render_pass_encoder_set_label(
     handle: WGPURenderPassEncoder, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPassEncoderSetLabel",
         NoneType,
@@ -1730,6 +2064,9 @@ fn render_pipeline_release(handle: WGPURenderPipeline):
 fn render_pipeline_get_bind_group_layout(
     handle: WGPURenderPipeline, group_index: UInt32
 ) -> WGPUBindGroupLayout:
+    """
+    TODO
+    """
     return external_call[
         "wgpuRenderPipelineGetBindGroupLayout",
         WGPUBindGroupLayout,
@@ -1741,6 +2078,9 @@ fn render_pipeline_get_bind_group_layout(
 fn render_pipeline_set_label(
     handle: WGPURenderPipeline, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuRenderPipelineSetLabel",
         NoneType,
@@ -1763,6 +2103,9 @@ fn sampler_release(handle: WGPUSampler):
 
 
 fn sampler_set_label(handle: WGPUSampler, label: UnsafePointer[Int8]) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuSamplerSetLabel", NoneType, WGPUSampler, UnsafePointer[Int8]
     ](handle, label)
@@ -1790,6 +2133,9 @@ fn shader_module_get_compilation_info(
     ) -> None,
     user_data: UnsafePointer[NoneType],
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuShaderModuleGetCompilationInfo",
         NoneType,
@@ -1806,6 +2152,9 @@ fn shader_module_get_compilation_info(
 fn shader_module_set_label(
     handle: WGPUShaderModule, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuShaderModuleSetLabel",
         NoneType,
@@ -1830,6 +2179,9 @@ fn surface_release(handle: WGPUSurface):
 fn surface_configure(
     handle: WGPUSurface, config: WGPUSurfaceConfiguration
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuSurfaceConfigure",
         NoneType,
@@ -1843,6 +2195,9 @@ fn surface_get_capabilities(
     adapter: WGPUAdapter,
     capabilities: WGPUSurfaceCapabilities,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuSurfaceGetCapabilities",
         NoneType,
@@ -1855,6 +2210,9 @@ fn surface_get_capabilities(
 fn surface_get_current_texture(
     handle: WGPUSurface, surface_texture: WGPUSurfaceTexture
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuSurfaceGetCurrentTexture",
         NoneType,
@@ -1866,6 +2224,9 @@ fn surface_get_current_texture(
 fn surface_present(
     handle: WGPUSurface,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call["wgpuSurfacePresent", NoneType, WGPUSurface,](
         handle,
     )
@@ -1874,12 +2235,18 @@ fn surface_present(
 fn surface_unconfigure(
     handle: WGPUSurface,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call["wgpuSurfaceUnconfigure", NoneType, WGPUSurface,](
         handle,
     )
 
 
 fn surface_set_label(handle: WGPUSurface, label: UnsafePointer[Int8]) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuSurfaceSetLabel", NoneType, WGPUSurface, UnsafePointer[Int8]
     ](handle, label)
@@ -1902,6 +2269,9 @@ fn texture_create_view(
     handle: WGPUTexture,
     descriptor: WGPUTextureViewDescriptor = WGPUTextureViewDescriptor(),
 ) -> WGPUTextureView:
+    """
+    TODO
+    """
     return external_call[
         "wgpuTextureCreateView",
         WGPUTextureView,
@@ -1911,6 +2281,9 @@ fn texture_create_view(
 
 
 fn texture_set_label(handle: WGPUTexture, label: UnsafePointer[Int8]) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuTextureSetLabel", NoneType, WGPUTexture, UnsafePointer[Int8]
     ](handle, label)
@@ -1919,6 +2292,9 @@ fn texture_set_label(handle: WGPUTexture, label: UnsafePointer[Int8]) -> None:
 fn texture_get_width(
     handle: WGPUTexture,
 ) -> UInt32:
+    """
+    TODO
+    """
     return external_call["wgpuTextureGetWidth", UInt32, WGPUTexture,](
         handle,
     )
@@ -1927,6 +2303,9 @@ fn texture_get_width(
 fn texture_get_height(
     handle: WGPUTexture,
 ) -> UInt32:
+    """
+    TODO
+    """
     return external_call["wgpuTextureGetHeight", UInt32, WGPUTexture,](
         handle,
     )
@@ -1935,6 +2314,9 @@ fn texture_get_height(
 fn texture_get_depth_or_array_layers(
     handle: WGPUTexture,
 ) -> UInt32:
+    """
+    TODO
+    """
     return external_call[
         "wgpuTextureGetDepthOrArrayLayers",
         UInt32,
@@ -1947,6 +2329,9 @@ fn texture_get_depth_or_array_layers(
 fn texture_get_mip_level_count(
     handle: WGPUTexture,
 ) -> UInt32:
+    """
+    TODO
+    """
     return external_call["wgpuTextureGetMipLevelCount", UInt32, WGPUTexture,](
         handle,
     )
@@ -1955,6 +2340,9 @@ fn texture_get_mip_level_count(
 fn texture_get_sample_count(
     handle: WGPUTexture,
 ) -> UInt32:
+    """
+    TODO
+    """
     return external_call["wgpuTextureGetSampleCount", UInt32, WGPUTexture,](
         handle,
     )
@@ -1963,6 +2351,9 @@ fn texture_get_sample_count(
 fn texture_get_dimension(
     handle: WGPUTexture,
 ) -> TextureDimension:
+    """
+    TODO
+    """
     return external_call[
         "wgpuTextureGetDimension",
         TextureDimension,
@@ -1975,6 +2366,9 @@ fn texture_get_dimension(
 fn texture_get_format(
     handle: WGPUTexture,
 ) -> TextureFormat:
+    """
+    TODO
+    """
     return external_call["wgpuTextureGetFormat", TextureFormat, WGPUTexture,](
         handle,
     )
@@ -1983,6 +2377,9 @@ fn texture_get_format(
 fn texture_get_usage(
     handle: WGPUTexture,
 ) -> TextureUsage:
+    """
+    TODO
+    """
     return external_call["wgpuTextureGetUsage", TextureUsage, WGPUTexture,](
         handle,
     )
@@ -1991,6 +2388,9 @@ fn texture_get_usage(
 fn texture_destroy(
     handle: WGPUTexture,
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call["wgpuTextureDestroy", NoneType, WGPUTexture,](
         handle,
     )
@@ -2012,6 +2412,9 @@ fn texture_view_release(handle: WGPUTextureView):
 fn texture_view_set_label(
     handle: WGPUTextureView, label: UnsafePointer[Int8]
 ) -> None:
+    """
+    TODO
+    """
     _ = external_call[
         "wgpuTextureViewSetLabel",
         NoneType,
@@ -2021,6 +2424,10 @@ fn texture_view_set_label(
 
 
 struct WGPURequestAdapterOptions(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var compatible_surface: WGPUSurface
     var power_preference: PowerPreference
@@ -2043,6 +2450,10 @@ struct WGPURequestAdapterOptions(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUAdapterInfo(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStructOut]
     var vendor: UnsafePointer[Int8]
     var architecture: UnsafePointer[Int8]
@@ -2077,6 +2488,10 @@ struct WGPUAdapterInfo(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUDeviceDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var required_feature_count: Int
@@ -2113,6 +2528,10 @@ struct WGPUDeviceDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUBindGroupEntry(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var binding: UInt32
     var buffer: WGPUBuffer
@@ -2141,6 +2560,10 @@ struct WGPUBindGroupEntry(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUBindGroupDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var layout: WGPUBindGroupLayout
@@ -2165,6 +2588,10 @@ struct WGPUBindGroupDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUBufferBindingLayout(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var type: BufferBindingType
     var has_dynamic_offset: Bool
@@ -2184,6 +2611,10 @@ struct WGPUBufferBindingLayout(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUSamplerBindingLayout(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var type: SamplerBindingType
 
@@ -2197,6 +2628,10 @@ struct WGPUSamplerBindingLayout(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUTextureBindingLayout(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var sample_type: TextureSampleType
     var view_dimension: TextureViewDimension
@@ -2216,6 +2651,10 @@ struct WGPUTextureBindingLayout(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUSurfaceCapabilities(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStructOut]
     var usages: TextureUsage
     var format_count: Int
@@ -2251,6 +2690,10 @@ struct WGPUSurfaceCapabilities(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUSurfaceConfiguration(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var device: WGPUDevice
     var format: TextureFormat
@@ -2290,6 +2733,10 @@ struct WGPUSurfaceConfiguration(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUStorageTextureBindingLayout(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var access: StorageTextureAccess
     var format: TextureFormat
@@ -2309,6 +2756,10 @@ struct WGPUStorageTextureBindingLayout(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUBindGroupLayoutEntry(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var binding: UInt32
     var visibility: ShaderStage
@@ -2337,6 +2788,10 @@ struct WGPUBindGroupLayoutEntry(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUBindGroupLayoutDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var entrie_count: Int
@@ -2358,6 +2813,10 @@ struct WGPUBindGroupLayoutDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUBlendComponent(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var operation: BlendOperation
     var src_factor: BlendFactor
     var dst_factor: BlendFactor
@@ -2374,6 +2833,10 @@ struct WGPUBlendComponent(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUBufferDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var usage: BufferUsage
@@ -2396,6 +2859,10 @@ struct WGPUBufferDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUColor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var r: Float64
     var g: Float64
     var b: Float64
@@ -2415,6 +2882,10 @@ struct WGPUColor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUConstantEntry(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var key: UnsafePointer[Int8]
     var value: Float64
@@ -2431,6 +2902,10 @@ struct WGPUConstantEntry(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUCommandBufferDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
 
@@ -2444,6 +2919,10 @@ struct WGPUCommandBufferDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUCommandEncoderDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
 
@@ -2457,6 +2936,10 @@ struct WGPUCommandEncoderDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUCompilationInfo(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var message_count: Int
     var messages: UnsafePointer[WGPUCompilationMessage]
@@ -2475,6 +2958,10 @@ struct WGPUCompilationInfo(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUCompilationMessage(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var message: UnsafePointer[Int8]
     var type: CompilationMessageType
@@ -2512,6 +2999,10 @@ struct WGPUCompilationMessage(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUComputePassDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var timestamp_writes: UnsafePointer[WGPUComputePassTimestampWrites]
@@ -2528,6 +3019,10 @@ struct WGPUComputePassDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUComputePassTimestampWrites(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var query_set: WGPUQuerySet
     var beginning_of_pass_write_index: UInt32
     var end_of_pass_write_index: UInt32
@@ -2544,6 +3039,10 @@ struct WGPUComputePassTimestampWrites(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUComputePipelineDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var layout: WGPUPipelineLayout
@@ -2563,6 +3062,10 @@ struct WGPUComputePipelineDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPULimits(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var max_texture_dimension_1D: UInt32
     var max_texture_dimension_2D: UInt32
     var max_texture_dimension_3D: UInt32
@@ -2694,6 +3197,10 @@ struct WGPULimits(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPURequiredLimits(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var limits: WGPULimits
 
@@ -2707,6 +3214,10 @@ struct WGPURequiredLimits(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUSupportedLimits(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStructOut]
     var limits: WGPULimits
 
@@ -2720,6 +3231,10 @@ struct WGPUSupportedLimits(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUExtent3D(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var width: UInt32
     var height: UInt32
     var depth_or_array_layers: UInt32
@@ -2736,6 +3251,10 @@ struct WGPUExtent3D(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUImageCopyBuffer(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var layout: WGPUTextureDataLayout
     var buffer: WGPUBuffer
@@ -2752,6 +3271,10 @@ struct WGPUImageCopyBuffer(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUImageCopyTexture(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var texture: WGPUTexture
     var mip_level: UInt32
@@ -2774,6 +3297,10 @@ struct WGPUImageCopyTexture(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUInstanceDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
 
     fn __init__(
@@ -2784,6 +3311,10 @@ struct WGPUInstanceDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUVertexAttribute(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var format: VertexFormat
     var offset: UInt64
     var shader_location: UInt32
@@ -2800,6 +3331,10 @@ struct WGPUVertexAttribute(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUVertexBufferLayout(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var array_stride: UInt64
     var step_mode: VertexStepMode
     var attribute_count: Int
@@ -2821,6 +3356,10 @@ struct WGPUVertexBufferLayout(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUOrigin3D(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var x: UInt32
     var y: UInt32
     var z: UInt32
@@ -2837,6 +3376,10 @@ struct WGPUOrigin3D(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUPipelineLayoutDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var bind_group_layout_count: Int
@@ -2858,6 +3401,10 @@ struct WGPUPipelineLayoutDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUProgrammableStageDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var module: WGPUShaderModule
     var entry_point: UnsafePointer[Int8]
@@ -2882,6 +3429,10 @@ struct WGPUProgrammableStageDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUQuerySetDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var type: QueryType
@@ -2901,6 +3452,10 @@ struct WGPUQuerySetDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUQueueDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
 
@@ -2914,6 +3469,10 @@ struct WGPUQueueDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPURenderBundleDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
 
@@ -2927,6 +3486,10 @@ struct WGPURenderBundleDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPURenderBundleEncoderDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var color_format_count: Int
@@ -2960,6 +3523,10 @@ struct WGPURenderBundleEncoderDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPURenderPassColorAttachment(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var view: WGPUTextureView
     var depth_slice: UInt32
@@ -2990,6 +3557,10 @@ struct WGPURenderPassColorAttachment(Copyable, ImplicitlyCopyable, Movable):
 struct WGPURenderPassDepthStencilAttachment(
     Copyable, ImplicitlyCopyable, Movable
 ):
+    """
+    TODO
+    """
+
     var view: WGPUTextureView
     var depth_load_op: LoadOp
     var depth_store_op: StoreOp
@@ -3024,6 +3595,10 @@ struct WGPURenderPassDepthStencilAttachment(
 
 
 struct WGPURenderPassDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var color_attachment_count: Int
@@ -3060,6 +3635,10 @@ struct WGPURenderPassDescriptor(Copyable, ImplicitlyCopyable, Movable):
 struct WGPURenderPassDescriptorMaxDrawCount(
     Copyable, ImplicitlyCopyable, Movable
 ):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var max_draw_count: UInt64
 
@@ -3073,6 +3652,10 @@ struct WGPURenderPassDescriptorMaxDrawCount(
 
 
 struct WGPURenderPassTimestampWrites(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var query_set: WGPUQuerySet
     var beginning_of_pass_write_index: UInt32
     var end_of_pass_write_index: UInt32
@@ -3089,6 +3672,10 @@ struct WGPURenderPassTimestampWrites(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUVertexState(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var module: WGPUShaderModule
     var entry_point: UnsafePointer[Int8]
@@ -3121,6 +3708,10 @@ struct WGPUVertexState(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUPrimitiveState(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var topology: PrimitiveTopology
     var strip_index_format: IndexFormat
@@ -3143,6 +3734,10 @@ struct WGPUPrimitiveState(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUPrimitiveDepthClipControl(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var unclipped_depth: Bool
 
@@ -3156,6 +3751,10 @@ struct WGPUPrimitiveDepthClipControl(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUDepthStencilState(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var format: TextureFormat
     var depth_write_enabled: Bool
@@ -3196,6 +3795,10 @@ struct WGPUDepthStencilState(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUMultisampleState(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var count: UInt32
     var mask: UInt32
@@ -3215,6 +3818,10 @@ struct WGPUMultisampleState(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUFragmentState(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var module: WGPUShaderModule
     var entry_point: UnsafePointer[Int8]
@@ -3247,6 +3854,10 @@ struct WGPUFragmentState(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUColorTargetState(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var format: TextureFormat
     var blend: UnsafePointer[WGPUBlendState]
@@ -3266,6 +3877,10 @@ struct WGPUColorTargetState(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUBlendState(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var color: WGPUBlendComponent
     var alpha: WGPUBlendComponent
 
@@ -3279,6 +3894,10 @@ struct WGPUBlendState(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPURenderPipelineDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var layout: WGPUPipelineLayout
@@ -3310,6 +3929,10 @@ struct WGPURenderPipelineDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUSamplerDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var address_mode_u: AddressMode
@@ -3353,6 +3976,10 @@ struct WGPUSamplerDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUShaderModuleDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var hint_count: Int
@@ -3374,6 +4001,10 @@ struct WGPUShaderModuleDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUShaderModuleCompilationHint(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var entry_point: UnsafePointer[Int8]
     var layout: WGPUPipelineLayout
@@ -3390,6 +4021,10 @@ struct WGPUShaderModuleCompilationHint(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUShaderModuleSpirvDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var code_size: UInt32
     var code: UInt32
@@ -3406,6 +4041,10 @@ struct WGPUShaderModuleSpirvDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUShaderModuleWgslDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var code: UnsafePointer[Int8]
 
@@ -3419,6 +4058,10 @@ struct WGPUShaderModuleWgslDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUStencilFaceState(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var compare: CompareFunction
     var fail_op: StencilOperation
     var depth_fail_op: StencilOperation
@@ -3438,6 +4081,10 @@ struct WGPUStencilFaceState(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUSurfaceDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
 
@@ -3453,6 +4100,10 @@ struct WGPUSurfaceDescriptor(Copyable, ImplicitlyCopyable, Movable):
 struct WGPUSurfaceDescriptorFromAndroidNativeWindow(
     Copyable, ImplicitlyCopyable, Movable
 ):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var window: UnsafePointer[NoneType]
 
@@ -3468,6 +4119,10 @@ struct WGPUSurfaceDescriptorFromAndroidNativeWindow(
 struct WGPUSurfaceDescriptorFromCanvasHtmlSelector(
     Copyable, ImplicitlyCopyable, Movable
 ):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var selector: UnsafePointer[Int8]
 
@@ -3483,6 +4138,10 @@ struct WGPUSurfaceDescriptorFromCanvasHtmlSelector(
 struct WGPUSurfaceDescriptorFromMetalLayer(
     Copyable, ImplicitlyCopyable, Movable
 ):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var layer: UnsafePointer[NoneType]
 
@@ -3498,6 +4157,10 @@ struct WGPUSurfaceDescriptorFromMetalLayer(
 struct WGPUSurfaceDescriptorFromWindowsHwnd(
     Copyable, ImplicitlyCopyable, Movable
 ):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var hinstance: UnsafePointer[NoneType]
     var hwnd: UnsafePointer[NoneType]
@@ -3516,6 +4179,10 @@ struct WGPUSurfaceDescriptorFromWindowsHwnd(
 struct WGPUSurfaceDescriptorFromXcbWindow(
     Copyable, ImplicitlyCopyable, Movable
 ):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var connection: UnsafePointer[NoneType]
     var window: UInt32
@@ -3534,6 +4201,10 @@ struct WGPUSurfaceDescriptorFromXcbWindow(
 struct WGPUSurfaceDescriptorFromXlibWindow(
     Copyable, ImplicitlyCopyable, Movable
 ):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var display: UnsafePointer[NoneType]
     var window: UInt64
@@ -3552,6 +4223,10 @@ struct WGPUSurfaceDescriptorFromXlibWindow(
 struct WGPUSurfaceDescriptorFromWaylandSurface(
     Copyable, ImplicitlyCopyable, Movable
 ):
+    """
+    TODO
+    """
+
     var chain: ChainedStruct
     var display: UnsafePointer[NoneType]
     var surface: UnsafePointer[NoneType]
@@ -3568,6 +4243,10 @@ struct WGPUSurfaceDescriptorFromWaylandSurface(
 
 
 struct WGPUSurfaceTexture(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var texture: WGPUTexture
     var suboptimal: Bool
     var status: SurfaceGetCurrentTextureStatus
@@ -3586,6 +4265,10 @@ struct WGPUSurfaceTexture(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUTextureDataLayout(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var offset: UInt64
     var bytes_per_row: UInt32
@@ -3605,6 +4288,10 @@ struct WGPUTextureDataLayout(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUTextureDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var usage: TextureUsage
@@ -3644,6 +4331,10 @@ struct WGPUTextureDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUTextureViewDescriptor(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var label: UnsafePointer[Int8]
     var format: TextureFormat
@@ -3678,6 +4369,10 @@ struct WGPUTextureViewDescriptor(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUUncapturedErrorCallbackInfo(Copyable, ImplicitlyCopyable, Movable):
+    """
+    TODO
+    """
+
     var next_in_chain: UnsafePointer[ChainedStruct]
     var callback: UnsafePointer[NoneType]
     var userdata: UnsafePointer[NoneType]
@@ -3696,6 +4391,9 @@ struct WGPUUncapturedErrorCallbackInfo(Copyable, ImplicitlyCopyable, Movable):
 fn create_instance(
     descriptor: WGPUInstanceDescriptor = WGPUInstanceDescriptor(),
 ) -> WGPUInstance:
+    """
+    TODO
+    """
     return external_call[
         "wgpuCreateInstance",
         WGPUInstance,
