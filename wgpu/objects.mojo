@@ -2319,13 +2319,15 @@ fn _glfw_get_wgpu_surface(
 ) raises -> _c.WGPUSurface:
     @parameter
     if sys.CompilationTarget.is_macos():
-        objc = sys.ffi.DLHandle("libobjc.A.dylib")
+        objc = sys.ffi.OwnedDLHandle("libobjc.A.dylib")
 
+        @parameter
         fn sel(mut name: String) -> UnsafePointer[NoneType]:
             return objc.get_function[
                 fn (UnsafePointer[Int8]) -> UnsafePointer[NoneType]
             ]("sel_registerName")(name.unsafe_cstr_ptr())
 
+        @parameter
         fn get_class(mut name: String) -> UnsafePointer[NoneType]:
             return objc.get_function[
                 fn (UnsafePointer[Int8]) -> UnsafePointer[NoneType]
