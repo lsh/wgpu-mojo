@@ -71,8 +71,8 @@ struct DeviceDescriptor(Copyable, Movable):
 
 
 @fieldwise_init
-struct BindingResource(Copyable, Movable):
-    var _value: Variant[BufferBinding, BufferArray]
+struct BindingResource[T: Copyable & Movable](Copyable, Movable):
+    var _value: Variant[BufferBinding[T], BufferArray[T]]
 
     @implicit
     fn __init__(out self, var value: BufferBinding):
@@ -83,48 +83,49 @@ struct BindingResource(Copyable, Movable):
         self._value = value^
 
     fn is_buffer(self) -> Bool:
-        return self._value.isa[BufferBinding]()
+        return self._value.isa[BufferBinding[T]]()
 
     fn is_buffer_array(self) -> Bool:
-        return self._value.isa[BufferArray]()
+        return self._value.isa[BufferArray[T]]()
 
-    fn buffer(self) -> ref [self._value] BufferBinding:
-        return self._value[BufferBinding]
+    fn buffer(self) -> ref [self._value] BufferBinding[T]:
+        return self._value[BufferBinding[T]]
 
-    fn buffer_array(self) -> ref [self._value] BufferArray:
-        return self._value[BufferArray]
+    fn buffer_array(self) -> ref [self._value] BufferArray[T]:
+        return self._value[BufferArray[T]]
 
 
 @fieldwise_init
-struct BufferBinding(Copyable, Movable):
-    var buffer: ArcPointer[Buffer]
+struct BufferBinding[T: Copyable & Movable](Copyable, Movable):
+    var buffer: ArcPointer[Buffer[T]]
     var offset: UInt64
     var size: UInt64
 
 
 @fieldwise_init
-struct BufferArray(Copyable, Movable):
-    var value: List[BufferBinding]
+struct BufferArray[T: Copyable & Movable](Copyable, Movable):
+    var value: List[BufferBinding[T]]
 
 
 @fieldwise_init
-struct BindGroupEntry(Copyable, Movable):
+struct BindGroupEntry[T: Copyable & Movable](Copyable, Movable):
     var binding: UInt32
-    var resource: BindingResource
+    var resource: BindingResource[T]
 
 
 struct BindGroupDescriptor[
+    T: Copyable & Movable,
     origin: ImmutOrigin,
 ](Copyable, Movable):
     var label: String
     var layout: ArcPointer[BindGroupLayout]
-    var entries: Span[BindGroupEntry, origin]
+    var entries: Span[BindGroupEntry[T], origin]
 
     fn __init__(
         out self,
         label: String,
         layout: ArcPointer[BindGroupLayout],
-        entries: Span[BindGroupEntry, origin],
+        entries: Span[BindGroupEntry[T], origin],
     ):
         self.label = label
         self.layout = layout
@@ -350,13 +351,15 @@ struct ComputePipelineDescriptor(Copyable, Movable):
 
 
 @fieldwise_init
-struct ImageCopyBuffer[buf: ImmutOrigin](Copyable, Movable):
+struct ImageCopyBuffer[T: Copyable & Movable, buf: ImmutOrigin](
+    Copyable, Movable
+):
     var layout: TextureDataLayout
-    var buffer: Pointer[Buffer, buf]
+    var buffer: Pointer[Buffer[T], buf]
 
     fn __init__(
         out self,
-        ref [buf]buffer: Buffer,
+        ref [buf]buffer: Buffer[T],
         var layout: TextureDataLayout = TextureDataLayout(),
     ):
         self.buffer = Pointer(to=buffer)
