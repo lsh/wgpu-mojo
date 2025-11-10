@@ -1744,10 +1744,6 @@ struct RenderPassEncoder(Movable):
         self._handle = rhs._handle
         rhs._handle = _c.WGPURenderPassEncoder()
 
-    fn __del__(deinit self):
-        if self._handle:
-            _c.render_pass_encoder_release(self._handle)
-
     fn set_pipeline(mut self, pipeline: RenderPipeline):
         """
         TODO
