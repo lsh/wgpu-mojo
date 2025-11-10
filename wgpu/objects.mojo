@@ -151,7 +151,7 @@ struct BindGroupLayout(Movable):
         )
 
 
-struct Buffer(Movable):
+struct Buffer[T: Copyable & Movable](Movable):
     var _handle: _c.WGPUBuffer
 
     fn __init__(out self, unsafe_ptr: _c.WGPUBuffer):
@@ -188,12 +188,17 @@ struct Buffer(Movable):
     #     ]("wgpuBufferMapAsync")(handle, mode, offset, size, callback, user_data)
 
     fn get_mapped_range(
-        self, offset: Int, size: Int
-    ) -> UnsafePointer[NoneType]:
+        mut self, offset: Int, size: Int
+    ) -> MappedBuffer[T, origin_of(self)]:
         """
         TODO
         """
-        return _c.buffer_get_mapped_range(self._handle, offset, size)
+        return MappedBuffer[T, origin_of(self)](
+            self,
+            _c.buffer_get_mapped_range(
+                self._handle, offset, sys.size_of[T]() * size
+            ).bitcast[T](),
+        )
 
     # fn buffer_get_const_mapped_range(
     #     handle: WGPUBuffer, offset: Int, size: UInt
@@ -229,7 +234,7 @@ struct Buffer(Movable):
         """
         return _c.buffer_get_map_state(self._handle)
 
-    fn unmap(self):
+    fn unmap(mut self):
         """
         TODO
         """
@@ -240,6 +245,30 @@ struct Buffer(Movable):
         TODO
         """
         _c.buffer_destroy(self._handle)
+
+
+@fieldwise_init
+struct MappedBuffer[T: Copyable & Movable, origin: MutOrigin](
+    Copyable, Movable
+):
+    var _buffer: Pointer[Buffer[T], origin]
+    var _ptr: UnsafePointer[T]
+
+    fn __init__(out self, ref [origin]buffer: Buffer[T], ptr: UnsafePointer[T]):
+        self._buffer = Pointer(to=buffer)
+        self._ptr = ptr
+
+    fn __enter__(var self) -> Self:
+        return self^
+
+    fn __getitem__[IndexType: Indexer](ref self, i: IndexType) -> ref [self] T:
+        return self._ptr[i]
+
+    fn __getitem__[i: Int](ref self) -> ref [self] T:
+        return self._ptr[i]
+
+    fn __del__(deinit self):
+        self._buffer[].unmap()
 
 
 struct CommandBuffer(Movable):
@@ -798,7 +827,9 @@ struct Device(Movable):
         _ = desc
         return layout^
 
-    fn create_buffer(self, var descriptor: BufferDescriptor) -> Buffer:
+    fn create_buffer[
+        T: Copyable & Movable
+    ](self, var descriptor: BufferDescriptor) -> Buffer[T]:
         """
         TODO
         """
@@ -806,10 +837,10 @@ struct Device(Movable):
         desc = _c.WGPUBufferDescriptor(
             label=descriptor.label.unsafe_cstr_ptr(),
             usage=descriptor.usage,
-            size=descriptor.size,
+            size=descriptor.size * sys.size_of[T](),
             mapped_at_creation=descriptor.mapped_at_creation,
         )
-        return Buffer(
+        return Buffer[T](
             _c.device_create_buffer(self._handle, UnsafePointer(to=desc))
         )
 
@@ -1405,11 +1436,13 @@ struct Queue(Movable):
     #         ) -> None
     #     ]("wgpuQueueOnSubmittedWorkDone")(handle, callback, user_data)
 
-    fn write_buffer(
+    fn write_buffer[
+        T: Copyable & Movable
+    ](
         self,
-        buffer: ArcPointer[Buffer],
+        buffer: ArcPointer[Buffer[T]],
         offset: UInt64,
-        data: Span[UInt8],
+        data: Span[T],
     ) -> None:
         """
         TODO
@@ -1419,7 +1452,7 @@ struct Queue(Movable):
             buffer[]._handle,
             offset,
             data.unsafe_ptr().bitcast[NoneType](),
-            len(data),
+            len(data) * sys.size_of[T](),
         )
 
 

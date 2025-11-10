@@ -61,8 +61,8 @@ fn main() raises:
 
     queue = device.get_queue()
 
-    surface_capabilies = surface.get_capabilities(adapter)
-    surface_format = surface_capabilies.formats()[0]
+    surface_capabilities = surface.get_capabilities(adapter)
+    surface_format = surface_capabilities.formats()[0]
     surface.configure(
         device,
         SurfaceConfiguration(
@@ -144,7 +144,7 @@ fn main() raises:
         {"pipeline layout", bind_group_layouts}
     )
     uniform_buffer = ArcPointer(
-        device.create_buffer(
+        device.create_buffer[Float32](
             {
                 "uniform buffer",
                 BufferUsage.uniform | BufferUsage.copy_dst,
@@ -153,13 +153,8 @@ fn main() raises:
             }
         )
     )
-    uniform_dst = (
-        uniform_buffer[]
-        .get_mapped_range(0, size_of[Float32]())
-        .bitcast[Float32]()
-    )
-    uniform_dst[0] = 0
-    uniform_buffer[].unmap()
+    with uniform_buffer[].get_mapped_range(0, 1) as uniform_host:
+        uniform_host[0] = 0
     uniform_bind_group_entries = [
         BindGroupEntry(0, BufferBinding(uniform_buffer, 0, size_of[Float32]()))
     ]
@@ -213,16 +208,12 @@ fn main() raises:
         {Vec3(0.5, -0.5, 0.0), MyColor(0, 1, 0, 1)},
         {Vec3(0.0, 0.5, 0.0), MyColor(0, 0, 1, 1)},
     ]
-    vertices_size_bytes = len(vertices) * size_of[MyVertex]()
-    vertex_buffer = device.create_buffer(
-        {"vertex buffer", BufferUsage.vertex, vertices_size_bytes, True}
+    vertex_buffer = device.create_buffer[MyVertex](
+        {"vertex buffer", BufferUsage.vertex, len(vertices), True}
     )
-    dst = vertex_buffer.get_mapped_range(0, vertices_size_bytes).bitcast[
-        MyVertex
-    ]()
-    for i in range(len(vertices)):
-        dst[i] = vertices[i]
-    vertex_buffer.unmap()
+    with vertex_buffer.get_mapped_range(0, len(vertices)) as vertex_host:
+        for i in range(len(vertices)):
+            vertex_host[i] = vertices[i]
 
     u_time = Float32(0)
     while not window.should_close():
@@ -255,9 +246,8 @@ fn main() raises:
             queue.write_buffer(
                 uniform_buffer,
                 0,
-                Span[UInt8, origin_of(u_time)](
-                    ptr=UnsafePointer(to=u_time).bitcast[UInt8](),
-                    length=size_of[Float32](),
+                Span[Float32, origin_of(u_time)](
+                    ptr=UnsafePointer(to=u_time), length=1
                 ),
             )
             rp = encoder.begin_render_pass(color_attachments=color_attachments)
