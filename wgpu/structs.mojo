@@ -52,7 +52,6 @@ struct DeviceDescriptor(Copyable, Movable):
     var label: String
     var required_features: Optional[List[FeatureName]]
     var limits: Limits
-    var default_queue: QueueDescriptor
     # var device_lost_callback: UnsafePointer[NoneType]
     # var device_lost_userdata: UnsafePointer[NoneType]
     # var uncaptured_error_callback_info: UnsafePointer[NoneType]
@@ -62,70 +61,82 @@ struct DeviceDescriptor(Copyable, Movable):
         label: String = "",
         required_features: Optional[List[FeatureName]] = None,
         limits: Limits = Limits(),
-        var default_queue: QueueDescriptor = QueueDescriptor(),
     ):
         self.label = label
         self.required_features = required_features
         self.limits = limits
-        self.default_queue = default_queue^
 
 
 @fieldwise_init
-struct BindingResource[T: Copyable & Movable](Copyable, Movable):
-    var _value: Variant[BufferBinding[T], BufferArray[T]]
+struct BindingResource[T: Copyable & Movable, origin: ImmutOrigin](
+    Copyable, Movable
+):
+    var _value: Variant[BufferBinding[T, origin], BufferArray[T, origin]]
 
     @implicit
-    fn __init__(out self, var value: BufferBinding):
+    fn __init__(out self, var value: BufferBinding[T, origin]):
         self._value = value^
 
     @implicit
-    fn __init__(out self, var value: BufferArray):
+    fn __init__(out self, var value: BufferArray[T, origin]):
         self._value = value^
 
     fn is_buffer(self) -> Bool:
-        return self._value.isa[BufferBinding[T]]()
+        return self._value.isa[BufferBinding[T, origin]]()
 
     fn is_buffer_array(self) -> Bool:
-        return self._value.isa[BufferArray[T]]()
+        return self._value.isa[BufferArray[T, origin]]()
 
-    fn buffer(self) -> ref [self._value] BufferBinding[T]:
-        return self._value[BufferBinding[T]]
+    fn buffer(self) -> ref [self._value] BufferBinding[T, origin]:
+        return self._value[BufferBinding[T, origin]]
 
-    fn buffer_array(self) -> ref [self._value] BufferArray[T]:
-        return self._value[BufferArray[T]]
+    fn buffer_array(self) -> ref [self._value] BufferArray[T, origin]:
+        return self._value[BufferArray[T, origin]]
 
 
 @fieldwise_init
-struct BufferBinding[T: Copyable & Movable](Copyable, Movable):
-    var buffer: ArcPointer[Buffer[T]]
+struct BufferBinding[T: Copyable & Movable, origin: ImmutOrigin](
+    Copyable, Movable
+):
+    var buffer: Pointer[Buffer[T], origin]
     var offset: UInt64
     var size: UInt64
 
+    fn __init__(
+        out self, ref [origin]buffer: Buffer[T], offset: UInt64, size: UInt64
+    ):
+        self.buffer = Pointer(to=buffer)
+        self.offset = offset
+        self.size = size
+
 
 @fieldwise_init
-struct BufferArray[T: Copyable & Movable](Copyable, Movable):
-    var value: List[BufferBinding[T]]
+struct BufferArray[T: Copyable & Movable, origin: ImmutOrigin](
+    Copyable, Movable
+):
+    var value: List[BufferBinding[T, origin]]
 
 
 @fieldwise_init
-struct BindGroupEntry[T: Copyable & Movable](Copyable, Movable):
+struct BindGroupEntry[T: Copyable & Movable, origin: ImmutOrigin](
+    Copyable, Movable
+):
     var binding: UInt32
-    var resource: BindingResource[T]
+    var resource: BindingResource[T, origin]
 
 
 struct BindGroupDescriptor[
-    T: Copyable & Movable,
-    origin: ImmutOrigin,
+    T: Copyable & Movable, origin: ImmutOrigin, bind_group_origin: ImmutOrigin
 ](Copyable, Movable):
     var label: String
     var layout: ArcPointer[BindGroupLayout]
-    var entries: Span[BindGroupEntry[T], origin]
+    var entries: Span[BindGroupEntry[T, bind_group_origin], origin]
 
     fn __init__(
         out self,
         label: String,
         layout: ArcPointer[BindGroupLayout],
-        entries: Span[BindGroupEntry[T], origin],
+        entries: Span[BindGroupEntry[T, bind_group_origin], origin],
     ):
         self.label = label
         self.layout = layout
@@ -307,9 +318,11 @@ struct CommandBufferDescriptor(Copyable, Movable):
     var label: String
 
 
-@fieldwise_init
 struct CommandEncoderDescriptor(Copyable, Movable):
     var label: String
+
+    fn __init__(out self, var label: String = ""):
+        self.label = label
 
 
 @fieldwise_init
@@ -418,13 +431,6 @@ struct QuerySetDescriptor(Copyable, Movable):
     var count: UInt32
 
 
-struct QueueDescriptor(Copyable, Movable):
-    var label: String
-
-    fn __init__(out self, label: String = String()):
-        self.label = label
-
-
 @fieldwise_init
 struct RenderBundleDescriptor(Copyable, Movable):
     var label: String
@@ -441,8 +447,8 @@ struct RenderBundleEncoderDescriptor(Copyable, Movable):
 
 
 @fieldwise_init
-struct RenderPassColorAttachment(Copyable, Movable):
-    var view: ArcPointer[TextureView]
+struct RenderPassColorAttachment[tex: ImmutOrigin](Movable):
+    var view: Pointer[TextureView, tex]
     var depth_slice: UInt32
     var resolve_target: Optional[ArcPointer[TextureView]]
     var load_op: LoadOp
@@ -451,7 +457,7 @@ struct RenderPassColorAttachment(Copyable, Movable):
 
     fn __init__(
         out self,
-        view: ArcPointer[TextureView],
+        ref [tex]view: TextureView,
         load_op: LoadOp,
         store_op: StoreOp,
         *,
@@ -459,7 +465,7 @@ struct RenderPassColorAttachment(Copyable, Movable):
         clear_value: Color = Color(),
         depth_slice: UInt32 = DEPTH_SLICE_UNDEFINED,
     ):
-        self.view = view
+        self.view = Pointer(to=view)
         self.load_op = load_op
         self.store_op = store_op
         self.resolve_target = resolve_target
@@ -480,12 +486,30 @@ struct RenderPassDepthStencilAttachment(Copyable, Movable):
     var stencil_read_only: Bool
 
 
-struct RenderPassDescriptor(Copyable, Movable):
+struct RenderPassDescriptor[tex: ImmutOrigin](Copyable, Movable):
     var label: String
-    var color_attachments: List[RenderPassColorAttachment]
+    var color_attachments: List[ArcPointer[RenderPassColorAttachment[tex]]]
     var depth_stencil_attachment: Optional[RenderPassDepthStencilAttachment]
-    var occlusion_query_set: ArcPointer[QuerySet]
+    var occlusion_query_set: Optional[ArcPointer[QuerySet]]
     var timestamp_writes: Optional[RenderPassTimestampWrites]
+
+    fn __init__(
+        out self,
+        label: String = "",
+        var color_attachments: List[
+            ArcPointer[RenderPassColorAttachment[tex]]
+        ] = [],
+        var depth_stencil_attachment: Optional[
+            RenderPassDepthStencilAttachment
+        ] = None,
+        var occlusion_query_set: Optional[ArcPointer[QuerySet]] = None,
+        var timestamp_writes: Optional[RenderPassTimestampWrites] = None,
+    ):
+        self.label = label
+        self.color_attachments = color_attachments^
+        self.depth_stencil_attachment = depth_stencil_attachment^
+        self.occlusion_query_set = occlusion_query_set^
+        self.timestamp_writes = timestamp_writes^
 
 
 @fieldwise_init
@@ -673,20 +697,20 @@ struct SurfaceDescriptor(Copyable, Movable):
     var label: String
 
 
-struct SurfaceTexture(Copyable, Movable):
-    var texture: ArcPointer[Texture]
+struct SurfaceTexture(Movable):
+    var texture: Texture
     var suboptimal: Bool
     var status: SurfaceGetCurrentTextureStatus
 
     fn __init__(
         out self,
-        texture: ArcPointer[Texture],
+        var texture: Texture,
         suboptimal: Bool = False,
         status: SurfaceGetCurrentTextureStatus = SurfaceGetCurrentTextureStatus(
             0
         ),
     ):
-        self.texture = texture
+        self.texture = texture^
         self.suboptimal = suboptimal
         self.status = status
 
@@ -721,7 +745,6 @@ struct TextureDescriptor(Copyable, Movable):
     var view_formats: List[TextureFormat]
 
 
-@fieldwise_init
 struct TextureViewDescriptor(Copyable, Movable):
     var label: String
     var format: TextureFormat
@@ -731,6 +754,26 @@ struct TextureViewDescriptor(Copyable, Movable):
     var base_array_layer: UInt32
     var array_layer_count: UInt32
     var aspect: TextureAspect
+
+    fn __init__(
+        out self,
+        format: TextureFormat,
+        dimension: TextureViewDimension,
+        var label: String = "",
+        base_mip_level: UInt32 = 0,
+        mip_level_count: UInt32 = MIP_LEVEL_COUNT_UNDEFINED,
+        base_array_layer: UInt32 = 0,
+        array_layer_count: UInt32 = ARRAY_LAYER_COUNT_UNDEFINED,
+        aspect: TextureAspect = TextureAspect.all,
+    ):
+        self.label = label
+        self.format = format
+        self.dimension = dimension
+        self.base_mip_level = base_mip_level
+        self.mip_level_count = mip_level_count
+        self.base_array_layer = base_array_layer
+        self.array_layer_count = array_layer_count
+        self.aspect = aspect
 
 
 @fieldwise_init
