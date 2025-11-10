@@ -156,7 +156,7 @@ fn main() raises:
     with uniform_buffer[].get_mapped_range(0, 1) as uniform_host:
         uniform_host[0] = 0
     uniform_bind_group_entries = [
-        BindGroupEntry(0, BufferBinding(uniform_buffer, 0, size_of[Float32]()))
+        BindGroupEntry[Float32](0, BufferBinding[Float32](uniform_buffer, 0, 1))
     ]
 
     uniform_bind_group = device.create_bind_group(
@@ -255,9 +255,9 @@ fn main() raises:
             rp.set_vertex_buffer(0, 0, vertex_buffer.get_size(), vertex_buffer)
             rp.set_bind_group(0, uniform_bind_group, List[UInt32]())
             rp.draw(3, 1, 0, 0)
-            rp.end()
+            rp^.end()
 
-            command = encoder.finish()
+            command = encoder^.finish()
 
             queue.submit(command)
             surface.present()

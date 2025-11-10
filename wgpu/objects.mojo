@@ -294,6 +294,7 @@ struct CommandBuffer(Movable):
         )
 
 
+@explicit_destroy("CommandEncoder requires destruction via `finish()`")
 struct CommandEncoder(Movable):
     var _handle: _c.WGPUCommandEncoder
 
@@ -304,11 +305,7 @@ struct CommandEncoder(Movable):
         self._handle = rhs._handle
         rhs._handle = _c.WGPUCommandEncoder()
 
-    fn __del__(deinit self):
-        if self._handle:
-            _c.command_encoder_release(self._handle)
-
-    fn finish(self, var label: String = "") -> CommandBuffer:
+    fn finish(deinit self, var label: String = "") -> CommandBuffer:
         """
         TODO
         """
@@ -317,6 +314,8 @@ struct CommandEncoder(Movable):
             _c.command_encoder_finish(self._handle, UnsafePointer(to=desc))
         )
         _ = desc
+        if self._handle:
+            _c.command_encoder_release(self._handle)
         return buffer^
 
     # fn command_encoder_begin_compute_pass(
@@ -1736,11 +1735,10 @@ struct Queue(Movable):
 #     ]("wgpuRenderBundleEncoderSetLabel")(handle, label)
 
 
+@fieldwise_init
+@explicit_destroy("RenderPassEncoder requires destruction via `end()`")
 struct RenderPassEncoder(Movable):
     var _handle: _c.WGPURenderPassEncoder
-
-    fn __init__(out self, unsafe_ptr: _c.WGPURenderPassEncoder):
-        self._handle = unsafe_ptr
 
     fn __moveinit__(out self, deinit rhs: Self):
         self._handle = rhs._handle
@@ -2001,11 +1999,13 @@ struct RenderPassEncoder(Movable):
     #         handle,
     #     )
 
-    fn end(self):
+    fn end(deinit self):
         """
         TODO
         """
         _c.render_pass_encoder_end(self._handle)
+        if self._handle:
+            _c.render_pass_encoder_release(self._handle)
 
 
 # fn render_pass_encoder_set_label(
