@@ -136,13 +136,16 @@ def load_spec(path: Path) -> Spec:
 
 
 def gen_enum(entry: Enum) -> str:
+    doc = (
+        ""
+        if entry.doc.strip() == "TODO"
+        else f"""\"\"\"\n    {entry.doc.strip()}\"\"\"\n"""
+    )
     output = f"""
 @fieldwise_init
 @register_passable("trivial")
 struct {entry.name.title().replace("_", "")}(Copyable, EqualityComparable, ImplicitlyCopyable, Movable, Writable):
-    \"\"\"
-    {entry.doc.strip()}
-    \"\"\"
+    {doc}
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -153,7 +156,8 @@ struct {entry.name.title().replace("_", "")}(Copyable, EqualityComparable, Impli
         if entry.name == "texture_view_dimension" or entry.name == "texture_dimension":
             ename = ename[::-1]
         output += f"    alias {ename} = Self({e.value if hasattr(e, 'value') else i})\n"
-        output += f'    """{e.doc.strip()}"""\n'
+        if e.doc.strip() != "TODO":
+            output += f'    """{e.doc.strip()}"""\n'
     output += """\n    fn write_to(self, mut w: Some[Writer]):\n"""
     for i, e in enumerate(entry.entries):
         ename = e.name.lower()
@@ -168,13 +172,16 @@ struct {entry.name.title().replace("_", "")}(Copyable, EqualityComparable, Impli
 
 
 def gen_bitflag(entry: Bitflag) -> str:
+    doc = (
+        ""
+        if entry.doc.strip() == "TODO"
+        else f"""\"\"\"\n    {entry.doc.strip()}\"\"\"\n"""
+    )
     output = f"""
 @fieldwise_init
 @register_passable("trivial")
 struct {entry.name.title().replace("_", "")}(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
-    \"\"\"
-    {entry.doc.strip()}
-    \"\"\"
+    {doc}
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -202,7 +209,8 @@ struct {entry.name.title().replace("_", "")}(Copyable, EqualityComparable, Impli
             output += f"    alias {e.name.lower()} = {combination}\n"
         else:
             output += f"    alias {e.name.lower()} = Self({int(math.pow(2, int(e.value) if hasattr(e, 'value') else i - 1))})\n"
-        output += f'    """{e.doc.strip()}"""\n'
+        if e.doc.strip() != "TODO":
+            output += f'    """{e.doc.strip()}"""\n'
     return output
 
 
@@ -216,16 +224,23 @@ def gen_constant(entry: Constant) -> str:
             val = "Int.MAX"
         case _:
             val = entry.value
+
+    doc = (
+        ""
+        if entry.doc.strip() == "TODO"
+        else f"""\"\"\"\n{entry.doc.strip()}\"\"\"\n"""
+    )
     return f"""
 alias {entry.name.upper()} = {val}
-\"\"\"
-{entry.doc.strip()}
-\"\"\"
+{doc}
 """
 
 
 def sanitize_name(
-    name: str, object_pointer: bool = True, struct_pointer: bool = False
+    name: str,
+    object_pointer: bool = True,
+    struct_pointer: bool = False,
+    with_origin: bool = False,
 ) -> str:
     if name.startswith("enum."):
         return name.removeprefix("enum.").title().replace("_", "")
@@ -234,7 +249,10 @@ def sanitize_name(
     elif name.startswith("struct."):
         if struct_pointer:
             n = name.removeprefix("struct.").title().replace("_", "")
-            return f"UnsafePointer[WGPU{n}]"
+            if with_origin:
+                return f"FFIPointer[WGPU{n}, mut=True]"
+            else:
+                return f"FFIPointer[WGPU{n}]"
         else:
             return "WGPU" + name.removeprefix("struct.").title().replace("_", "")
     elif name.startswith("function_type."):
@@ -246,7 +264,7 @@ def sanitize_name(
         else:
             return name.removeprefix("object.").title().replace("_", "")
     elif name == "string":
-        return "UnsafePointer[Int8]"
+        return "FFIPointer[Int8, mut=False]"
     elif name == "uint32":
         return "UInt32"
     elif name == "uint16":
@@ -268,7 +286,7 @@ def sanitize_name(
     elif name == "usize":
         return "Int"
     elif name == "c_void":
-        return "UnsafePointer[NoneType]"
+        return "FFIPointer[NoneType, mut=True]"
     else:
         return name
 
@@ -281,9 +299,13 @@ def gen_parameter_type(
     object_pointer: bool = True,
     struct_pointer: bool = False,
     in_function: bool = False,
+    with_origin: bool = False,
 ) -> str:
     ty = sanitize_name(
-        entry.type, object_pointer=object_pointer, struct_pointer=struct_pointer
+        entry.type,
+        object_pointer=object_pointer,
+        struct_pointer=struct_pointer,
+        with_origin=with_origin,
     )
     if hasattr(entry, "pointer"):
         if "array<" in entry.type:
@@ -291,11 +313,15 @@ def gen_parameter_type(
                 entry.type.removeprefix("array<").removesuffix(">"),
                 object_pointer=object_pointer,
                 struct_pointer=struct_pointer,
+                with_origin=with_origin,
             )
-            # ty = f"Span[{ty}]"
-            ty = f"UnsafePointer[{ty}]"
+            if with_origin:
+                ty = f"FFIPointer[{ty}, mut=True]"
+            else:
+                ty = f"FFIPointer[{ty}]"
         else:
             ty = f"{ty}"
+
     if type_only:
         if in_function and entry.type.startswith("array<"):
             return f"Int32, {ty}"
@@ -304,7 +330,7 @@ def gen_parameter_type(
     if in_function and entry.type.startswith("array<"):
         res = f"{entry.name[:-1]}_count: Int{' = Int()' if hasattr(entry, 'optional') else ''}, {res}"
     if hasattr(entry, "optional") and default_assign:
-        res = f"{res} = {ty}()"
+        res = f"{res} = {{}}"
     return res
 
 
@@ -318,25 +344,27 @@ def gen_function(
     args_ordered = partition(lambda x: hasattr(x, "optional"), args)
     params_pre_opt = ", ".join(
         gen_parameter_type(
-            e, default_assign=True, in_function=True, struct_pointer=True
+            e,
+            default_assign=True,
+            in_function=True,
+            struct_pointer=True,
+            with_origin=True,
         )
         for e in args_ordered[0]
     )
     params_post_opt = ", ".join(
         gen_parameter_type(
-            e, default_assign=True, in_function=True, struct_pointer=True
+            e,
+            default_assign=True,
+            in_function=True,
+            struct_pointer=True,
+            with_origin=True,
         )
         for e in args_ordered[1]
-    )
-    params_no_default = ", ".join(
-        gen_parameter_type(e, type_only=True, struct_pointer=True, in_function=True)
-        for e in args
     )
 
     if hasattr(entry, "returns_async"):
         ret_async = entry.returns_async
-        if args:
-            params_no_default += ","
         cb_params = ", ".join(
             gen_parameter_type(
                 e,
@@ -344,10 +372,11 @@ def gen_function(
                 type_only=True,
                 struct_pointer=True,
                 in_function=True,
+                with_origin=True,
             )
             for e in ret_async
         )
-        cb_params += ", UnsafePointer[NoneType]"
+        cb_params += ", FFIPointer[NoneType, mut=True]"
         cb_params_arg = ", ".join(
             gen_parameter_type(
                 e,
@@ -356,16 +385,16 @@ def gen_function(
                 type_only=True,
                 struct_pointer=True,
                 in_function=True,
+                with_origin=True,
             )
             for e in ret_async
         )
-        cb_params_arg += ", UnsafePointer[NoneType]"
-        params_no_default += f"fn({cb_params}) -> None, UnsafePointer[NoneType]"
+        cb_params_arg += ", FFIPointer[NoneType, mut=True]"
         params = ", ".join(
             a
             for a in [
                 params_pre_opt,
-                f"callback: fn({cb_params_arg}) -> None, user_data: UnsafePointer[NoneType]",
+                f"callback: fn({cb_params_arg}) -> None, user_data: FFIPointer[NoneType, mut=True]",
                 params_post_opt,
             ]
             if a
@@ -376,28 +405,30 @@ def gen_function(
 
     if contains_self:
         params = f"handle: WGPU{type}, {params}"
-        if type:
-            params_no_default = f"WGPU{type}, {params_no_default}"
     try:
-        ret = gen_parameter_type(entry.returns, type_only=True, object_pointer=True)
+        ret = gen_parameter_type(
+            entry.returns, type_only=True, object_pointer=True, with_origin=True
+        )
     except:
         ret = "None"
-    call_args = ", ".join(
-        f"{e.name[:-1]}_count, {e.name}" if e.type.startswith("array<") else e.name
+    arg_names = [
+        [f"{e.name[:-1]}_count", e.name] if e.type.startswith("array<") else [e.name]
         for e in args
-    )
+    ]
+    arg_names = [arg for arg_item in arg_names for arg in arg_item]
     if contains_self:
-        call_args = f"handle, {call_args}"
+        arg_names.insert(0, "handle")
     if ret_async:
-        if args:
-            call_args += ","
-        call_args += "callback, user_data"
+        arg_names.append("callback")
+        arg_names.append("user_data")
+    call_args = ", ".join(arg_names)
+    types = ", ".join(f"type_of({arg})" for arg in arg_names)
     return f"""
 fn {prefix + "_" if prefix else ""}{entry.name}({params}) -> {ret}:
     \"\"\"
     {entry.doc.strip()}
     \"\"\"
-    {"return" if ret != "None" else "_ = "} external_call["wgpu{type or ""}{entry.name.title().replace("_", "")}", {ret if ret != "None" else "NoneType"}, {params_no_default}]({call_args})
+    {"return" if ret != "None" else "_ = "} external_call["wgpu{type or ""}{entry.name.title().replace("_", "")}", {ret if ret != "None" else "NoneType"}, {types}]({call_args})
 """
 
 
@@ -406,7 +437,6 @@ def gen_callback(entry: Callback):
     params_no_default = ", ".join(
         gen_parameter_type(e, type_only=True, in_function=True) for e in args
     )
-    call_args = ", ".join(e.name for e in args)
     return f"\nalias {entry.name}_callback = fn({params_no_default}) -> None\n"
 
 
@@ -415,10 +445,10 @@ def gen_object(entry: Object) -> str:
     output = f"""
 struct _{name}Impl:
     pass
-alias WGPU{name} = UnsafePointer[_{name}Impl]
+alias WGPU{name} = FFIPointer[_{name}Impl, mut=True]
 
 fn {entry.name}_release(handle: WGPU{name}):
-    _ = external_call["wgpu{name}Release", NoneType, UnsafePointer[_{name}Impl]](handle)
+    _ = external_call["wgpu{name}Release", NoneType, type_of(handle)](handle)
 """
     for method in entry.methods:
         output += gen_function(method, type=name, contains_self=True, prefix=entry.name)
@@ -433,9 +463,9 @@ struct WGPU{entry.name.title().replace("_", "")}(Copyable, ImplicitlyCopyable, M
     \"\"\"
 """
     if entry.type == "base_in":
-        output += "    var next_in_chain: UnsafePointer[ChainedStruct]\n"
+        output += "    var next_in_chain: FFIPointer[ChainedStruct, mut=True]\n"
     elif entry.type == "base_out":
-        output += "    var next_in_chain: UnsafePointer[ChainedStructOut]\n"
+        output += "    var next_in_chain: FFIPointer[ChainedStructOut, mut=True]\n"
     elif entry.type == "extension_in":
         output += "    var chain: ChainedStruct\n"
     elif entry.type == "extension_out":
@@ -443,36 +473,45 @@ struct WGPU{entry.name.title().replace("_", "")}(Copyable, ImplicitlyCopyable, M
     members = entry.members if hasattr(entry, "members") else []
     for member in members:
         if member.type.startswith("function_type."):
-            output += f"    var {member.name}: UnsafePointer[NoneType]\n"
+            output += f"    var {member.name}: FFIPointer[NoneType, mut=True]\n"
         elif member.type.startswith("array<"):
             output += f"    var {member.name[:-1]}_count: Int\n"
-            output += f"    var {gen_parameter_type(member, struct_pointer=False)}\n"
+            output += f"    var {gen_parameter_type(member, struct_pointer=False, with_origin=True)}\n"
         else:
-            output += f"    var {gen_parameter_type(member, struct_pointer=hasattr(member, 'pointer'))}\n"
+            output += f"    var {gen_parameter_type(member, struct_pointer=hasattr(member, 'pointer'), with_origin=True)}\n"
     output += "\n    fn __init__(out self,\n"
     if entry.type == "base_in":
-        output += "        next_in_chain: UnsafePointer[ChainedStruct] = {},\n"
+        output += "        next_in_chain: FFIPointer[ChainedStruct, mut=True] = {},\n"
     elif entry.type == "base_out":
-        output += "        next_in_chain: UnsafePointer[ChainedStructOut] = {},\n"
+        output += (
+            "        next_in_chain: FFIPointer[ChainedStructOut, mut=True] = {},\n"
+        )
     elif entry.type == "extension_in":
         output += "        chain: ChainedStruct = {},\n"
     elif entry.type == "extension_out":
         output += "        chain: ChainedStructOut = {}\n"
     for member in members:
         if member.type.startswith("enum.") or member.type.startswith("bitflag."):
-            ty = gen_parameter_type(member, type_only=True)
+            ty = gen_parameter_type(member, type_only=True, with_origin=True)
             output += f"\n        {member.name}: {ty} = {ty}(0),\n"
         elif member.type == "bool":
             output += f"\n        {member.name}: Bool = False,"
         elif member.type.startswith("function_type."):
-            output += f"\n        {member.name}: UnsafePointer[NoneType] = {{}},\n"
+            output += (
+                f"\n        {member.name}: FFIPointer[NoneType, mut=True] = {{}},\n"
+            )
         elif member.type.startswith("array<"):
-            ty = gen_parameter_type(member, type_only=True, struct_pointer=False)
+            ty = gen_parameter_type(
+                member, type_only=True, struct_pointer=False, with_origin=True
+            )
             output += f"\n        {member.name[:-1]}_count: Int = Int(),\n"
-            output += f"\n        {member.name}: {ty} = {ty}(),\n"
+            output += f"\n        {member.name}: {ty} = {{}},\n"
         else:
             ty = gen_parameter_type(
-                member, type_only=True, struct_pointer=hasattr(member, "pointer")
+                member,
+                type_only=True,
+                struct_pointer=hasattr(member, "pointer"),
+                with_origin=True,
             )
             owned = (
                 "var "
@@ -515,7 +554,7 @@ def gen_function_type(entry: Function) -> str:
         )
         for e in entry.args
     )
-    cb_params_arg += ", UnsafePointer[NoneType]"
+    cb_params_arg += ", FFIPointer[NoneType, mut=True]"
     return (
         f"alias {entry.name.title().replace('_', '')} = fn({cb_params_arg}) -> None\n"
     )
@@ -808,18 +847,18 @@ from .constants import *
 
 
 struct ChainedStruct(Copyable, ImplicitlyCopyable, Movable):
-    var next: UnsafePointer[Self]
+    var next: FFIPointer[Self, mut=True]
     var s_type: SType
 
-    fn __init__(out self, next: UnsafePointer[Self] = UnsafePointer[Self](), s_type: SType = SType.invalid):
+    fn __init__(out self, next: FFIPointer[Self, mut=True] = {}, s_type: SType = SType.invalid):
         self.next = next
         self.s_type = s_type
 
 struct ChainedStructOut(Copyable, ImplicitlyCopyable, Movable):
-    var next: UnsafePointer[Self]
+    var next: FFIPointer[Self, mut=True]
     var s_type: SType
 
-    fn __init__(out self, next: UnsafePointer[Self] = UnsafePointer[Self](), s_type: SType = SType.invalid):
+    fn __init__(out self, next: FFIPointer[Self, mut=True] = {}, s_type: SType = SType.invalid):
         self.next = next
         self.s_type = s_type
 """
@@ -834,8 +873,8 @@ struct WGPUInstanceExtras(Copyable, ImplicitlyCopyable, Movable):
     var flags: InstanceFlag
     var dx12_shader_compiler: Dx12Compiler
     var gl_es_3_minor_version: Gles3MinorVersion
-    var dxil_path: UnsafePointer[Int8]
-    var dxc_path: UnsafePointer[Int8]
+    var dxil_path: FFIPointer[Int8, mut=False]
+    var dxc_path: FFIPointer[Int8, mut=False]
 
     fn __init__(
         out self,
@@ -844,8 +883,8 @@ struct WGPUInstanceExtras(Copyable, ImplicitlyCopyable, Movable):
         flags: InstanceFlag = InstanceFlag.default,
         dx12_shader_compiler: Dx12Compiler = Dx12Compiler.undefined,
         gl_es_3_minor_version: Gles3MinorVersion = Gles3MinorVersion.automatic,
-        dxil_path: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        dxc_path: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        dxil_path: FFIPointer[Int8, mut=False] = {},
+        dxc_path: FFIPointer[Int8, mut=False] = {},
     ):
         self.chain = chain
         self.backends = backends
@@ -858,12 +897,12 @@ struct WGPUInstanceExtras(Copyable, ImplicitlyCopyable, Movable):
 
 struct WGPUDeviceExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
-    var trace_path: UnsafePointer[Int8]
+    var trace_path: FFIPointer[Int8, mut=False]
 
     fn __init__(
         out self,
         chain: ChainedStruct = ChainedStruct(),
-        trace_path: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        trace_path: FFIPointer[Int8, mut=False] = {},
     ):
         self.chain = chain
         self.trace_path = trace_path
@@ -927,15 +966,15 @@ struct WGPUPushConstantRange(Copyable, ImplicitlyCopyable, Movable):
 struct WGPUPipelineLayoutExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var push_constant_range_count: Int
-    var push_constant_ranges: UnsafePointer[WGPUPushConstantRange]
+    var push_constant_ranges: FFIPointer[WGPUPushConstantRange, mut=True]
 
     fn __init__(
         out self,
         chain: ChainedStruct = ChainedStruct(),
         push_constant_range_count: Int = 0,
-        push_constant_ranges: UnsafePointer[
-            WGPUPushConstantRange
-        ] = UnsafePointer[WGPUPushConstantRange](),
+        push_constant_ranges: FFIPointer[
+            WGPUPushConstantRange, mut=True
+        ] = {},
     ):
         self.chain = chain
         self.push_constant_range_count = push_constant_range_count
@@ -959,13 +998,13 @@ struct WGPUWrappedSubmissionIndex(Copyable, ImplicitlyCopyable, Movable):
 
 
 struct WGPUShaderDefine(Copyable, ImplicitlyCopyable, Movable):
-    var name: UnsafePointer[Int8]
-    var value: UnsafePointer[Int8]
+    var name: FFIPointer[Int8, mut=False]
+    var value: FFIPointer[Int8, mut=False]
 
     fn __init__(
         out self,
-        name: UnsafePointer[Int8] = UnsafePointer[Int8](),
-        value: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        name: FFIPointer[Int8, mut=False] = {},
+        value: FFIPointer[Int8, mut=False] = {},
     ):
         self.name = name
         self.value = value
@@ -974,19 +1013,17 @@ struct WGPUShaderDefine(Copyable, ImplicitlyCopyable, Movable):
 struct WGPUShaderModuleGLSLDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
     var stage: ShaderStage
-    var code: UnsafePointer[Int8]
+    var code: FFIPointer[Int8, mut=False]
     var define_count: UInt32
-    var defines: UnsafePointer[WGPUShaderDefine]
+    var defines: FFIPointer[WGPUShaderDefine, mut=True]
 
     fn __init__(
         out self,
         chain: ChainedStruct = ChainedStruct(),
         stage: ShaderStage = ShaderStage.none,
-        code: UnsafePointer[Int8] = UnsafePointer[Int8](),
+        code: FFIPointer[Int8, mut=False] = {},
         define_count: UInt32 = 0,
-        defines: UnsafePointer[WGPUShaderDefine] = UnsafePointer[
-            WGPUShaderDefine
-        ](),
+        defines: FFIPointer[WGPUShaderDefine, mut=True] = {},
     ):
         self.chain = chain
         self.stage = stage
@@ -1112,23 +1149,21 @@ struct WGPUInstanceEnumerateAdapterOptions(Copyable, ImplicitlyCopyable, Movable
 
 struct WGPUBindGroupEntryExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
-    var buffers: UnsafePointer[WGPUBuffer]
+    var buffers: FFIPointer[WGPUBuffer, mut=True]
     var buffer_count: Int
-    var samplers: UnsafePointer[WGPUSampler]
+    var samplers: FFIPointer[WGPUSampler, mut=True]
     var sampler_count: Int
-    var texture_views: UnsafePointer[WGPUTextureView]
+    var texture_views: FFIPointer[WGPUTextureView, mut=True]
     var texture_view_count: Int
 
     fn __init__(
         out self,
         chain: ChainedStruct = ChainedStruct(),
-        buffers: UnsafePointer[WGPUBuffer] = UnsafePointer[WGPUBuffer](),
+        buffers: FFIPointer[WGPUBuffer, mut=True] = {},
         buffer_count: Int = 0,
-        samplers: UnsafePointer[WGPUSampler] = UnsafePointer[WGPUSampler](),
+        samplers: FFIPointer[WGPUSampler, mut=True] = {},
         sampler_count: Int = 0,
-        texture_views: UnsafePointer[WGPUTextureView] = UnsafePointer[
-            WGPUTextureView
-        ](),
+        texture_views: FFIPointer[WGPUTextureView, mut=True] = {},
         texture_view_count: Int = 0,
     ):
         self.chain = chain
@@ -1153,15 +1188,15 @@ struct WGPUBindGroupLayoutEntryExtras(Copyable, ImplicitlyCopyable, Movable):
 
 struct WGPUQuerySetDescriptorExtras(Copyable, ImplicitlyCopyable, Movable):
     var chain: ChainedStruct
-    var pipeline_statistics: UnsafePointer[PipelineStatisticName]
+    var pipeline_statistics: FFIPointer[PipelineStatisticName, mut=True]
     var pipeline_statistics_count: Int
 
     fn __init__(
         out self,
         chain: ChainedStruct = ChainedStruct(),
-        pipeline_statistics: UnsafePointer[
-            PipelineStatisticName
-        ] = UnsafePointer[PipelineStatisticName](),
+        pipeline_statistics: FFIPointer[
+            PipelineStatisticName, mut=True
+        ] = {},
         pipeline_statistics_count: Int = 0,
     ):
         self.chain = chain
@@ -1184,30 +1219,31 @@ struct WGPUSurfaceConfigurationExtras(Copyable, ImplicitlyCopyable, Movable):
 
 alias WGPULogCallback = fn (
     level: LogLevel,
-    message: UnsafePointer[Int8],
-    userdata: UnsafePointer[NoneType],
+    message: FFIPointer[Int8, mut=True],
+    userdata: FFIPointer[NoneType, mut=True],
 ) -> None
 
 
-fn generate_report(instance: WGPUInstance, report: UnsafePointer[WGPUGlobalReport]):
+fn generate_report(instance: WGPUInstance, report: FFIPointer[WGPUGlobalReport]):
     external_call[
         "wgpuGenerateReport",
         NoneType,
-        WGPUInstance, UnsafePointer[WGPUGlobalReport]
+        WGPUInstance,
+        type_of(report),
     ](instance, report)
 
 
 fn instance_enumerate_adapters(
     instance: WGPUInstance,
-    options: UnsafePointer[WGPUInstanceEnumerateAdapterOptions],
-    adapters: UnsafePointer[WGPUAdapter],
+    options: FFIPointer[WGPUInstanceEnumerateAdapterOptions],
+    adapters: FFIPointer[WGPUAdapter],
 ) -> Int:
     return external_call[
         "wgpuInstanceEnumerateAdapters",
         Int,
         WGPUInstance,
-        UnsafePointer[WGPUInstanceEnumerateAdapterOptions],
-        UnsafePointer[WGPUAdapter],
+        type_of(options),
+        type_of(adapters),
     ](
         instance, options, adapters
     )
@@ -1216,21 +1252,21 @@ fn instance_enumerate_adapters(
 fn queue_submit_for_index(
     queue: WGPUQueue,
     command_count: Int,
-    commands: UnsafePointer[WGPUCommandBuffer],
+    commands: FFIPointer[WGPUCommandBuffer],
 ) -> WGPUSubmissionIndex:
     return external_call[
         "wgpuQueueSubmitForIndex",
         WGPUSubmissionIndex,
         WGPUQueue,
         Int,
-        UnsafePointer[WGPUCommandBuffer],
+        type_of(commands),
     ](queue, command_count, commands)
 
 
 fn device_poll(
     device: WGPUDevice,
     wait: Bool = False,
-    wrapped_submission_index: UnsafePointer[WGPUWrappedSubmissionIndex] = {},
+    wrapped_submission_index: FFIPointer[WGPUWrappedSubmissionIndex] = {},
 ) -> Bool:
     \"\"\"Returns true if the queue is empty, or false if there are more queue submissions still in flight.
     \"\"\"
@@ -1239,7 +1275,7 @@ fn device_poll(
         Bool,
         WGPUDevice,
         Bool,
-        UnsafePointer[WGPUWrappedSubmissionIndex]
+        type_of(wrapped_submission_index)
     ](
         device,
         wait,
@@ -1248,13 +1284,13 @@ fn device_poll(
 
 
 fn set_log_callback(
-    callback: WGPULogCallback, userdata: UnsafePointer[NoneType]
+    callback: WGPULogCallback, userdata: FFIPointer[NoneType, mut=True]
 ):
     _ = external_call[
         "wgpuSetLogCallback",
         NoneType,
         WGPULogCallback,
-        UnsafePointer[NoneType]
+        type_of(userdata),
     ](callback, userdata)
 
 
@@ -1271,7 +1307,7 @@ fn render_pass_encoder_set_push_constants(
     stages: ShaderStage,
     offset: UInt32,
     size_bytes: UInt32,
-    data: UnsafePointer[NoneType],
+    data: FFIPointer[NoneType, mut=True],
 ):
     _ = external_call[
         "wgpuRenderPassEncoderSetPushConstants",
@@ -1280,7 +1316,7 @@ fn render_pass_encoder_set_push_constants(
         ShaderStage,
         UInt32,
         UInt32,
-        UnsafePointer[NoneType],
+        FFIPointer[NoneType, mut=True],
     ](
         encoder, stages, offset, size_bytes, data
     )
@@ -1412,8 +1448,86 @@ fn render_pass_encoder_end_pipeline_statistics_query(
         WGPURenderPassEncoder
     ](render_pass_encoder)
 
-fn surface_capabilities_free_members(capabilities: UnsafePointer[WGPUSurfaceCapabilities]):
-   external_call["wgpuSurfaceCapabilitiesFreeMembers", NoneType, UnsafePointer[WGPUSurfaceCapabilities]](capabilities)
+fn surface_capabilities_free_members(capabilities: FFIPointer[WGPUSurfaceCapabilities]):
+   external_call["wgpuSurfaceCapabilitiesFreeMembers", NoneType, type_of(capabilities)](capabilities)
+
+@register_passable("trivial")
+struct FFIPointer[type: AnyType, /, *, mut: Bool](
+    Defaultable, ImplicitlyBoolable, ImplicitlyCopyable, Movable, Writable
+):
+    var _value: UnsafePointer[type, Origin[mut].external]
+
+    @always_inline
+    fn __init__(out self):
+        \"\"\"Create a null ffi pointer.\"\"\"
+        self._value = {}
+
+    @always_inline
+    @implicit
+    fn __init__(
+        out self: FFIPointer[type, mut=True],
+        unsafe_pointer: UnsafePointer[mut=True, type],
+    ):
+        \"\"\"Create a mutable ffi pointer from a mutable `UnsafePointer`.
+
+        Args:
+            unsafe_pointer: The mutable `UnsafePointer` to convert from.
+        \"\"\"
+        self._value = unsafe_pointer.unsafe_origin_cast[MutOrigin.external]()
+
+    @always_inline
+    @implicit
+    fn __init__(
+        out self: FFIPointer[type, mut=False],
+        unsafe_pointer: UnsafePointer[type],
+    ):
+        \"\"\"Create an immutable ffi pointer from an `UnsafePointer`.
+
+        Args:
+            unsafe_pointer: The `UnsafePointer` to convert from.
+        \"\"\"
+        self._value = unsafe_pointer.as_immutable().unsafe_origin_cast[
+            ImmutOrigin.external
+        ]()
+
+    @doc_private
+    @implicit
+    fn __init__(
+        out self: FFIPointer[type, mut=True],
+        unsafe_pointer: UnsafePointer[mut=False, type],
+    ):
+        constrained[
+            False,
+            (
+                "Invalid conversion from immutable `UnsafePointer` to mutable"
+                " `FFIPointer`"
+            ),
+        ]()
+        self = abort[type_of(self)]()
+
+    @always_inline
+    fn __bool__(self) -> Bool:
+        \"\"\"Return true if the pointer is non-null.
+
+        Returns:
+            Whether the pointer is null.
+        \"\"\"
+        return Bool(self._value)
+
+    @no_inline
+    fn write_to(self, mut writer: Some[Writer]):
+        \"\"\"Formats the pointer to the provided `Writer`.
+
+        Args:
+            writer: The `Writer` to format the pointer to.
+        \"\"\"
+        self._value.write_to(writer)
+
+    @always_inline
+    fn unsafe_ptr(self) -> UnsafePointer[Self.type, Origin[Self.mut].external]:
+        return self._value.mut_cast[Self.mut]().unsafe_origin_cast[
+            Origin[Self.mut].external
+        ]()
 """
 
     with open("wgpu/_cffi.mojo", "w+") as f:

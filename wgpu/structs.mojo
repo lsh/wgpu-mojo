@@ -230,20 +230,21 @@ struct SurfaceCapabilities(Copyable, Movable):
     fn usages(self) -> TextureUsage:
         return self._handle.usages
 
-    fn formats(self) -> Span[TextureFormat, origin_of(self)]:
-        return Span[TextureFormat, origin_of(self)](
-            ptr=self._handle.formats, length=self._handle.format_count
+    fn formats(self) -> Span[TextureFormat, MutOrigin.external]:
+        return Span[TextureFormat, MutOrigin.external](
+            ptr=self._handle.formats.unsafe_ptr(),
+            length=self._handle.format_count,
         )
 
-    fn present_modes(self) -> Span[PresentMode, origin_of(self)]:
-        return Span[PresentMode, origin_of(self)](
-            ptr=self._handle.present_modes,
+    fn present_modes(self) -> Span[PresentMode, MutOrigin.external]:
+        return Span[PresentMode, MutOrigin.external](
+            ptr=self._handle.present_modes.unsafe_ptr(),
             length=self._handle.present_mode_count,
         )
 
-    fn alpha_modes(self) -> Span[CompositeAlphaMode, origin_of(self)]:
-        return Span[CompositeAlphaMode, origin_of(self)](
-            ptr=self._handle.alpha_modes,
+    fn alpha_modes(self) -> Span[CompositeAlphaMode, MutOrigin.external]:
+        return Span[CompositeAlphaMode, MutOrigin.external](
+            ptr=self._handle.alpha_modes.unsafe_ptr(),
             length=self._handle.alpha_mode_count,
         )
 
@@ -778,5 +779,5 @@ struct TextureViewDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct UncapturedErrorCallbackInfo(Copyable, Movable):
-    var callback: UnsafePointer[NoneType]
-    var userdata: UnsafePointer[NoneType]
+    var callback: OpaquePointer[MutOrigin.external]
+    var userdata: OpaquePointer[MutOrigin.external]
