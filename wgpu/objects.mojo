@@ -60,13 +60,7 @@ struct Adapter(Movable):
     #         fn (WGPUAdapter, UnsafePointer[WGPUAdapterInfo]) -> None
     #     ]("wgpuAdapterGetInfo")(handle, UnsafePointer(to=info))
 
-    fn request_device(
-        self,
-        label: String = "",
-        required_features: List[FeatureName] = List[FeatureName](),
-        limits: Limits = Limits(),
-        default_queue: QueueDescriptor = QueueDescriptor(),
-    ) raises -> Device:
+    fn request_device(self, var descriptor: DeviceDescriptor) raises -> Device:
         """
         TODO
         """
@@ -83,20 +77,21 @@ struct Adapter(Movable):
             u_data[][0] = device
             u_data[][1] = True
 
-        var lim = _c.WGPURequiredLimits(limits=limits)
+        var lim = _c.WGPURequiredLimits(limits=descriptor.limits)
+        var desc = _c.WGPUDeviceDescriptor(
+            label=descriptor.label.unsafe_cstr_ptr(),
+            required_feature_count=len(
+                descriptor.required_features.value()
+            ) if descriptor.required_features else 0,
+            required_features=descriptor.required_features.value().unsafe_ptr() if descriptor.required_features else {},
+            required_limits=UnsafePointer(to=lim),
+        )
+
         _c.adapter_request_device(
             self._handle,
             _req,
             UnsafePointer(to=user_data).bitcast[NoneType](),
-            # _c.WGPUDeviceDescriptor(
-            #     label=label.unsafe_cstr_ptr(),
-            #     required_features_count=len(required_features),
-            #     required_features=required_features.unsafe_ptr(),
-            #     required_limits=UnsafePointer(to=lim),
-            #     default_queue=_c.WGPUQueueDescriptor(
-            #         label=default_queue.label.unsafe_cstr_ptr(),
-            # #     ),
-            # ),
+            UnsafePointer(to=desc),
         )
         _ = lim^
         device = user_data[0]
@@ -151,7 +146,7 @@ struct BindGroupLayout(Movable):
         )
 
 
-struct Buffer[T: Copyable & Movable](Movable):
+struct Buffer[T: Copyable & Movable](Movable, Sized):
     var _handle: _c.WGPUBuffer
 
     fn __init__(out self, unsafe_ptr: _c.WGPUBuffer):
@@ -198,6 +193,8 @@ struct Buffer[T: Copyable & Movable](Movable):
             _c.buffer_get_mapped_range(
                 self._handle, offset, sys.size_of[T]() * size
             ).bitcast[T](),
+            offset,
+            size,
         )
 
     # fn buffer_get_const_mapped_range(
@@ -216,19 +213,22 @@ struct Buffer[T: Copyable & Movable](Movable):
         """
         _c.buffer_set_label(self._handle, label.unsafe_ptr().bitcast[Int8]())
 
-    fn get_usage(self) -> BufferUsage:
+    fn usage(self) -> BufferUsage:
         """
         TODO
         """
         return _c.buffer_get_usage(self._handle)
 
-    fn get_size(self) -> UInt64:
+    fn size(self) -> UInt64:
         """
         TODO
         """
         return _c.buffer_get_size(self._handle)
 
-    fn get_map_state(self) -> BufferMapState:
+    fn __len__(self) -> Int:
+        return Int(self.size())
+
+    fn map_state(self) -> BufferMapState:
         """
         TODO
         """
@@ -249,14 +249,24 @@ struct Buffer[T: Copyable & Movable](Movable):
 
 @fieldwise_init
 struct MappedBuffer[T: Copyable & Movable, origin: MutOrigin](
-    Copyable, Movable
+    Copyable, Movable, Sized
 ):
     var _buffer: Pointer[Buffer[T], origin]
     var _ptr: UnsafePointer[T]
+    var _offset: Int
+    var _size: Int
 
-    fn __init__(out self, ref [origin]buffer: Buffer[T], ptr: UnsafePointer[T]):
+    fn __init__(
+        out self,
+        ref [origin]buffer: Buffer[T],
+        ptr: UnsafePointer[T],
+        offset: Int,
+        size: Int,
+    ):
         self._buffer = Pointer(to=buffer)
         self._ptr = ptr
+        self._offset = offset
+        self._size = size
 
     fn __enter__(var self) -> Self:
         return self^
@@ -269,6 +279,9 @@ struct MappedBuffer[T: Copyable & Movable, origin: MutOrigin](
 
     fn __del__(deinit self):
         self._buffer[].unmap()
+
+    fn __len__(self) -> Int:
+        return self._size - self._offset
 
 
 struct CommandBuffer(Movable):
@@ -305,20 +318,16 @@ struct CommandEncoder(Movable):
         self._handle = rhs._handle
         rhs._handle = _c.WGPUCommandEncoder()
 
-    fn finish(deinit self, var label: String = "") -> CommandBuffer:
+    fn finish(deinit self) -> CommandBuffer:
         """
         TODO
         """
-        desc = _c.WGPUCommandBufferDescriptor(label=label.unsafe_cstr_ptr())
-        var buffer = CommandBuffer(
-            _c.command_encoder_finish(self._handle, UnsafePointer(to=desc))
-        )
-        _ = desc
+        var buffer = CommandBuffer(_c.command_encoder_finish(self._handle, {}))
         if self._handle:
             _c.command_encoder_release(self._handle)
         return buffer^
 
-    # fn command_encoder_begin_compute_pass(
+    # fn begin_compute_pass(
     #     handle: WGPUCommandEncoder,
     #     descriptor: WGPUComputePassDescriptor = WGPUComputePassDescriptor(),
     # ) -> WGPUComputePassEncoder:
@@ -333,38 +342,35 @@ struct CommandEncoder(Movable):
     #         handle, UnsafePointer(to=descriptor)
     #     )
 
-    fn begin_render_pass(
-        self,
-        color_attachments: Span[RenderPassColorAttachment],
-        depth_stencil_attachment: Optional[
-            RenderPassDepthStencilAttachment
-        ] = None,
-        var label: String = "",
-    ) -> RenderPassEncoder:
+    fn begin_render_pass[
+        tex: ImmutOrigin
+    ](mut self, var descriptor: RenderPassDescriptor[tex]) -> RenderPass[
+        origin_of(self)
+    ]:
         """
         TODO
         """
         attachments = List[_c.WGPURenderPassColorAttachment](
-            capacity=len(color_attachments)
+            capacity=len(descriptor.color_attachments)
         )
-        for attachment in color_attachments:
-            resolve_target_opt = attachment.resolve_target
+        for attachment in descriptor.color_attachments:
+            resolve_target_opt = attachment[].resolve_target
             resolve_target = (
                 resolve_target_opt.value()[]._handle if resolve_target_opt else _c.WGPUTextureView()
             )
             attachments.append(
                 _c.WGPURenderPassColorAttachment(
-                    view=attachment.view[]._handle,
-                    depth_slice=attachment.depth_slice,
+                    view=attachment[].view[]._handle,
+                    depth_slice=attachment[].depth_slice,
                     resolve_target=resolve_target,
-                    load_op=attachment.load_op,
-                    store_op=attachment.store_op,
-                    clear_value=attachment.clear_value,
+                    load_op=attachment[].load_op,
+                    store_op=attachment[].store_op,
+                    clear_value=attachment[].clear_value,
                 )
             )
 
         desc = _c.WGPURenderPassDescriptor(
-            label=label.unsafe_cstr_ptr(),
+            label=descriptor.label.unsafe_cstr_ptr(),
             color_attachment_count=len(attachments),
             color_attachments=attachments.unsafe_ptr(),
         )
@@ -373,7 +379,7 @@ struct CommandEncoder(Movable):
         )
         _ = attachments
         _ = desc
-        return RenderPassEncoder(handle)
+        return RenderPass[origin_of(self)](handle)
 
     fn copy_buffer_to_buffer(
         self,
@@ -396,7 +402,7 @@ struct CommandEncoder(Movable):
         )
 
 
-# fn command_encoder_copy_buffer_to_texture(
+# fn copy_buffer_to_texture(
 #     handle: WGPUCommandEncoder,
 #     source: WGPUImageCopyBuffer,
 #     destination: WGPUImageCopyTexture,
@@ -420,7 +426,7 @@ struct CommandEncoder(Movable):
 #     )
 
 
-# fn command_encoder_copy_texture_to_buffer(
+# fn copy_texture_to_buffer(
 #     handle: WGPUCommandEncoder,
 #     source: WGPUImageCopyTexture,
 #     destination: WGPUImageCopyBuffer,
@@ -843,13 +849,15 @@ struct Device(Movable):
             _c.device_create_buffer(self._handle, UnsafePointer(to=desc))
         )
 
-    fn create_command_encoder(self, var label: String = "") -> CommandEncoder:
+    fn create_command_encoder(
+        self, var descriptor: CommandEncoderDescriptor
+    ) -> CommandEncoder:
         """
         TODO
         """
 
         var desc = _c.WGPUCommandEncoderDescriptor(
-            label=label.unsafe_cstr_ptr()
+            label=descriptor.label.unsafe_cstr_ptr()
         )
         var encoder = CommandEncoder(
             _c.device_create_command_encoder(
@@ -1411,7 +1419,7 @@ struct Queue(Movable):
             _c.queue_release(self._handle)
 
     fn submit(
-        self,
+        mut self,
         command: CommandBuffer,
     ) -> None:
         """
@@ -1437,18 +1445,13 @@ struct Queue(Movable):
 
     fn write_buffer[
         T: Copyable & Movable
-    ](
-        self,
-        buffer: ArcPointer[Buffer[T]],
-        offset: UInt64,
-        data: Span[T],
-    ) -> None:
+    ](mut self, buffer: Buffer[T], offset: UInt64, data: Span[T],) -> None:
         """
         TODO
         """
         return _c.queue_write_buffer(
             self._handle,
-            buffer[]._handle,
+            buffer._handle,
             offset,
             data.unsafe_ptr().bitcast[NoneType](),
             len(data) * sys.size_of[T](),
@@ -1736,8 +1739,7 @@ struct Queue(Movable):
 
 
 @fieldwise_init
-@explicit_destroy("RenderPassEncoder requires destruction via `end()`")
-struct RenderPassEncoder(Movable):
+struct RenderPass[encoder: ImmutOrigin](Movable):
     var _handle: _c.WGPURenderPassEncoder
 
     fn __moveinit__(out self, deinit rhs: Self):
@@ -1785,31 +1787,27 @@ struct RenderPassEncoder(Movable):
             first_instance,
         )
 
-    # fn render_pass_encoder_draw_indexed(
-    #     handle: WGPURenderPassEncoder,
-    #     index_count: UInt32,
-    #     instance_count: UInt32,
-    #     first_index: UInt32,
-    #     base_vertex: Int32,
-    #     first_instance: UInt32,
-    # ) -> None:
-    #     """
-    #     TODO
-    #     """
-    #     return _wgpu.get_function[
-    #         fn (
-    #             WGPURenderPassEncoder, UInt32, UInt32, UInt32, Int32, UInt32
-    #         ) -> None
-    #     ]("wgpuRenderPassEncoderDrawIndexed")(
-    #         handle,
-    #         index_count,
-    #         instance_count,
-    #         first_index,
-    #         base_vertex,
-    #         first_instance,
-    #     )
+    fn draw_indexed(
+        mut self,
+        index_count: UInt32,
+        instance_count: UInt32,
+        first_index: UInt32,
+        base_vertex: Int32,
+        first_instance: UInt32,
+    ) -> None:
+        """
+        TODO
+        """
+        return _cffi.render_pass_encoder_draw_indexed(
+            self._handle,
+            index_count,
+            instance_count,
+            first_index,
+            base_vertex,
+            first_instance,
+        )
 
-    # fn render_pass_encoder_draw_indirect(
+    # fn draw_indirect(
     #     handle: WGPURenderPassEncoder,
     #     indirect_buffer: WGPUBuffer,
     #     indirect_offset: UInt64,
@@ -1823,7 +1821,7 @@ struct RenderPassEncoder(Movable):
     #         handle, indirect_buffer, indirect_offset
     #     )
 
-    # fn render_pass_encoder_draw_indexed_indirect(
+    # fn draw_indexed_indirect(
     #     handle: WGPURenderPassEncoder,
     #     indirect_buffer: WGPUBuffer,
     #     indirect_offset: UInt64,
@@ -1837,7 +1835,7 @@ struct RenderPassEncoder(Movable):
     #         handle, indirect_buffer, indirect_offset
     #     )
 
-    # fn render_pass_encoder_execute_bundles(
+    # fn execute_bundles(
     #     handle: WGPURenderPassEncoder,
     #     bundles_count: Int,
     #     bundles: UnsafePointer[WGPURenderBundle],
@@ -1851,7 +1849,7 @@ struct RenderPassEncoder(Movable):
     #         ) -> None
     #     ]("wgpuRenderPassEncoderExecuteBundles")(handle, bundles_count, bundles)
 
-    # fn render_pass_encoder_insert_debug_marker(
+    # fn insert_debug_marker(
     #     handle: WGPURenderPassEncoder, marker_label: UnsafePointer[Int8]
     # ) -> None:
     #     """
@@ -1861,7 +1859,7 @@ struct RenderPassEncoder(Movable):
     #         fn (WGPURenderPassEncoder, UnsafePointer[Int8]) -> None
     #     ]("wgpuRenderPassEncoderInsertDebugMarker")(handle, marker_label)
 
-    # fn render_pass_encoder_pop_debug_group(
+    # fn pop_debug_group(
     #     handle: WGPURenderPassEncoder,
     # ) -> None:
     #     """
@@ -1873,7 +1871,7 @@ struct RenderPassEncoder(Movable):
     #         handle,
     #     )
 
-    # fn render_pass_encoder_push_debug_group(
+    # fn push_debug_group(
     #     handle: WGPURenderPassEncoder, group_label: UnsafePointer[Int8]
     # ) -> None:
     #     """
@@ -1883,7 +1881,7 @@ struct RenderPassEncoder(Movable):
     #         fn (WGPURenderPassEncoder, UnsafePointer[Int8]) -> None
     #     ]("wgpuRenderPassEncoderPushDebugGroup")(handle, group_label)
 
-    # fn render_pass_encoder_set_stencil_reference(
+    # fn set_stencil_reference(
     #     handle: WGPURenderPassEncoder, reference: UInt32
     # ) -> None:
     #     """
@@ -1893,7 +1891,7 @@ struct RenderPassEncoder(Movable):
     #         "wgpuRenderPassEncoderSetStencilReference"
     #     )(handle, reference)
 
-    # fn render_pass_encoder_set_blend_constant(
+    # fn set_blend_constant(
     #     handle: WGPURenderPassEncoder, color: WGPUColor
     # ) -> None:
     #     """
@@ -1905,7 +1903,7 @@ struct RenderPassEncoder(Movable):
     #         handle, UnsafePointer(to=color)
     #     )
 
-    # fn render_pass_encoder_set_viewport(
+    # fn set_viewport(
     #     handle: WGPURenderPassEncoder,
     #     x: Float32,
     #     y: Float32,
@@ -1931,7 +1929,7 @@ struct RenderPassEncoder(Movable):
     #         handle, x, y, width, height, min_depth, max_depth
     #     )
 
-    # fn render_pass_encoder_set_scissor_rect(
+    # fn set_scissor_rect(
     #     handle: WGPURenderPassEncoder,
     #     x: UInt32,
     #     y: UInt32,
@@ -1946,7 +1944,7 @@ struct RenderPassEncoder(Movable):
     #     ]("wgpuRenderPassEncoderSetScissorRect")(handle, x, y, width, height)
 
     fn set_vertex_buffer(
-        self, slot: UInt32, offset: UInt64, size: UInt64, buffer: Buffer
+        mut self, slot: UInt32, offset: UInt64, size: UInt64, buffer: Buffer
     ):
         """
         TODO
@@ -1955,25 +1953,23 @@ struct RenderPassEncoder(Movable):
             self._handle, slot, offset, size, buffer._handle
         )
 
-    # fn render_pass_encoder_set_index_buffer(
-    #     handle: WGPURenderPassEncoder,
-    #     buffer: WGPUBuffer,
-    #     format: IndexFormat,
-    #     offset: UInt64,
-    #     size: UInt64,
-    # ) -> None:
-    #     """
-    #     TODO
-    #     """
-    #     return _wgpu.get_function[
-    #         fn (
-    #             WGPURenderPassEncoder, WGPUBuffer, IndexFormat, UInt64, UInt64
-    #         ) -> None
-    #     ]("wgpuRenderPassEncoderSetIndexBuffer")(
-    #         handle, buffer, format, offset, size
-    #     )
+    fn set_index_buffer[
+        T: Copyable & Movable
+    ](
+        mut self,
+        buffer: Buffer[T],
+        format: IndexFormat,
+        offset: UInt64,
+        size: UInt64,
+    ) -> None:
+        """
+        TODO
+        """
+        return _cffi.render_pass_encoder_set_index_buffer(
+            self._handle, buffer._handle, format, offset, size
+        )
 
-    # fn render_pass_encoder_begin_occlusion_query(
+    # fn begin_occlusion_query(
     #     handle: WGPURenderPassEncoder, query_index: UInt32
     # ) -> None:
     #     """
@@ -1983,7 +1979,7 @@ struct RenderPassEncoder(Movable):
     #         "wgpuRenderPassEncoderBeginOcclusionQuery"
     #     )(handle, query_index)
 
-    # fn render_pass_encoder_end_occlusion_query(
+    # fn end_occlusion_query(
     #     handle: WGPURenderPassEncoder,
     # ) -> None:
     #     """
@@ -2000,11 +1996,15 @@ struct RenderPassEncoder(Movable):
         TODO
         """
         _c.render_pass_encoder_end(self._handle)
+        _c.render_pass_encoder_release(self._handle)
+
+    fn __del__(deinit self):
         if self._handle:
+            _c.render_pass_encoder_end(self._handle)
             _c.render_pass_encoder_release(self._handle)
 
 
-# fn render_pass_encoder_set_label(
+# fn set_label(
 #     handle: WGPURenderPassEncoder, label: UnsafePointer[Int8]
 # ) -> None:
 #     """
@@ -2176,7 +2176,7 @@ struct Surface:
         tex = _c.WGPUSurfaceTexture()
         _c.surface_get_current_texture(self._handle, UnsafePointer(to=tex))
         return SurfaceTexture(
-            texture=ArcPointer(Texture(tex.texture)),
+            texture=Texture(tex.texture),
             suboptimal=tex.suboptimal,
             status=tex.status,
         )
@@ -2214,36 +2214,23 @@ struct Texture(Movable):
         if self._handle:
             _c.texture_release(self._handle)
 
-    fn create_view(
-        self,
-        *,
-        format: TextureFormat,
-        dimension: TextureViewDimension,
-        var label: String = "",
-        base_mip_level: UInt32 = 0,
-        mip_level_count: UInt32 = MIP_LEVEL_COUNT_UNDEFINED,
-        base_array_layer: UInt32 = 0,
-        array_layer_count: UInt32 = ARRAY_LAYER_COUNT_UNDEFINED,
-        aspect: TextureAspect = TextureAspect.all,
-    ) -> ArcPointer[TextureView]:
+    fn create_view(self, var descriptor: TextureViewDescriptor) -> TextureView:
         """
         TODO
         """
 
         var desc = _c.WGPUTextureViewDescriptor(
-            label=label.unsafe_cstr_ptr(),
-            format=format,
-            dimension=dimension,
-            base_mip_level=base_mip_level,
-            mip_level_count=mip_level_count,
-            base_array_layer=base_array_layer,
-            array_layer_count=array_layer_count,
-            aspect=aspect,
+            label=descriptor.label.unsafe_cstr_ptr(),
+            format=descriptor.format,
+            dimension=descriptor.dimension,
+            base_mip_level=descriptor.base_mip_level,
+            mip_level_count=descriptor.mip_level_count,
+            base_array_layer=descriptor.base_array_layer,
+            array_layer_count=descriptor.array_layer_count,
+            aspect=descriptor.aspect,
         )
-        view = ArcPointer(
-            TextureView(
-                _c.texture_create_view(self._handle, UnsafePointer(to=desc))
-            )
+        view = TextureView(
+            _c.texture_create_view(self._handle, UnsafePointer(to=desc))
         )
         _ = desc
         return view^

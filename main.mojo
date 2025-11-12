@@ -49,7 +49,7 @@ struct MyVertex(Copyable, ImplicitlyCopyable, Movable):
 fn main() raises:
     glfw.init()
     glfw.Window.hint(glfw.ContextHint.client_api, glfw.ContextHint.no_api)
-    var title = "Hello, WebGPU"
+    title = "Hello, WebGPU"
     window = glfw.Window(640, 480, title)
 
     instance = wgpu.Instance()
@@ -57,7 +57,7 @@ fn main() raises:
 
     adapter = instance.request_adapter_sync(surface)
 
-    device = adapter.request_device()
+    device = adapter.request_device({})
 
     queue = device.get_queue()
 
@@ -143,17 +143,16 @@ fn main() raises:
     pipeline_layout = device.create_pipeline_layout(
         {"pipeline layout", bind_group_layouts}
     )
-    uniform_buffer = ArcPointer(
-        device.create_buffer[Float32](
-            {
-                "uniform buffer",
-                BufferUsage.uniform | BufferUsage.copy_dst,
-                size_of[Float32](),
-                True,
-            }
-        )
+    uniform_buffer = device.create_buffer[Float32](
+        {
+            "uniform buffer",
+            BufferUsage.uniform | BufferUsage.copy_dst,
+            size_of[Float32](),
+            True,
+        }
     )
-    with uniform_buffer[].get_mapped_range(0, 1) as uniform_host:
+
+    with uniform_buffer.get_mapped_range(0, 1) as uniform_host:
         uniform_host[0] = 0
     uniform_bind_group_entries = [
         BindGroupEntry[Float32](0, BufferBinding[Float32](uniform_buffer, 0, 1))
@@ -212,7 +211,7 @@ fn main() raises:
         {"vertex buffer", BufferUsage.vertex, len(vertices), True}
     )
     with vertex_buffer.get_mapped_range(0, len(vertices)) as vertex_host:
-        for i in range(len(vertices)):
+        for i in range(len(vertex_host)):
             vertex_host[i] = vertices[i]
 
     u_time = Float32(0)
@@ -224,22 +223,26 @@ fn main() raises:
                 != wgpu.SurfaceGetCurrentTextureStatus.success
             ):
                 raise Error("failed to get surface tex")
-            target_view = surface_tex.texture[].create_view(
-                format=surface_tex.texture[].get_format(),
-                dimension=wgpu.TextureViewDimension.d2,
-                base_mip_level=0,
-                mip_level_count=1,
-                base_array_layer=0,
-                array_layer_count=1,
-                aspect=wgpu.TextureAspect.all,
+            target_view = surface_tex.texture.create_view(
+                {
+                    format = surface_tex.texture.get_format(),
+                    dimension = wgpu.TextureViewDimension.d2,
+                    base_mip_level = 0,
+                    mip_level_count = 1,
+                    base_array_layer = 0,
+                    array_layer_count = 1,
+                    aspect = wgpu.TextureAspect.all,
+                }
             )
-            encoder = device.create_command_encoder()
+            encoder = device.create_command_encoder({})
             color_attachments = [
-                wgpu.RenderPassColorAttachment(
-                    view=target_view,
-                    load_op=wgpu.LoadOp.clear,
-                    store_op=wgpu.StoreOp.store,
-                    clear_value=wgpu.Color(0.9, 0.1, 0.2, 1.0),
+                ArcPointer(
+                    wgpu.RenderPassColorAttachment(
+                        view=target_view,
+                        load_op=wgpu.LoadOp.clear,
+                        store_op=wgpu.StoreOp.store,
+                        clear_value=wgpu.Color(0.9, 0.1, 0.2, 1.0),
+                    )
                 )
             ]
 
@@ -250,12 +253,14 @@ fn main() raises:
                     ptr=UnsafePointer(to=u_time), length=1
                 ),
             )
-            rp = encoder.begin_render_pass(color_attachments=color_attachments)
+
+            rp = encoder.begin_render_pass(
+                {color_attachments = color_attachments^}
+            )
             rp.set_pipeline(pipeline)
-            rp.set_vertex_buffer(0, 0, vertex_buffer.get_size(), vertex_buffer)
+            rp.set_vertex_buffer(0, 0, len(vertex_buffer), vertex_buffer)
             rp.set_bind_group(0, uniform_bind_group, List[UInt32]())
             rp.draw(3, 1, 0, 0)
-            rp^.end()
 
             command = encoder^.finish()
 
