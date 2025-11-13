@@ -1,10 +1,6 @@
 @fieldwise_init
 @register_passable("trivial")
 struct BufferUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
-    """
-    TODO
-    """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -26,27 +22,16 @@ struct BufferUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
         return Self(~self.value)
 
     alias none = Self(0)
-    """TODO"""
     alias map_read = Self(1)
-    """TODO"""
     alias map_write = Self(2)
-    """TODO"""
     alias copy_src = Self(4)
-    """TODO"""
     alias copy_dst = Self(8)
-    """TODO"""
     alias index = Self(16)
-    """TODO"""
     alias vertex = Self(32)
-    """TODO"""
     alias uniform = Self(64)
-    """TODO"""
     alias storage = Self(128)
-    """TODO"""
     alias indirect = Self(256)
-    """TODO"""
     alias query_resolve = Self(512)
-    """TODO"""
 
 
 @fieldwise_init
@@ -54,10 +39,6 @@ struct BufferUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
 struct ColorWriteMask(
     Copyable, EqualityComparable, ImplicitlyCopyable, Movable
 ):
-    """
-    TODO
-    """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -79,26 +60,16 @@ struct ColorWriteMask(
         return Self(~self.value)
 
     alias none = Self(0)
-    """TODO"""
     alias red = Self(1)
-    """TODO"""
     alias green = Self(2)
-    """TODO"""
     alias blue = Self(4)
-    """TODO"""
     alias alpha = Self(8)
-    """TODO"""
     alias all = Self.none | Self.red | Self.green | Self.blue | Self.alpha
-    """TODO"""
 
 
 @fieldwise_init
 @register_passable("trivial")
 struct MapMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
-    """
-    TODO
-    """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -120,20 +91,13 @@ struct MapMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
         return Self(~self.value)
 
     alias none = Self(0)
-    """TODO"""
     alias read = Self(1)
-    """TODO"""
     alias write = Self(2)
-    """TODO"""
 
 
 @fieldwise_init
 @register_passable("trivial")
 struct ShaderStage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
-    """
-    TODO
-    """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -155,22 +119,14 @@ struct ShaderStage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
         return Self(~self.value)
 
     alias none = Self(0)
-    """TODO"""
     alias vertex = Self(1)
-    """TODO"""
     alias fragment = Self(2)
-    """TODO"""
     alias compute = Self(4)
-    """TODO"""
 
 
 @fieldwise_init
 @register_passable("trivial")
 struct TextureUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
-    """
-    TODO
-    """
-
     var value: UInt32
 
     fn __eq__(self, rhs: Self) -> Bool:
@@ -192,17 +148,11 @@ struct TextureUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
         return Self(~self.value)
 
     alias none = Self(0)
-    """TODO"""
     alias copy_src = Self(1)
-    """TODO"""
     alias copy_dst = Self(2)
-    """TODO"""
     alias texture_binding = Self(4)
-    """TODO"""
     alias storage_binding = Self(8)
-    """TODO"""
     alias render_attachment = Self(16)
-    """TODO"""
 
 
 # WGPU SPECIFIC BITFLAGS

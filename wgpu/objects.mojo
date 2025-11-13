@@ -11,6 +11,7 @@ from .enums import *
 from .structs import *
 
 import . _cffi as _c
+from ._cffi import UnsafePointer
 
 
 struct Adapter(Movable):
@@ -70,10 +71,12 @@ struct Adapter(Movable):
         fn _req(
             status: RequestDeviceStatus,
             device: _c.WGPUDevice,
-            message: UnsafePointer[Int8],
-            user_data: UnsafePointer[NoneType],
+            message: _c.FFIPointer[Int8, mut=False],
+            user_data: _c.FFIPointer[NoneType, mut=True],
         ):
-            u_data = user_data.bitcast[Tuple[_c.WGPUDevice, Bool]]()
+            u_data = user_data.unsafe_ptr().bitcast[
+                Tuple[_c.WGPUDevice, Bool]
+            ]()
             u_data[][0] = device
             u_data[][1] = True
 
@@ -192,7 +195,9 @@ struct Buffer[T: Copyable & Movable](Movable, Sized):
             self,
             _c.buffer_get_mapped_range(
                 self._handle, offset, sys.size_of[T]() * size
-            ).bitcast[T](),
+            )
+            .unsafe_ptr()
+            .bitcast[T](),
             offset,
             size,
         )
@@ -207,11 +212,11 @@ struct Buffer[T: Copyable & Movable](Movable, Sized):
     #         fn (WGPUBuffer, Int, UInt) -> UnsafePointer[NoneType]
     #     ]("wgpuBufferGetConstMappedRange")(handle, offset, size)
 
-    fn set_label(self, label: StringSlice):
+    fn set_label(self, var label: String):
         """
         TODO
         """
-        _c.buffer_set_label(self._handle, label.unsafe_ptr().bitcast[Int8]())
+        _c.buffer_set_label(self._handle, label.unsafe_cstr_ptr())
 
     fn usage(self) -> BufferUsage:
         """
@@ -252,14 +257,14 @@ struct MappedBuffer[T: Copyable & Movable, origin: MutOrigin](
     Copyable, Movable, Sized
 ):
     var _buffer: Pointer[Buffer[T], origin]
-    var _ptr: UnsafePointer[T]
+    var _ptr: UnsafePointer[T, MutOrigin.external]
     var _offset: Int
     var _size: Int
 
     fn __init__(
         out self,
         ref [origin]buffer: Buffer[T],
-        ptr: UnsafePointer[T],
+        ptr: UnsafePointer[T, MutOrigin.external],
         offset: Int,
         size: Int,
     ):
@@ -1009,7 +1014,9 @@ struct Device(Movable):
                     array_stride=buf.array_stride,
                     step_mode=buf.step_mode,
                     attribute_count=len(buf.attributes),
-                    attributes=buf.attributes.unsafe_ptr(),
+                    attributes=_c.FFIPointer[mut=True](
+                        buf.attributes.unsafe_ptr()
+                    ),
                 )
             )
         frag = _c.WGPUFragmentState()
@@ -1043,7 +1050,9 @@ struct Device(Movable):
             alpha_to_coverage_enabled=descriptor.multisample.alpha_to_coverage_enabled,
         )
 
-        depth_stencil = UnsafePointer[_c.WGPUDepthStencilState]()
+        depth_stencil = UnsafePointer[
+            _c.WGPUDepthStencilState, MutOrigin.external
+        ]()
 
         desc = _c.WGPURenderPipelineDescriptor(
             label=descriptor.label.unsafe_cstr_ptr(),
@@ -1294,13 +1303,15 @@ struct Instance(Movable):
         _c.generate_report(self._handle, UnsafePointer(to=report))
         return report
 
-    fn enumerate_adapters(self) -> Span[_c.WGPUAdapter, origin_of(self)]:
-        ptr = UnsafePointer[_c.WGPUAdapter]()
+    fn enumerate_adapters(self) -> Span[_c.WGPUAdapter, MutOrigin.external]:
+        ptr = _c.FFIPointer[_c.WGPUAdapter, mut=True]()
         options = _c.WGPUInstanceEnumerateAdapterOptions()
         len = _c.instance_enumerate_adapters(
             self._handle, UnsafePointer(to=options), ptr
         )
-        return Span[_c.WGPUAdapter, origin_of(self)](ptr=ptr, length=len)
+        return Span[_c.WGPUAdapter, MutOrigin.external](
+            ptr=ptr.unsafe_ptr(), length=len
+        )
 
 
 struct PipelineLayout(Movable):
@@ -1420,12 +1431,16 @@ struct Queue(Movable):
 
     fn submit(
         mut self,
-        command: CommandBuffer,
+        var command: CommandBuffer,
     ) -> None:
         """
         TODO
         """
-        _c.queue_submit(self._handle, 1, UnsafePointer(to=command._handle))
+        _c.queue_submit(
+            self._handle,
+            1,
+            UnsafePointer(to=command._handle),
+        )
 
     # fn queue_on_submitted_work_done(
     #     handle: WGPUQueue,
@@ -1453,7 +1468,7 @@ struct Queue(Movable):
             self._handle,
             buffer._handle,
             offset,
-            data.unsafe_ptr().bitcast[NoneType](),
+            _c.FFIPointer[mut=True](data.unsafe_ptr().bitcast[NoneType]()),
             len(data) * sys.size_of[T](),
         )
 
@@ -1765,7 +1780,7 @@ struct RenderPass[encoder: ImmutOrigin](Movable):
             self._handle,
             index,
             len(dynamic_offsets),
-            dynamic_offsets.unsafe_ptr(),
+            _c.FFIPointer[mut=True](dynamic_offsets.unsafe_ptr()),
             group._handle,
         )
 
@@ -2165,7 +2180,9 @@ struct Surface:
         """
         caps = _c.WGPUSurfaceCapabilities()
         _c.surface_get_capabilities(
-            self._handle, adapter._handle, UnsafePointer(to=caps)
+            self._handle,
+            adapter._handle,
+            UnsafePointer(to=caps),
         )
         return SurfaceCapabilities(caps)
 
@@ -2360,31 +2377,42 @@ fn _glfw_get_wgpu_surface(
         objc = sys.ffi.OwnedDLHandle("libobjc.A.dylib")
 
         @parameter
-        fn sel(mut name: String) -> UnsafePointer[NoneType]:
+        fn sel(mut name: String) -> _c.FFIPointer[NoneType, mut=True]:
             return objc.get_function[
-                fn (UnsafePointer[Int8]) -> UnsafePointer[NoneType]
-            ]("sel_registerName")(name.unsafe_cstr_ptr())
+                fn (
+                    _c.FFIPointer[Int8, mut=False]
+                ) -> _c.FFIPointer[NoneType, mut=True]
+            ]("sel_registerName")(
+                _c.FFIPointer[mut=False](name.unsafe_cstr_ptr().as_immutable())
+            )
 
         @parameter
-        fn get_class(mut name: String) -> UnsafePointer[NoneType]:
+        fn get_class(mut name: String) -> _c.FFIPointer[NoneType, mut=True]:
             return objc.get_function[
-                fn (UnsafePointer[Int8]) -> UnsafePointer[NoneType]
-            ]("objc_getClass")(name.unsafe_cstr_ptr())
+                fn (
+                    _c.FFIPointer[Int8, mut=False]
+                ) -> _c.FFIPointer[NoneType, mut=True]
+            ]("objc_getClass")(_c.FFIPointer[mut=False](name.unsafe_cstr_ptr()))
 
         objc_msg_send = objc.get_function[
             fn (
-                UnsafePointer[NoneType], UnsafePointer[NoneType]
-            ) -> UnsafePointer[NoneType]
+                _c.FFIPointer[NoneType, mut=True],
+                _c.FFIPointer[NoneType, mut=True],
+            ) -> _c.FFIPointer[NoneType, mut=True]
         ]("objc_msgSend")
         objc_msg_send_bool = objc.get_function[
-            fn (UnsafePointer[NoneType], UnsafePointer[NoneType], Bool) -> None
+            fn (
+                _c.FFIPointer[NoneType, mut=True],
+                _c.FFIPointer[NoneType, mut=True],
+                Bool,
+            ) -> None
         ]("objc_msgSend")
 
         objc_msg_send_ptr = objc.get_function[
             fn (
-                UnsafePointer[NoneType],
-                UnsafePointer[NoneType],
-                UnsafePointer[NoneType],
+                _c.FFIPointer[NoneType, mut=True],
+                _c.FFIPointer[NoneType, mut=True],
+                _c.FFIPointer[NoneType, mut=True],
             ) -> None
         ]("objc_msgSend")
 
@@ -2412,7 +2440,7 @@ fn _glfw_get_wgpu_surface(
             next_in_chain=UnsafePointer(to=from_metal_layer).bitcast[
                 wgpu._cffi.ChainedStruct
             ](),
-            label=UnsafePointer[Int8](),
+            label=UnsafePointer[Int8, ImmutOrigin.external](),
         )
         var surf = _c.instance_create_surface(
             instance, UnsafePointer(to=descriptor)
@@ -2436,10 +2464,10 @@ fn _request_adapter_sync(
     fn _req_adapter(
         status: RequestAdapterStatus,
         adapter: _c.WGPUAdapter,
-        message: UnsafePointer[Int8],
-        user_data: UnsafePointer[NoneType],
+        message: _c.FFIPointer[Int8, mut=False],
+        user_data: _c.FFIPointer[NoneType, mut=True],
     ):
-        u_data = user_data.bitcast[Tuple[_c.WGPUAdapter, Bool]]()
+        u_data = user_data.unsafe_ptr().bitcast[Tuple[_c.WGPUAdapter, Bool]]()
         u_data[][0] = adapter
         u_data[][1] = True
 

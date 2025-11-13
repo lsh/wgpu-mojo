@@ -1,52 +1,25 @@
 alias ARRAY_LAYER_COUNT_UNDEFINED = UInt32.MAX
-"""
-TODO
-"""
 
 
 alias COPY_STRIDE_UNDEFINED = UInt32.MAX
-"""
-TODO
-"""
 
 
 alias DEPTH_SLICE_UNDEFINED = UInt32.MAX
-"""
-TODO
-"""
 
 
 alias LIMIT_U32_UNDEFINED = UInt32.MAX
-"""
-TODO
-"""
 
 
 alias LIMIT_U64_UNDEFINED = UInt64.MAX
-"""
-TODO
-"""
 
 
 alias MIP_LEVEL_COUNT_UNDEFINED = UInt32.MAX
-"""
-TODO
-"""
 
 
 alias QUERY_SET_INDEX_UNDEFINED = UInt32.MAX
-"""
-TODO
-"""
 
 
 alias WHOLE_MAP_SIZE = Int.MAX
-"""
-TODO
-"""
 
 
 alias WHOLE_SIZE = UInt64.MAX
-"""
-TODO
-"""
