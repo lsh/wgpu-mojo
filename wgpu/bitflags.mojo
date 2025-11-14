@@ -21,17 +21,17 @@ struct BufferUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias none = Self(0)
-    alias map_read = Self(1)
-    alias map_write = Self(2)
-    alias copy_src = Self(4)
-    alias copy_dst = Self(8)
-    alias index = Self(16)
-    alias vertex = Self(32)
-    alias uniform = Self(64)
-    alias storage = Self(128)
-    alias indirect = Self(256)
-    alias query_resolve = Self(512)
+    comptime none = Self(0)
+    comptime map_read = Self(1)
+    comptime map_write = Self(2)
+    comptime copy_src = Self(4)
+    comptime copy_dst = Self(8)
+    comptime index = Self(16)
+    comptime vertex = Self(32)
+    comptime uniform = Self(64)
+    comptime storage = Self(128)
+    comptime indirect = Self(256)
+    comptime query_resolve = Self(512)
 
 
 @fieldwise_init
@@ -59,12 +59,12 @@ struct ColorWriteMask(
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias none = Self(0)
-    alias red = Self(1)
-    alias green = Self(2)
-    alias blue = Self(4)
-    alias alpha = Self(8)
-    alias all = Self.none | Self.red | Self.green | Self.blue | Self.alpha
+    comptime none = Self(0)
+    comptime red = Self(1)
+    comptime green = Self(2)
+    comptime blue = Self(4)
+    comptime alpha = Self(8)
+    comptime all = Self.none | Self.red | Self.green | Self.blue | Self.alpha
 
 
 @fieldwise_init
@@ -90,9 +90,9 @@ struct MapMode(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias none = Self(0)
-    alias read = Self(1)
-    alias write = Self(2)
+    comptime none = Self(0)
+    comptime read = Self(1)
+    comptime write = Self(2)
 
 
 @fieldwise_init
@@ -118,10 +118,10 @@ struct ShaderStage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias none = Self(0)
-    alias vertex = Self(1)
-    alias fragment = Self(2)
-    alias compute = Self(4)
+    comptime none = Self(0)
+    comptime vertex = Self(1)
+    comptime fragment = Self(2)
+    comptime compute = Self(4)
 
 
 @fieldwise_init
@@ -147,12 +147,12 @@ struct TextureUsage(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias none = Self(0)
-    alias copy_src = Self(1)
-    alias copy_dst = Self(2)
-    alias texture_binding = Self(4)
-    alias storage_binding = Self(8)
-    alias render_attachment = Self(16)
+    comptime none = Self(0)
+    comptime copy_src = Self(1)
+    comptime copy_dst = Self(2)
+    comptime texture_binding = Self(4)
+    comptime storage_binding = Self(8)
+    comptime render_attachment = Self(16)
 
 
 # WGPU SPECIFIC BITFLAGS
@@ -179,15 +179,15 @@ struct InstanceBackend(
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias all = Self(0x00000000)
-    alias vulkan = Self(1 << 0)
-    alias gl = Self(1 << 1)
-    alias metal = Self(1 << 2)
-    alias dx12 = Self(1 << 3)
-    alias dx11 = Self(1 << 4)
-    alias browser_webgpu = Self(1 << 5)
-    alias primary = Self.vulkan | Self.metal | Self.dx12 | Self.browser_webgpu
-    alias secondary = Self.gl | Self.dx11
+    comptime all = Self(0x00000000)
+    comptime vulkan = Self(1 << 0)
+    comptime gl = Self(1 << 1)
+    comptime metal = Self(1 << 2)
+    comptime dx12 = Self(1 << 3)
+    comptime dx11 = Self(1 << 4)
+    comptime browser_webgpu = Self(1 << 5)
+    comptime primary = Self.vulkan | Self.metal | Self.dx12 | Self.browser_webgpu
+    comptime secondary = Self.gl | Self.dx11
 
 
 @fieldwise_init
@@ -209,10 +209,10 @@ struct InstanceFlag(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias default = Self(0x00000000)
-    alias debug = Self(1 << 0)
-    alias validation = Self(1 << 1)
-    alias discard_hal_labels = Self(1 << 2)
+    comptime default = Self(0x00000000)
+    comptime debug = Self(1 << 0)
+    comptime validation = Self(1 << 1)
+    comptime discard_hal_labels = Self(1 << 2)
 
 
 @fieldwise_init
@@ -234,9 +234,9 @@ struct Dx12Compiler(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias undefined = Self(0x00000000)
-    alias fxc = Self(0x00000001)
-    alias dxc = Self(0x00000002)
+    comptime undefined = Self(0x00000000)
+    comptime fxc = Self(0x00000001)
+    comptime dxc = Self(0x00000002)
 
 
 @fieldwise_init
@@ -260,10 +260,10 @@ struct Gles3MinorVersion(
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias automatic = Self(0x00000000)
-    alias version0 = Self(0x00000001)
-    alias version1 = Self(0x00000002)
-    alias version2 = Self(0x00000003)
+    comptime automatic = Self(0x00000000)
+    comptime version0 = Self(0x00000001)
+    comptime version1 = Self(0x00000002)
+    comptime version2 = Self(0x00000003)
 
 
 @fieldwise_init
@@ -287,11 +287,11 @@ struct PipelineStatisticName(
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias vertex_shader_invocations = Self(0x00000000)
-    alias clipper_invocations = Self(0x00000001)
-    alias clipper_primitives_out = Self(0x00000002)
-    alias fragment_shader_invocations = Self(0x00000003)
-    alias compute_shader_invocations = Self(0x00000004)
+    comptime vertex_shader_invocations = Self(0x00000000)
+    comptime clipper_invocations = Self(0x00000001)
+    comptime clipper_primitives_out = Self(0x00000002)
+    comptime fragment_shader_invocations = Self(0x00000003)
+    comptime compute_shader_invocations = Self(0x00000004)
 
 
 @fieldwise_init
@@ -315,4 +315,4 @@ struct NativeQueryType(
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias pipeline_statistics = Self(0x00030000)
+    comptime pipeline_statistics = Self(0x00030000)

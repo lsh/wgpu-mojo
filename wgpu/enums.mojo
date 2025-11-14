@@ -8,10 +8,10 @@ struct RequestAdapterStatus(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias success = Self(0)
-    alias unavailable = Self(1)
-    alias error = Self(2)
-    alias unknown = Self(3)
+    comptime success = Self(0)
+    comptime unavailable = Self(1)
+    comptime error = Self(2)
+    comptime unknown = Self(3)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.success:
@@ -37,10 +37,10 @@ struct AdapterType(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias discrete_gpu = Self(0)
-    alias integrated_gpu = Self(1)
-    alias cpu = Self(2)
-    alias unknown = Self(3)
+    comptime discrete_gpu = Self(0)
+    comptime integrated_gpu = Self(1)
+    comptime cpu = Self(2)
+    comptime unknown = Self(3)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.discrete_gpu:
@@ -66,9 +66,9 @@ struct AddressMode(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias repeat = Self(0)
-    alias mirror_repeat = Self(1)
-    alias clamp_to_edge = Self(2)
+    comptime repeat = Self(0)
+    comptime mirror_repeat = Self(1)
+    comptime clamp_to_edge = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.repeat:
@@ -91,15 +91,15 @@ struct BackendType(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias null = Self(1)
-    alias webgpu = Self(2)
-    alias d3d11 = Self(3)
-    alias d3d12 = Self(4)
-    alias metal = Self(5)
-    alias vulkan = Self(6)
-    alias opengl = Self(7)
-    alias opengles = Self(8)
+    comptime undefined = Self(0)
+    comptime null = Self(1)
+    comptime webgpu = Self(2)
+    comptime d3d11 = Self(3)
+    comptime d3d12 = Self(4)
+    comptime metal = Self(5)
+    comptime vulkan = Self(6)
+    comptime opengl = Self(7)
+    comptime opengles = Self(8)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -140,10 +140,10 @@ struct BufferBindingType(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias uniform = Self(1)
-    alias storage = Self(2)
-    alias read_only_storage = Self(3)
+    comptime undefined = Self(0)
+    comptime uniform = Self(1)
+    comptime storage = Self(2)
+    comptime read_only_storage = Self(3)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -169,10 +169,10 @@ struct SamplerBindingType(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias filtering = Self(1)
-    alias non_filtering = Self(2)
-    alias comparison = Self(3)
+    comptime undefined = Self(0)
+    comptime filtering = Self(1)
+    comptime non_filtering = Self(2)
+    comptime comparison = Self(3)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -198,12 +198,12 @@ struct TextureSampleType(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias float = Self(1)
-    alias unfilterable_float = Self(2)
-    alias depth = Self(3)
-    alias sint = Self(4)
-    alias uint = Self(5)
+    comptime undefined = Self(0)
+    comptime float = Self(1)
+    comptime unfilterable_float = Self(2)
+    comptime depth = Self(3)
+    comptime sint = Self(4)
+    comptime uint = Self(5)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -235,10 +235,10 @@ struct StorageTextureAccess(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias write_only = Self(1)
-    alias read_only = Self(2)
-    alias read_write = Self(3)
+    comptime undefined = Self(0)
+    comptime write_only = Self(1)
+    comptime read_only = Self(2)
+    comptime read_write = Self(3)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -264,19 +264,19 @@ struct BlendFactor(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias zero = Self(0)
-    alias one = Self(1)
-    alias src = Self(2)
-    alias one_minus_src = Self(3)
-    alias src_alpha = Self(4)
-    alias one_minus_src_alpha = Self(5)
-    alias dst = Self(6)
-    alias one_minus_dst = Self(7)
-    alias dst_alpha = Self(8)
-    alias one_minus_dst_alpha = Self(9)
-    alias src_alpha_saturated = Self(10)
-    alias constant = Self(11)
-    alias one_minus_constant = Self(12)
+    comptime zero = Self(0)
+    comptime one = Self(1)
+    comptime src = Self(2)
+    comptime one_minus_src = Self(3)
+    comptime src_alpha = Self(4)
+    comptime one_minus_src_alpha = Self(5)
+    comptime dst = Self(6)
+    comptime one_minus_dst = Self(7)
+    comptime dst_alpha = Self(8)
+    comptime one_minus_dst_alpha = Self(9)
+    comptime src_alpha_saturated = Self(10)
+    comptime constant = Self(11)
+    comptime one_minus_constant = Self(12)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.zero:
@@ -329,11 +329,11 @@ struct BlendOperation(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias add = Self(0)
-    alias subtract = Self(1)
-    alias reverse_subtract = Self(2)
-    alias min = Self(3)
-    alias max = Self(4)
+    comptime add = Self(0)
+    comptime subtract = Self(1)
+    comptime reverse_subtract = Self(2)
+    comptime min = Self(3)
+    comptime max = Self(4)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.add:
@@ -362,15 +362,15 @@ struct BufferMapAsyncStatus(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias success = Self(0)
-    alias validation_error = Self(1)
-    alias unknown = Self(2)
-    alias device_lost = Self(3)
-    alias destroyed_before_callback = Self(4)
-    alias unmapped_before_callback = Self(5)
-    alias mapping_already_pending = Self(6)
-    alias offset_out_of_range = Self(7)
-    alias size_out_of_range = Self(8)
+    comptime success = Self(0)
+    comptime validation_error = Self(1)
+    comptime unknown = Self(2)
+    comptime device_lost = Self(3)
+    comptime destroyed_before_callback = Self(4)
+    comptime unmapped_before_callback = Self(5)
+    comptime mapping_already_pending = Self(6)
+    comptime offset_out_of_range = Self(7)
+    comptime size_out_of_range = Self(8)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.success:
@@ -411,9 +411,9 @@ struct BufferMapState(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias unmapped = Self(0)
-    alias pending = Self(1)
-    alias mapped = Self(2)
+    comptime unmapped = Self(0)
+    comptime pending = Self(1)
+    comptime mapped = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.unmapped:
@@ -436,15 +436,15 @@ struct CompareFunction(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias never = Self(1)
-    alias less = Self(2)
-    alias less_equal = Self(3)
-    alias greater = Self(4)
-    alias greater_equal = Self(5)
-    alias equal = Self(6)
-    alias not_equal = Self(7)
-    alias always = Self(8)
+    comptime undefined = Self(0)
+    comptime never = Self(1)
+    comptime less = Self(2)
+    comptime less_equal = Self(3)
+    comptime greater = Self(4)
+    comptime greater_equal = Self(5)
+    comptime equal = Self(6)
+    comptime not_equal = Self(7)
+    comptime always = Self(8)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -485,10 +485,10 @@ struct CompilationInfoRequestStatus(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias success = Self(0)
-    alias error = Self(1)
-    alias device_lost = Self(2)
-    alias unknown = Self(3)
+    comptime success = Self(0)
+    comptime error = Self(1)
+    comptime device_lost = Self(2)
+    comptime unknown = Self(3)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.success:
@@ -514,9 +514,9 @@ struct CompilationMessageType(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias error = Self(0)
-    alias warning = Self(1)
-    alias info = Self(2)
+    comptime error = Self(0)
+    comptime warning = Self(1)
+    comptime info = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.error:
@@ -539,11 +539,11 @@ struct CompositeAlphaMode(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias auto = Self(0)
-    alias opaque = Self(1)
-    alias premultiplied = Self(2)
-    alias unpremultiplied = Self(3)
-    alias inherit = Self(4)
+    comptime auto = Self(0)
+    comptime opaque = Self(1)
+    comptime premultiplied = Self(2)
+    comptime unpremultiplied = Self(3)
+    comptime inherit = Self(4)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.auto:
@@ -572,12 +572,12 @@ struct CreatePipelineAsyncStatus(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias success = Self(0)
-    alias validation_error = Self(1)
-    alias internal_error = Self(2)
-    alias device_lost = Self(3)
-    alias device_destroyed = Self(4)
-    alias unknown = Self(5)
+    comptime success = Self(0)
+    comptime validation_error = Self(1)
+    comptime internal_error = Self(2)
+    comptime device_lost = Self(3)
+    comptime device_destroyed = Self(4)
+    comptime unknown = Self(5)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.success:
@@ -609,9 +609,9 @@ struct CullMode(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias none = Self(0)
-    alias front = Self(1)
-    alias back = Self(2)
+    comptime none = Self(0)
+    comptime front = Self(1)
+    comptime back = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.none:
@@ -634,8 +634,8 @@ struct DeviceLostReason(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias unknown = Self(1)
-    alias destroyed = Self(2)
+    comptime unknown = Self(1)
+    comptime destroyed = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.unknown:
@@ -655,9 +655,9 @@ struct ErrorFilter(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias validation = Self(0)
-    alias out_of_memory = Self(1)
-    alias internal = Self(2)
+    comptime validation = Self(0)
+    comptime out_of_memory = Self(1)
+    comptime internal = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.validation:
@@ -680,12 +680,12 @@ struct ErrorType(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias no_error = Self(0)
-    alias validation = Self(1)
-    alias out_of_memory = Self(2)
-    alias internal = Self(3)
-    alias unknown = Self(4)
-    alias device_lost = Self(5)
+    comptime no_error = Self(0)
+    comptime validation = Self(1)
+    comptime out_of_memory = Self(2)
+    comptime internal = Self(3)
+    comptime unknown = Self(4)
+    comptime device_lost = Self(5)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.no_error:
@@ -717,18 +717,18 @@ struct FeatureName(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias depth_clip_control = Self(1)
-    alias depth32_float_stencil8 = Self(2)
-    alias timestamp_query = Self(3)
-    alias texture_compression_bc = Self(4)
-    alias texture_compression_etc2 = Self(5)
-    alias texture_compression_astc = Self(6)
-    alias indirect_first_instance = Self(7)
-    alias shader_f16 = Self(8)
-    alias rg11b10_ufloat_renderable = Self(9)
-    alias bgra8_unorm_storage = Self(10)
-    alias float32_filterable = Self(11)
+    comptime undefined = Self(0)
+    comptime depth_clip_control = Self(1)
+    comptime depth32_float_stencil8 = Self(2)
+    comptime timestamp_query = Self(3)
+    comptime texture_compression_bc = Self(4)
+    comptime texture_compression_etc2 = Self(5)
+    comptime texture_compression_astc = Self(6)
+    comptime indirect_first_instance = Self(7)
+    comptime shader_f16 = Self(8)
+    comptime rg11b10_ufloat_renderable = Self(9)
+    comptime bgra8_unorm_storage = Self(10)
+    comptime float32_filterable = Self(11)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -778,8 +778,8 @@ struct FilterMode(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias nearest = Self(0)
-    alias linear = Self(1)
+    comptime nearest = Self(0)
+    comptime linear = Self(1)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.nearest:
@@ -799,8 +799,8 @@ struct FrontFace(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias ccw = Self(0)
-    alias cw = Self(1)
+    comptime ccw = Self(0)
+    comptime cw = Self(1)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.ccw:
@@ -820,9 +820,9 @@ struct IndexFormat(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias uint16 = Self(1)
-    alias uint32 = Self(2)
+    comptime undefined = Self(0)
+    comptime uint16 = Self(1)
+    comptime uint32 = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -845,9 +845,9 @@ struct VertexStepMode(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias vertex = Self(0)
-    alias instance = Self(1)
-    alias vertex_buffer_not_used = Self(2)
+    comptime vertex = Self(0)
+    comptime instance = Self(1)
+    comptime vertex_buffer_not_used = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.vertex:
@@ -870,9 +870,9 @@ struct LoadOp(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias clear = Self(1)
-    alias load = Self(2)
+    comptime undefined = Self(0)
+    comptime clear = Self(1)
+    comptime load = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -895,8 +895,8 @@ struct MipmapFilterMode(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias nearest = Self(0)
-    alias linear = Self(1)
+    comptime nearest = Self(0)
+    comptime linear = Self(1)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.nearest:
@@ -916,9 +916,9 @@ struct StoreOp(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias store = Self(1)
-    alias discard = Self(2)
+    comptime undefined = Self(0)
+    comptime store = Self(1)
+    comptime discard = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -941,9 +941,9 @@ struct PowerPreference(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias low_power = Self(1)
-    alias high_performance = Self(2)
+    comptime undefined = Self(0)
+    comptime low_power = Self(1)
+    comptime high_performance = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -966,10 +966,10 @@ struct PresentMode(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias fifo = Self(0)
-    alias fifo_relaxed = Self(1)
-    alias immediate = Self(2)
-    alias mailbox = Self(3)
+    comptime fifo = Self(0)
+    comptime fifo_relaxed = Self(1)
+    comptime immediate = Self(2)
+    comptime mailbox = Self(3)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.fifo:
@@ -995,11 +995,11 @@ struct PrimitiveTopology(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias point_list = Self(0)
-    alias line_list = Self(1)
-    alias line_strip = Self(2)
-    alias triangle_list = Self(3)
-    alias triangle_strip = Self(4)
+    comptime point_list = Self(0)
+    comptime line_list = Self(1)
+    comptime line_strip = Self(2)
+    comptime triangle_list = Self(3)
+    comptime triangle_strip = Self(4)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.point_list:
@@ -1028,8 +1028,8 @@ struct QueryType(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias occlusion = Self(0)
-    alias timestamp = Self(1)
+    comptime occlusion = Self(0)
+    comptime timestamp = Self(1)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.occlusion:
@@ -1049,10 +1049,10 @@ struct QueueWorkDoneStatus(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias success = Self(0)
-    alias error = Self(1)
-    alias unknown = Self(2)
-    alias device_lost = Self(3)
+    comptime success = Self(0)
+    comptime error = Self(1)
+    comptime unknown = Self(2)
+    comptime device_lost = Self(3)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.success:
@@ -1078,9 +1078,9 @@ struct RequestDeviceStatus(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias success = Self(0)
-    alias error = Self(1)
-    alias unknown = Self(2)
+    comptime success = Self(0)
+    comptime error = Self(1)
+    comptime unknown = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.success:
@@ -1103,14 +1103,14 @@ struct StencilOperation(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias keep = Self(0)
-    alias zero = Self(1)
-    alias replace = Self(2)
-    alias invert = Self(3)
-    alias increment_clamp = Self(4)
-    alias decrement_clamp = Self(5)
-    alias increment_wrap = Self(6)
-    alias decrement_wrap = Self(7)
+    comptime keep = Self(0)
+    comptime zero = Self(1)
+    comptime replace = Self(2)
+    comptime invert = Self(3)
+    comptime increment_clamp = Self(4)
+    comptime decrement_clamp = Self(5)
+    comptime increment_wrap = Self(6)
+    comptime decrement_wrap = Self(7)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.keep:
@@ -1148,18 +1148,18 @@ struct SType(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias invalid = Self(0)
-    alias surface_descriptor_from_metal_layer = Self(1)
-    alias surface_descriptor_from_windows_hwnd = Self(2)
-    alias surface_descriptor_from_xlib_window = Self(3)
-    alias surface_descriptor_from_canvas_html_selector = Self(4)
-    alias shader_module_spirv_descriptor = Self(5)
-    alias shader_module_wgsl_descriptor = Self(6)
-    alias primitive_depth_clip_control = Self(7)
-    alias surface_descriptor_from_wayland_surface = Self(8)
-    alias surface_descriptor_from_android_native_window = Self(9)
-    alias surface_descriptor_from_xcb_window = Self(10)
-    alias render_pass_descriptor_max_draw_count = Self(15)
+    comptime invalid = Self(0)
+    comptime surface_descriptor_from_metal_layer = Self(1)
+    comptime surface_descriptor_from_windows_hwnd = Self(2)
+    comptime surface_descriptor_from_xlib_window = Self(3)
+    comptime surface_descriptor_from_canvas_html_selector = Self(4)
+    comptime shader_module_spirv_descriptor = Self(5)
+    comptime shader_module_wgsl_descriptor = Self(6)
+    comptime primitive_depth_clip_control = Self(7)
+    comptime surface_descriptor_from_wayland_surface = Self(8)
+    comptime surface_descriptor_from_android_native_window = Self(9)
+    comptime surface_descriptor_from_xcb_window = Self(10)
+    comptime render_pass_descriptor_max_draw_count = Self(15)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.invalid:
@@ -1209,12 +1209,12 @@ struct SurfaceGetCurrentTextureStatus(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias success = Self(0)
-    alias timeout = Self(1)
-    alias outdated = Self(2)
-    alias lost = Self(3)
-    alias out_of_memory = Self(4)
-    alias device_lost = Self(5)
+    comptime success = Self(0)
+    comptime timeout = Self(1)
+    comptime outdated = Self(2)
+    comptime lost = Self(3)
+    comptime out_of_memory = Self(4)
+    comptime device_lost = Self(5)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.success:
@@ -1246,9 +1246,9 @@ struct TextureAspect(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias all = Self(0)
-    alias stencil_only = Self(1)
-    alias depth_only = Self(2)
+    comptime all = Self(0)
+    comptime stencil_only = Self(1)
+    comptime depth_only = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.all:
@@ -1271,9 +1271,9 @@ struct TextureDimension(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias d1 = Self(0)
-    alias d2 = Self(1)
-    alias d3 = Self(2)
+    comptime d1 = Self(0)
+    comptime d2 = Self(1)
+    comptime d3 = Self(2)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.d1:
@@ -1296,102 +1296,102 @@ struct TextureFormat(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias r8_unorm = Self(1)
-    alias r8_snorm = Self(2)
-    alias r8_uint = Self(3)
-    alias r8_sint = Self(4)
-    alias r16_uint = Self(5)
-    alias r16_sint = Self(6)
-    alias r16_float = Self(7)
-    alias rg8_unorm = Self(8)
-    alias rg8_snorm = Self(9)
-    alias rg8_uint = Self(10)
-    alias rg8_sint = Self(11)
-    alias r32_float = Self(12)
-    alias r32_uint = Self(13)
-    alias r32_sint = Self(14)
-    alias rg16_uint = Self(15)
-    alias rg16_sint = Self(16)
-    alias rg16_float = Self(17)
-    alias rgba8_unorm = Self(18)
-    alias rgba8_unorm_srgb = Self(19)
-    alias rgba8_snorm = Self(20)
-    alias rgba8_uint = Self(21)
-    alias rgba8_sint = Self(22)
-    alias bgra8_unorm = Self(23)
-    alias bgra8_unorm_srgb = Self(24)
-    alias rgb10_a2_uint = Self(25)
-    alias rgb10_a2_unorm = Self(26)
-    alias rg11_b10_ufloat = Self(27)
-    alias rgb9_e5_ufloat = Self(28)
-    alias rg32_float = Self(29)
-    alias rg32_uint = Self(30)
-    alias rg32_sint = Self(31)
-    alias rgba16_uint = Self(32)
-    alias rgba16_sint = Self(33)
-    alias rgba16_float = Self(34)
-    alias rgba32_float = Self(35)
-    alias rgba32_uint = Self(36)
-    alias rgba32_sint = Self(37)
-    alias stencil8 = Self(38)
-    alias depth16_unorm = Self(39)
-    alias depth24_plus = Self(40)
-    alias depth24_plus_stencil8 = Self(41)
-    alias depth32_float = Self(42)
-    alias depth32_float_stencil8 = Self(43)
-    alias bc1_rgba_unorm = Self(44)
-    alias bc1_rgba_unorm_srgb = Self(45)
-    alias bc2_rgba_unorm = Self(46)
-    alias bc2_rgba_unorm_srgb = Self(47)
-    alias bc3_rgba_unorm = Self(48)
-    alias bc3_rgba_unorm_srgb = Self(49)
-    alias bc4_r_unorm = Self(50)
-    alias bc4_r_snorm = Self(51)
-    alias bc5_rg_unorm = Self(52)
-    alias bc5_rg_snorm = Self(53)
-    alias bc6h_rgb_ufloat = Self(54)
-    alias bc6h_rgb_float = Self(55)
-    alias bc7_rgba_unorm = Self(56)
-    alias bc7_rgba_unorm_srgb = Self(57)
-    alias etc2_rgb8_unorm = Self(58)
-    alias etc2_rgb8_unorm_srgb = Self(59)
-    alias etc2_rgb8a1_unorm = Self(60)
-    alias etc2_rgb8a1_unorm_srgb = Self(61)
-    alias etc2_rgba8_unorm = Self(62)
-    alias etc2_rgba8_unorm_srgb = Self(63)
-    alias eac_r11_unorm = Self(64)
-    alias eac_r11_snorm = Self(65)
-    alias eac_rg11_unorm = Self(66)
-    alias eac_rg11_snorm = Self(67)
-    alias astc_4x4_unorm = Self(68)
-    alias astc_4x4_unorm_srgb = Self(69)
-    alias astc_5x4_unorm = Self(70)
-    alias astc_5x4_unorm_srgb = Self(71)
-    alias astc_5x5_unorm = Self(72)
-    alias astc_5x5_unorm_srgb = Self(73)
-    alias astc_6x5_unorm = Self(74)
-    alias astc_6x5_unorm_srgb = Self(75)
-    alias astc_6x6_unorm = Self(76)
-    alias astc_6x6_unorm_srgb = Self(77)
-    alias astc_8x5_unorm = Self(78)
-    alias astc_8x5_unorm_srgb = Self(79)
-    alias astc_8x6_unorm = Self(80)
-    alias astc_8x6_unorm_srgb = Self(81)
-    alias astc_8x8_unorm = Self(82)
-    alias astc_8x8_unorm_srgb = Self(83)
-    alias astc_10x5_unorm = Self(84)
-    alias astc_10x5_unorm_srgb = Self(85)
-    alias astc_10x6_unorm = Self(86)
-    alias astc_10x6_unorm_srgb = Self(87)
-    alias astc_10x8_unorm = Self(88)
-    alias astc_10x8_unorm_srgb = Self(89)
-    alias astc_10x10_unorm = Self(90)
-    alias astc_10x10_unorm_srgb = Self(91)
-    alias astc_12x10_unorm = Self(92)
-    alias astc_12x10_unorm_srgb = Self(93)
-    alias astc_12x12_unorm = Self(94)
-    alias astc_12x12_unorm_srgb = Self(95)
+    comptime undefined = Self(0)
+    comptime r8_unorm = Self(1)
+    comptime r8_snorm = Self(2)
+    comptime r8_uint = Self(3)
+    comptime r8_sint = Self(4)
+    comptime r16_uint = Self(5)
+    comptime r16_sint = Self(6)
+    comptime r16_float = Self(7)
+    comptime rg8_unorm = Self(8)
+    comptime rg8_snorm = Self(9)
+    comptime rg8_uint = Self(10)
+    comptime rg8_sint = Self(11)
+    comptime r32_float = Self(12)
+    comptime r32_uint = Self(13)
+    comptime r32_sint = Self(14)
+    comptime rg16_uint = Self(15)
+    comptime rg16_sint = Self(16)
+    comptime rg16_float = Self(17)
+    comptime rgba8_unorm = Self(18)
+    comptime rgba8_unorm_srgb = Self(19)
+    comptime rgba8_snorm = Self(20)
+    comptime rgba8_uint = Self(21)
+    comptime rgba8_sint = Self(22)
+    comptime bgra8_unorm = Self(23)
+    comptime bgra8_unorm_srgb = Self(24)
+    comptime rgb10_a2_uint = Self(25)
+    comptime rgb10_a2_unorm = Self(26)
+    comptime rg11_b10_ufloat = Self(27)
+    comptime rgb9_e5_ufloat = Self(28)
+    comptime rg32_float = Self(29)
+    comptime rg32_uint = Self(30)
+    comptime rg32_sint = Self(31)
+    comptime rgba16_uint = Self(32)
+    comptime rgba16_sint = Self(33)
+    comptime rgba16_float = Self(34)
+    comptime rgba32_float = Self(35)
+    comptime rgba32_uint = Self(36)
+    comptime rgba32_sint = Self(37)
+    comptime stencil8 = Self(38)
+    comptime depth16_unorm = Self(39)
+    comptime depth24_plus = Self(40)
+    comptime depth24_plus_stencil8 = Self(41)
+    comptime depth32_float = Self(42)
+    comptime depth32_float_stencil8 = Self(43)
+    comptime bc1_rgba_unorm = Self(44)
+    comptime bc1_rgba_unorm_srgb = Self(45)
+    comptime bc2_rgba_unorm = Self(46)
+    comptime bc2_rgba_unorm_srgb = Self(47)
+    comptime bc3_rgba_unorm = Self(48)
+    comptime bc3_rgba_unorm_srgb = Self(49)
+    comptime bc4_r_unorm = Self(50)
+    comptime bc4_r_snorm = Self(51)
+    comptime bc5_rg_unorm = Self(52)
+    comptime bc5_rg_snorm = Self(53)
+    comptime bc6h_rgb_ufloat = Self(54)
+    comptime bc6h_rgb_float = Self(55)
+    comptime bc7_rgba_unorm = Self(56)
+    comptime bc7_rgba_unorm_srgb = Self(57)
+    comptime etc2_rgb8_unorm = Self(58)
+    comptime etc2_rgb8_unorm_srgb = Self(59)
+    comptime etc2_rgb8a1_unorm = Self(60)
+    comptime etc2_rgb8a1_unorm_srgb = Self(61)
+    comptime etc2_rgba8_unorm = Self(62)
+    comptime etc2_rgba8_unorm_srgb = Self(63)
+    comptime eac_r11_unorm = Self(64)
+    comptime eac_r11_snorm = Self(65)
+    comptime eac_rg11_unorm = Self(66)
+    comptime eac_rg11_snorm = Self(67)
+    comptime astc_4x4_unorm = Self(68)
+    comptime astc_4x4_unorm_srgb = Self(69)
+    comptime astc_5x4_unorm = Self(70)
+    comptime astc_5x4_unorm_srgb = Self(71)
+    comptime astc_5x5_unorm = Self(72)
+    comptime astc_5x5_unorm_srgb = Self(73)
+    comptime astc_6x5_unorm = Self(74)
+    comptime astc_6x5_unorm_srgb = Self(75)
+    comptime astc_6x6_unorm = Self(76)
+    comptime astc_6x6_unorm_srgb = Self(77)
+    comptime astc_8x5_unorm = Self(78)
+    comptime astc_8x5_unorm_srgb = Self(79)
+    comptime astc_8x6_unorm = Self(80)
+    comptime astc_8x6_unorm_srgb = Self(81)
+    comptime astc_8x8_unorm = Self(82)
+    comptime astc_8x8_unorm_srgb = Self(83)
+    comptime astc_10x5_unorm = Self(84)
+    comptime astc_10x5_unorm_srgb = Self(85)
+    comptime astc_10x6_unorm = Self(86)
+    comptime astc_10x6_unorm_srgb = Self(87)
+    comptime astc_10x8_unorm = Self(88)
+    comptime astc_10x8_unorm_srgb = Self(89)
+    comptime astc_10x10_unorm = Self(90)
+    comptime astc_10x10_unorm_srgb = Self(91)
+    comptime astc_12x10_unorm = Self(92)
+    comptime astc_12x10_unorm_srgb = Self(93)
+    comptime astc_12x12_unorm = Self(94)
+    comptime astc_12x12_unorm_srgb = Self(95)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -1693,13 +1693,13 @@ struct TextureViewDimension(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias denifednu = Self(0)
-    alias d1 = Self(1)
-    alias d2 = Self(2)
-    alias yarra_d2 = Self(3)
-    alias ebuc = Self(4)
-    alias yarra_ebuc = Self(5)
-    alias d3 = Self(6)
+    comptime denifednu = Self(0)
+    comptime d1 = Self(1)
+    comptime d2 = Self(2)
+    comptime yarra_d2 = Self(3)
+    comptime ebuc = Self(4)
+    comptime yarra_ebuc = Self(5)
+    comptime d3 = Self(6)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.denifednu:
@@ -1734,37 +1734,37 @@ struct VertexFormat(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias uint8x2 = Self(1)
-    alias uint8x4 = Self(2)
-    alias sint8x2 = Self(3)
-    alias sint8x4 = Self(4)
-    alias unorm8x2 = Self(5)
-    alias unorm8x4 = Self(6)
-    alias snorm8x2 = Self(7)
-    alias snorm8x4 = Self(8)
-    alias uint16x2 = Self(9)
-    alias uint16x4 = Self(10)
-    alias sint16x2 = Self(11)
-    alias sint16x4 = Self(12)
-    alias unorm16x2 = Self(13)
-    alias unorm16x4 = Self(14)
-    alias snorm16x2 = Self(15)
-    alias snorm16x4 = Self(16)
-    alias float16x2 = Self(17)
-    alias float16x4 = Self(18)
-    alias float32 = Self(19)
-    alias float32x2 = Self(20)
-    alias float32x3 = Self(21)
-    alias float32x4 = Self(22)
-    alias uint32 = Self(23)
-    alias uint32x2 = Self(24)
-    alias uint32x3 = Self(25)
-    alias uint32x4 = Self(26)
-    alias sint32 = Self(27)
-    alias sint32x2 = Self(28)
-    alias sint32x3 = Self(29)
-    alias sint32x4 = Self(30)
+    comptime undefined = Self(0)
+    comptime uint8x2 = Self(1)
+    comptime uint8x4 = Self(2)
+    comptime sint8x2 = Self(3)
+    comptime sint8x4 = Self(4)
+    comptime unorm8x2 = Self(5)
+    comptime unorm8x4 = Self(6)
+    comptime snorm8x2 = Self(7)
+    comptime snorm8x4 = Self(8)
+    comptime uint16x2 = Self(9)
+    comptime uint16x4 = Self(10)
+    comptime sint16x2 = Self(11)
+    comptime sint16x4 = Self(12)
+    comptime unorm16x2 = Self(13)
+    comptime unorm16x4 = Self(14)
+    comptime snorm16x2 = Self(15)
+    comptime snorm16x4 = Self(16)
+    comptime float16x2 = Self(17)
+    comptime float16x4 = Self(18)
+    comptime float32 = Self(19)
+    comptime float32x2 = Self(20)
+    comptime float32x3 = Self(21)
+    comptime float32x4 = Self(22)
+    comptime uint32 = Self(23)
+    comptime uint32x2 = Self(24)
+    comptime uint32x3 = Self(25)
+    comptime uint32x4 = Self(26)
+    comptime sint32 = Self(27)
+    comptime sint32x2 = Self(28)
+    comptime sint32x3 = Self(29)
+    comptime sint32x4 = Self(30)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -1871,11 +1871,11 @@ struct WgslFeatureName(
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias undefined = Self(0)
-    alias readonly_and_readwrite_storage_textures = Self(1)
-    alias packed4x8_integer_dot_product = Self(2)
-    alias unrestricted_pointer_parameters = Self(3)
-    alias pointer_composite_access = Self(4)
+    comptime undefined = Self(0)
+    comptime readonly_and_readwrite_storage_textures = Self(1)
+    comptime packed4x8_integer_dot_product = Self(2)
+    comptime unrestricted_pointer_parameters = Self(3)
+    comptime pointer_composite_access = Self(4)
 
     fn write_to(self, mut w: Some[Writer]):
         if self == Self.undefined:
@@ -1906,16 +1906,16 @@ struct NativeSType(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
         return self.value == rhs.value
 
     #  Start at 0003 since that's allocated range for wgpu-native
-    alias device_extras = Self(0x00030001)
-    alias required_limits_extras = Self(0x00030002)
-    alias pipeline_layout_extras = Self(0x00030003)
-    alias shader_module_glsl_descriptor = Self(0x00030004)
-    alias supported_limits_extras = Self(0x00030005)
-    alias instance_extras = Self(0x00030006)
-    alias bind_group_entry_extras = Self(0x00030007)
-    alias bind_group_layout_entry_extras = Self(0x00030008)
-    alias query_set_descriptor_extras = Self(0x00030009)
-    alias surface_configuration_extras = Self(0x0003000A)
+    comptime device_extras = Self(0x00030001)
+    comptime required_limits_extras = Self(0x00030002)
+    comptime pipeline_layout_extras = Self(0x00030003)
+    comptime shader_module_glsl_descriptor = Self(0x00030004)
+    comptime supported_limits_extras = Self(0x00030005)
+    comptime instance_extras = Self(0x00030006)
+    comptime bind_group_entry_extras = Self(0x00030007)
+    comptime bind_group_layout_entry_extras = Self(0x00030008)
+    comptime query_set_descriptor_extras = Self(0x00030009)
+    comptime surface_configuration_extras = Self(0x0003000A)
 
 
 @fieldwise_init
@@ -1926,44 +1926,44 @@ struct NativeFeature(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias push_constants = Self(0x00030001)
-    alias texture_adapter_specific_format_features = Self(0x00030002)
-    alias multi_draw_indirect = Self(0x00030003)
-    alias multi_draw_indirect_count = Self(0x00030004)
-    alias vertex_writable_storage = Self(0x00030005)
-    alias texture_binding_array = Self(0x00030006)
-    alias sampled_texture_and_storage_buffer_array_non_uniform_indexing = Self(
+    comptime push_constants = Self(0x00030001)
+    comptime texture_adapter_specific_format_features = Self(0x00030002)
+    comptime multi_draw_indirect = Self(0x00030003)
+    comptime multi_draw_indirect_count = Self(0x00030004)
+    comptime vertex_writable_storage = Self(0x00030005)
+    comptime texture_binding_array = Self(0x00030006)
+    comptime sampled_texture_and_storage_buffer_array_non_uniform_indexing = Self(
         0x00030007
     )
-    alias pipeline_statistics_query = Self(0x00030008)
-    alias storage_resource_binding_array = Self(0x00030009)
-    alias partially_bound_binding_array = Self(0x0003000A)
-    alias texture_format_16_bit_norm = Self(0x0003000B)
-    alias texture_compression_astc_hdr = Self(0x0003000C)
+    comptime pipeline_statistics_query = Self(0x00030008)
+    comptime storage_resource_binding_array = Self(0x00030009)
+    comptime partially_bound_binding_array = Self(0x0003000A)
+    comptime texture_format_16_bit_norm = Self(0x0003000B)
+    comptime texture_compression_astc_hdr = Self(0x0003000C)
     # TODO: requires wgpu.h api change
-    # alias timestamp_query_inside_passes = Self(0x0003000D)
-    alias mappable_primary_buffers = Self(0x0003000E)
-    alias buffer_binding_array = Self(0x0003000F)
-    alias uniform_buffer_and_storage_texture_array_non_uniform_indexing = Self(
+    # comptime timestamp_query_inside_passes = Self(0x0003000D)
+    comptime mappable_primary_buffers = Self(0x0003000E)
+    comptime buffer_binding_array = Self(0x0003000F)
+    comptime uniform_buffer_and_storage_texture_array_non_uniform_indexing = Self(
         0x00030010
     )
     # TODO: requires wgpu.h api change
-    # alias address_mode_clamp_to_zero = Self(0x00030011)
-    # alias address_mode_clamp_to_border = Self(0x00030012)
-    # alias polygon_mode_line = Self(0x00030013)
-    # alias polygon_mode_point = Self(0x00030014)
-    # alias conservative_rasterization = Self(0x00030015)
-    # alias clear_texture = Self(0x00030016)
-    # alias spirv_shader_passthrough = Self(0x00030017)
-    # alias multiview = Self(0x00030018)
-    alias vertex_attribute_64_bit = Self(0x00030019)
-    alias texture_format_nv_12 = Self(0x0003001A)
-    alias ray_tracing_acceleration_structure = Self(0x0003001B)
-    alias ray_query = Self(0x0003001C)
-    alias shader_f64 = Self(0x0003001D)
-    alias shader_i16 = Self(0x0003001E)
-    alias shader_primitive_index = Self(0x0003001F)
-    alias shader_early_depth_test = Self(0x00030020)
+    # comptime address_mode_clamp_to_zero = Self(0x00030011)
+    # comptime address_mode_clamp_to_border = Self(0x00030012)
+    # comptime polygon_mode_line = Self(0x00030013)
+    # comptime polygon_mode_point = Self(0x00030014)
+    # comptime conservative_rasterization = Self(0x00030015)
+    # comptime clear_texture = Self(0x00030016)
+    # comptime spirv_shader_passthrough = Self(0x00030017)
+    # comptime multiview = Self(0x00030018)
+    comptime vertex_attribute_64_bit = Self(0x00030019)
+    comptime texture_format_nv_12 = Self(0x0003001A)
+    comptime ray_tracing_acceleration_structure = Self(0x0003001B)
+    comptime ray_query = Self(0x0003001C)
+    comptime shader_f64 = Self(0x0003001D)
+    comptime shader_i16 = Self(0x0003001E)
+    comptime shader_primitive_index = Self(0x0003001F)
+    comptime shader_early_depth_test = Self(0x00030020)
 
 
 @fieldwise_init
@@ -1974,12 +1974,12 @@ struct LogLevel(Copyable, EqualityComparable, ImplicitlyCopyable, Movable):
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias off = Self(0x00000000)
-    alias error = Self(0x00000001)
-    alias warn = Self(0x00000002)
-    alias info = Self(0x00000003)
-    alias debug = Self(0x00000004)
-    alias trace = Self(0x00000005)
+    comptime off = Self(0x00000000)
+    comptime error = Self(0x00000001)
+    comptime warn = Self(0x00000002)
+    comptime info = Self(0x00000003)
+    comptime debug = Self(0x00000004)
+    comptime trace = Self(0x00000005)
 
 
 @fieldwise_init
@@ -1993,11 +1993,11 @@ struct NativeTextureFormat(
         return self.value == rhs.value
 
     # From Features::TEXTURE_FORMAT_16BIT_NORM
-    alias r_16_unorm = Self(0x00030001)
-    alias r_16_snorm = Self(0x00030002)
-    alias rg_16_unorm = Self(0x00030003)
-    alias rg_16_snorm = Self(0x00030004)
-    alias rgba_16_unorm = Self(0x00030005)
-    alias rgba_16_snorm = Self(0x00030006)
+    comptime r_16_unorm = Self(0x00030001)
+    comptime r_16_snorm = Self(0x00030002)
+    comptime rg_16_unorm = Self(0x00030003)
+    comptime rg_16_snorm = Self(0x00030004)
+    comptime rgba_16_unorm = Self(0x00030005)
+    comptime rgba_16_snorm = Self(0x00030006)
     # From Features::TEXTURE_FORMAT_NV12
-    alias nv_12 = Self(0x00030007)
+    comptime nv_12 = Self(0x00030007)

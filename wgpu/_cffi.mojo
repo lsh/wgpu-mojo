@@ -36,7 +36,7 @@ struct _AdapterImpl:
     pass
 
 
-alias WGPUAdapter = FFIPointer[_AdapterImpl, mut=True]
+comptime WGPUAdapter = FFIPointer[_AdapterImpl, mut=True]
 
 
 fn adapter_release(handle: WGPUAdapter):
@@ -113,7 +113,7 @@ struct _BindGroupImpl:
     pass
 
 
-alias WGPUBindGroup = FFIPointer[_BindGroupImpl, mut=True]
+comptime WGPUBindGroup = FFIPointer[_BindGroupImpl, mut=True]
 
 
 fn bind_group_release(handle: WGPUBindGroup):
@@ -135,7 +135,7 @@ struct _BindGroupLayoutImpl:
     pass
 
 
-alias WGPUBindGroupLayout = FFIPointer[_BindGroupLayoutImpl, mut=True]
+comptime WGPUBindGroupLayout = FFIPointer[_BindGroupLayoutImpl, mut=True]
 
 
 fn bind_group_layout_release(handle: WGPUBindGroupLayout):
@@ -159,7 +159,7 @@ struct _BufferImpl:
     pass
 
 
-alias WGPUBuffer = FFIPointer[_BufferImpl, mut=True]
+comptime WGPUBuffer = FFIPointer[_BufferImpl, mut=True]
 
 
 fn buffer_release(handle: WGPUBuffer):
@@ -283,7 +283,7 @@ struct _CommandBufferImpl:
     pass
 
 
-alias WGPUCommandBuffer = FFIPointer[_CommandBufferImpl, mut=True]
+comptime WGPUCommandBuffer = FFIPointer[_CommandBufferImpl, mut=True]
 
 
 fn command_buffer_release(handle: WGPUCommandBuffer):
@@ -307,7 +307,7 @@ struct _CommandEncoderImpl:
     pass
 
 
-alias WGPUCommandEncoder = FFIPointer[_CommandEncoderImpl, mut=True]
+comptime WGPUCommandEncoder = FFIPointer[_CommandEncoderImpl, mut=True]
 
 
 fn command_encoder_release(handle: WGPUCommandEncoder):
@@ -556,7 +556,7 @@ struct _ComputePassEncoderImpl:
     pass
 
 
-alias WGPUComputePassEncoder = FFIPointer[_ComputePassEncoderImpl, mut=True]
+comptime WGPUComputePassEncoder = FFIPointer[_ComputePassEncoderImpl, mut=True]
 
 
 fn compute_pass_encoder_release(handle: WGPUComputePassEncoder):
@@ -622,7 +622,7 @@ fn compute_pass_encoder_set_bind_group(
     handle: WGPUComputePassEncoder,
     group_index: UInt32,
     dynamic_offset_count: Int,
-    dynamic_offsets: FFIPointer[UInt32, mut=True],
+    dynamic_offsets: FFIPointer[UInt32, mut=False],
     group: WGPUBindGroup = {},
 ) -> None:
     """
@@ -704,7 +704,7 @@ struct _ComputePipelineImpl:
     pass
 
 
-alias WGPUComputePipeline = FFIPointer[_ComputePipelineImpl, mut=True]
+comptime WGPUComputePipeline = FFIPointer[_ComputePipelineImpl, mut=True]
 
 
 fn compute_pipeline_release(handle: WGPUComputePipeline):
@@ -742,7 +742,7 @@ struct _DeviceImpl:
     pass
 
 
-alias WGPUDevice = FFIPointer[_DeviceImpl, mut=True]
+comptime WGPUDevice = FFIPointer[_DeviceImpl, mut=True]
 
 
 fn device_release(handle: WGPUDevice):
@@ -1064,7 +1064,7 @@ struct _InstanceImpl:
     pass
 
 
-alias WGPUInstance = FFIPointer[_InstanceImpl, mut=True]
+comptime WGPUInstance = FFIPointer[_InstanceImpl, mut=True]
 
 
 fn instance_release(handle: WGPUInstance):
@@ -1139,7 +1139,7 @@ struct _PipelineLayoutImpl:
     pass
 
 
-alias WGPUPipelineLayout = FFIPointer[_PipelineLayoutImpl, mut=True]
+comptime WGPUPipelineLayout = FFIPointer[_PipelineLayoutImpl, mut=True]
 
 
 fn pipeline_layout_release(handle: WGPUPipelineLayout):
@@ -1163,7 +1163,7 @@ struct _QuerySetImpl:
     pass
 
 
-alias WGPUQuerySet = FFIPointer[_QuerySetImpl, mut=True]
+comptime WGPUQuerySet = FFIPointer[_QuerySetImpl, mut=True]
 
 
 fn query_set_release(handle: WGPUQuerySet):
@@ -1216,7 +1216,7 @@ struct _QueueImpl:
     pass
 
 
-alias WGPUQueue = FFIPointer[_QueueImpl, mut=True]
+comptime WGPUQueue = FFIPointer[_QueueImpl, mut=True]
 
 
 fn queue_release(handle: WGPUQueue):
@@ -1226,7 +1226,7 @@ fn queue_release(handle: WGPUQueue):
 fn queue_submit(
     handle: WGPUQueue,
     command_count: Int,
-    commands: FFIPointer[WGPUCommandBuffer, mut=True],
+    commands: FFIPointer[WGPUCommandBuffer, mut=False],
 ) -> None:
     """
     TODO
@@ -1316,7 +1316,7 @@ struct _RenderBundleImpl:
     pass
 
 
-alias WGPURenderBundle = FFIPointer[_RenderBundleImpl, mut=True]
+comptime WGPURenderBundle = FFIPointer[_RenderBundleImpl, mut=True]
 
 
 fn render_bundle_release(handle: WGPURenderBundle):
@@ -1340,7 +1340,9 @@ struct _RenderBundleEncoderImpl:
     pass
 
 
-alias WGPURenderBundleEncoder = FFIPointer[_RenderBundleEncoderImpl, mut=True]
+comptime WGPURenderBundleEncoder = FFIPointer[
+    _RenderBundleEncoderImpl, mut=True
+]
 
 
 fn render_bundle_encoder_release(handle: WGPURenderBundleEncoder):
@@ -1367,7 +1369,7 @@ fn render_bundle_encoder_set_bind_group(
     handle: WGPURenderBundleEncoder,
     group_index: UInt32,
     dynamic_offset_count: Int,
-    dynamic_offsets: FFIPointer[UInt32, mut=True],
+    dynamic_offsets: FFIPointer[UInt32, mut=False],
     group: WGPUBindGroup = {},
 ) -> None:
     """
@@ -1583,7 +1585,7 @@ struct _RenderPassEncoderImpl:
     pass
 
 
-alias WGPURenderPassEncoder = FFIPointer[_RenderPassEncoderImpl, mut=True]
+comptime WGPURenderPassEncoder = FFIPointer[_RenderPassEncoderImpl, mut=True]
 
 
 fn render_pass_encoder_release(handle: WGPURenderPassEncoder):
@@ -1610,7 +1612,7 @@ fn render_pass_encoder_set_bind_group(
     handle: WGPURenderPassEncoder,
     group_index: UInt32,
     dynamic_offset_count: Int,
-    dynamic_offsets: FFIPointer[UInt32, mut=True],
+    dynamic_offsets: FFIPointer[UInt32, mut=False],
     group: WGPUBindGroup = {},
 ) -> None:
     """
@@ -1715,7 +1717,7 @@ fn render_pass_encoder_draw_indexed_indirect(
 fn render_pass_encoder_execute_bundles(
     handle: WGPURenderPassEncoder,
     bundle_count: Int,
-    bundles: FFIPointer[WGPURenderBundle, mut=True],
+    bundles: FFIPointer[WGPURenderBundle, mut=False],
 ) -> None:
     """
     TODO
@@ -1938,7 +1940,7 @@ struct _RenderPipelineImpl:
     pass
 
 
-alias WGPURenderPipeline = FFIPointer[_RenderPipelineImpl, mut=True]
+comptime WGPURenderPipeline = FFIPointer[_RenderPipelineImpl, mut=True]
 
 
 fn render_pipeline_release(handle: WGPURenderPipeline):
@@ -1976,7 +1978,7 @@ struct _SamplerImpl:
     pass
 
 
-alias WGPUSampler = FFIPointer[_SamplerImpl, mut=True]
+comptime WGPUSampler = FFIPointer[_SamplerImpl, mut=True]
 
 
 fn sampler_release(handle: WGPUSampler):
@@ -1998,7 +2000,7 @@ struct _ShaderModuleImpl:
     pass
 
 
-alias WGPUShaderModule = FFIPointer[_ShaderModuleImpl, mut=True]
+comptime WGPUShaderModule = FFIPointer[_ShaderModuleImpl, mut=True]
 
 
 fn shader_module_release(handle: WGPUShaderModule):
@@ -2043,7 +2045,7 @@ struct _SurfaceImpl:
     pass
 
 
-alias WGPUSurface = FFIPointer[_SurfaceImpl, mut=True]
+comptime WGPUSurface = FFIPointer[_SurfaceImpl, mut=True]
 
 
 fn surface_release(handle: WGPUSurface):
@@ -2128,7 +2130,7 @@ struct _TextureImpl:
     pass
 
 
-alias WGPUTexture = FFIPointer[_TextureImpl, mut=True]
+comptime WGPUTexture = FFIPointer[_TextureImpl, mut=True]
 
 
 fn texture_release(handle: WGPUTexture):
@@ -2260,7 +2262,7 @@ struct _TextureViewImpl:
     pass
 
 
-alias WGPUTextureView = FFIPointer[_TextureViewImpl, mut=True]
+comptime WGPUTextureView = FFIPointer[_TextureViewImpl, mut=True]
 
 
 fn texture_view_release(handle: WGPUTextureView):
@@ -2352,7 +2354,7 @@ struct WGPUDeviceDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var next_in_chain: FFIPointer[ChainedStruct, mut=True]
     var label: FFIPointer[Int8, mut=False]
     var required_feature_count: Int
-    var required_features: FFIPointer[FeatureName, mut=True]
+    var required_features: FFIPointer[FeatureName, mut=False]
     var required_limits: FFIPointer[WGPURequiredLimits, mut=True]
     var default_queue: WGPUQueueDescriptor
     var device_lost_callback: FFIPointer[NoneType, mut=True]
@@ -2364,7 +2366,7 @@ struct WGPUDeviceDescriptor(Copyable, ImplicitlyCopyable, Movable):
         next_in_chain: FFIPointer[ChainedStruct, mut=True] = {},
         label: FFIPointer[Int8, mut=False] = {},
         required_feature_count: Int = Int(),
-        required_features: FFIPointer[FeatureName, mut=True] = {},
+        required_features: FFIPointer[FeatureName, mut=False] = {},
         required_limits: FFIPointer[WGPURequiredLimits, mut=True] = {},
         var default_queue: WGPUQueueDescriptor = {},
         device_lost_callback: FFIPointer[NoneType, mut=True] = {},
@@ -2423,7 +2425,7 @@ struct WGPUBindGroupDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var label: FFIPointer[Int8, mut=False]
     var layout: WGPUBindGroupLayout
     var entrie_count: Int
-    var entries: FFIPointer[WGPUBindGroupEntry, mut=True]
+    var entries: FFIPointer[WGPUBindGroupEntry, mut=False]
 
     fn __init__(
         out self,
@@ -2431,7 +2433,7 @@ struct WGPUBindGroupDescriptor(Copyable, ImplicitlyCopyable, Movable):
         label: FFIPointer[Int8, mut=False] = {},
         layout: WGPUBindGroupLayout = {},
         entrie_count: Int = Int(),
-        entries: FFIPointer[WGPUBindGroupEntry, mut=True] = {},
+        entries: FFIPointer[WGPUBindGroupEntry, mut=False] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -2511,22 +2513,22 @@ struct WGPUSurfaceCapabilities(Copyable, ImplicitlyCopyable, Movable):
     var next_in_chain: FFIPointer[ChainedStructOut, mut=True]
     var usages: TextureUsage
     var format_count: Int
-    var formats: FFIPointer[TextureFormat, mut=True]
+    var formats: FFIPointer[TextureFormat, mut=False]
     var present_mode_count: Int
-    var present_modes: FFIPointer[PresentMode, mut=True]
+    var present_modes: FFIPointer[PresentMode, mut=False]
     var alpha_mode_count: Int
-    var alpha_modes: FFIPointer[CompositeAlphaMode, mut=True]
+    var alpha_modes: FFIPointer[CompositeAlphaMode, mut=False]
 
     fn __init__(
         out self,
         next_in_chain: FFIPointer[ChainedStructOut, mut=True] = {},
         usages: TextureUsage = TextureUsage(0),
         format_count: Int = Int(),
-        formats: FFIPointer[TextureFormat, mut=True] = {},
+        formats: FFIPointer[TextureFormat, mut=False] = {},
         present_mode_count: Int = Int(),
-        present_modes: FFIPointer[PresentMode, mut=True] = {},
+        present_modes: FFIPointer[PresentMode, mut=False] = {},
         alpha_mode_count: Int = Int(),
-        alpha_modes: FFIPointer[CompositeAlphaMode, mut=True] = {},
+        alpha_modes: FFIPointer[CompositeAlphaMode, mut=False] = {},
     ):
         self.next_in_chain = next_in_chain
         self.usages = usages
@@ -2548,7 +2550,7 @@ struct WGPUSurfaceConfiguration(Copyable, ImplicitlyCopyable, Movable):
     var format: TextureFormat
     var usage: TextureUsage
     var view_format_count: Int
-    var view_formats: FFIPointer[TextureFormat, mut=True]
+    var view_formats: FFIPointer[TextureFormat, mut=False]
     var alpha_mode: CompositeAlphaMode
     var width: UInt32
     var height: UInt32
@@ -2561,7 +2563,7 @@ struct WGPUSurfaceConfiguration(Copyable, ImplicitlyCopyable, Movable):
         format: TextureFormat = TextureFormat(0),
         usage: TextureUsage = TextureUsage(0),
         view_format_count: Int = Int(),
-        view_formats: FFIPointer[TextureFormat, mut=True] = {},
+        view_formats: FFIPointer[TextureFormat, mut=False] = {},
         alpha_mode: CompositeAlphaMode = CompositeAlphaMode(0),
         width: UInt32 = {},
         height: UInt32 = {},
@@ -2642,14 +2644,14 @@ struct WGPUBindGroupLayoutDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var next_in_chain: FFIPointer[ChainedStruct, mut=True]
     var label: FFIPointer[Int8, mut=False]
     var entrie_count: Int
-    var entries: FFIPointer[WGPUBindGroupLayoutEntry, mut=True]
+    var entries: FFIPointer[WGPUBindGroupLayoutEntry, mut=False]
 
     fn __init__(
         out self,
         next_in_chain: FFIPointer[ChainedStruct, mut=True] = {},
         label: FFIPointer[Int8, mut=False] = {},
         entrie_count: Int = Int(),
-        entries: FFIPointer[WGPUBindGroupLayoutEntry, mut=True] = {},
+        entries: FFIPointer[WGPUBindGroupLayoutEntry, mut=False] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -2787,13 +2789,13 @@ struct WGPUCompilationInfo(Copyable, ImplicitlyCopyable, Movable):
 
     var next_in_chain: FFIPointer[ChainedStruct, mut=True]
     var message_count: Int
-    var messages: FFIPointer[WGPUCompilationMessage, mut=True]
+    var messages: FFIPointer[WGPUCompilationMessage, mut=False]
 
     fn __init__(
         out self,
         next_in_chain: FFIPointer[ChainedStruct, mut=True] = {},
         message_count: Int = Int(),
-        messages: FFIPointer[WGPUCompilationMessage, mut=True] = {},
+        messages: FFIPointer[WGPUCompilationMessage, mut=False] = {},
     ):
         self.next_in_chain = next_in_chain
         self.message_count = message_count
@@ -3183,14 +3185,14 @@ struct WGPUVertexBufferLayout(Copyable, ImplicitlyCopyable, Movable):
     var array_stride: UInt64
     var step_mode: VertexStepMode
     var attribute_count: Int
-    var attributes: FFIPointer[WGPUVertexAttribute, mut=True]
+    var attributes: FFIPointer[WGPUVertexAttribute, mut=False]
 
     fn __init__(
         out self,
         array_stride: UInt64 = {},
         step_mode: VertexStepMode = VertexStepMode(0),
         attribute_count: Int = Int(),
-        attributes: FFIPointer[WGPUVertexAttribute, mut=True] = {},
+        attributes: FFIPointer[WGPUVertexAttribute, mut=False] = {},
     ):
         self.array_stride = array_stride
         self.step_mode = step_mode
@@ -3226,14 +3228,14 @@ struct WGPUPipelineLayoutDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var next_in_chain: FFIPointer[ChainedStruct, mut=True]
     var label: FFIPointer[Int8, mut=False]
     var bind_group_layout_count: Int
-    var bind_group_layouts: FFIPointer[WGPUBindGroupLayout, mut=True]
+    var bind_group_layouts: FFIPointer[WGPUBindGroupLayout, mut=False]
 
     fn __init__(
         out self,
         next_in_chain: FFIPointer[ChainedStruct, mut=True] = {},
         label: FFIPointer[Int8, mut=False] = {},
         bind_group_layout_count: Int = Int(),
-        bind_group_layouts: FFIPointer[WGPUBindGroupLayout, mut=True] = {},
+        bind_group_layouts: FFIPointer[WGPUBindGroupLayout, mut=False] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -3250,7 +3252,7 @@ struct WGPUProgrammableStageDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var module: WGPUShaderModule
     var entry_point: FFIPointer[Int8, mut=False]
     var constant_count: Int
-    var constants: FFIPointer[WGPUConstantEntry, mut=True]
+    var constants: FFIPointer[WGPUConstantEntry, mut=False]
 
     fn __init__(
         out self,
@@ -3258,7 +3260,7 @@ struct WGPUProgrammableStageDescriptor(Copyable, ImplicitlyCopyable, Movable):
         module: WGPUShaderModule = {},
         entry_point: FFIPointer[Int8, mut=False] = {},
         constant_count: Int = Int(),
-        constants: FFIPointer[WGPUConstantEntry, mut=True] = {},
+        constants: FFIPointer[WGPUConstantEntry, mut=False] = {},
     ):
         self.next_in_chain = next_in_chain
         self.module = module
@@ -3332,7 +3334,7 @@ struct WGPURenderBundleEncoderDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var next_in_chain: FFIPointer[ChainedStruct, mut=True]
     var label: FFIPointer[Int8, mut=False]
     var color_format_count: Int
-    var color_formats: FFIPointer[TextureFormat, mut=True]
+    var color_formats: FFIPointer[TextureFormat, mut=False]
     var depth_stencil_format: TextureFormat
     var sample_count: UInt32
     var depth_read_only: Bool
@@ -3343,7 +3345,7 @@ struct WGPURenderBundleEncoderDescriptor(Copyable, ImplicitlyCopyable, Movable):
         next_in_chain: FFIPointer[ChainedStruct, mut=True] = {},
         label: FFIPointer[Int8, mut=False] = {},
         color_format_count: Int = Int(),
-        color_formats: FFIPointer[TextureFormat, mut=True] = {},
+        color_formats: FFIPointer[TextureFormat, mut=False] = {},
         depth_stencil_format: TextureFormat = TextureFormat(0),
         sample_count: UInt32 = {},
         depth_read_only: Bool = False,
@@ -3439,7 +3441,7 @@ struct WGPURenderPassDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var next_in_chain: FFIPointer[ChainedStruct, mut=True]
     var label: FFIPointer[Int8, mut=False]
     var color_attachment_count: Int
-    var color_attachments: FFIPointer[WGPURenderPassColorAttachment, mut=True]
+    var color_attachments: FFIPointer[WGPURenderPassColorAttachment, mut=False]
     var depth_stencil_attachment: FFIPointer[
         WGPURenderPassDepthStencilAttachment, mut=True
     ]
@@ -3452,7 +3454,7 @@ struct WGPURenderPassDescriptor(Copyable, ImplicitlyCopyable, Movable):
         label: FFIPointer[Int8, mut=False] = {},
         color_attachment_count: Int = Int(),
         color_attachments: FFIPointer[
-            WGPURenderPassColorAttachment, mut=True
+            WGPURenderPassColorAttachment, mut=False
         ] = {},
         depth_stencil_attachment: FFIPointer[
             WGPURenderPassDepthStencilAttachment, mut=True
@@ -3519,9 +3521,9 @@ struct WGPUVertexState(Copyable, ImplicitlyCopyable, Movable):
     var module: WGPUShaderModule
     var entry_point: FFIPointer[Int8, mut=False]
     var constant_count: Int
-    var constants: FFIPointer[WGPUConstantEntry, mut=True]
+    var constants: FFIPointer[WGPUConstantEntry, mut=False]
     var buffer_count: Int
-    var buffers: FFIPointer[WGPUVertexBufferLayout, mut=True]
+    var buffers: FFIPointer[WGPUVertexBufferLayout, mut=False]
 
     fn __init__(
         out self,
@@ -3529,9 +3531,9 @@ struct WGPUVertexState(Copyable, ImplicitlyCopyable, Movable):
         module: WGPUShaderModule = {},
         entry_point: FFIPointer[Int8, mut=False] = {},
         constant_count: Int = Int(),
-        constants: FFIPointer[WGPUConstantEntry, mut=True] = {},
+        constants: FFIPointer[WGPUConstantEntry, mut=False] = {},
         buffer_count: Int = Int(),
-        buffers: FFIPointer[WGPUVertexBufferLayout, mut=True] = {},
+        buffers: FFIPointer[WGPUVertexBufferLayout, mut=False] = {},
     ):
         self.next_in_chain = next_in_chain
         self.module = module
@@ -3661,9 +3663,9 @@ struct WGPUFragmentState(Copyable, ImplicitlyCopyable, Movable):
     var module: WGPUShaderModule
     var entry_point: FFIPointer[Int8, mut=False]
     var constant_count: Int
-    var constants: FFIPointer[WGPUConstantEntry, mut=True]
+    var constants: FFIPointer[WGPUConstantEntry, mut=False]
     var target_count: Int
-    var targets: FFIPointer[WGPUColorTargetState, mut=True]
+    var targets: FFIPointer[WGPUColorTargetState, mut=False]
 
     fn __init__(
         out self,
@@ -3671,9 +3673,9 @@ struct WGPUFragmentState(Copyable, ImplicitlyCopyable, Movable):
         module: WGPUShaderModule = {},
         entry_point: FFIPointer[Int8, mut=False] = {},
         constant_count: Int = Int(),
-        constants: FFIPointer[WGPUConstantEntry, mut=True] = {},
+        constants: FFIPointer[WGPUConstantEntry, mut=False] = {},
         target_count: Int = Int(),
-        targets: FFIPointer[WGPUColorTargetState, mut=True] = {},
+        targets: FFIPointer[WGPUColorTargetState, mut=False] = {},
     ):
         self.next_in_chain = next_in_chain
         self.module = module
@@ -3814,14 +3816,14 @@ struct WGPUShaderModuleDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var next_in_chain: FFIPointer[ChainedStruct, mut=True]
     var label: FFIPointer[Int8, mut=False]
     var hint_count: Int
-    var hints: FFIPointer[WGPUShaderModuleCompilationHint, mut=True]
+    var hints: FFIPointer[WGPUShaderModuleCompilationHint, mut=False]
 
     fn __init__(
         out self,
         next_in_chain: FFIPointer[ChainedStruct, mut=True] = {},
         label: FFIPointer[Int8, mut=False] = {},
         hint_count: Int = Int(),
-        hints: FFIPointer[WGPUShaderModuleCompilationHint, mut=True] = {},
+        hints: FFIPointer[WGPUShaderModuleCompilationHint, mut=False] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -4130,7 +4132,7 @@ struct WGPUTextureDescriptor(Copyable, ImplicitlyCopyable, Movable):
     var mip_level_count: UInt32
     var sample_count: UInt32
     var view_format_count: Int
-    var view_formats: FFIPointer[TextureFormat, mut=True]
+    var view_formats: FFIPointer[TextureFormat, mut=False]
 
     fn __init__(
         out self,
@@ -4143,7 +4145,7 @@ struct WGPUTextureDescriptor(Copyable, ImplicitlyCopyable, Movable):
         mip_level_count: UInt32 = {},
         sample_count: UInt32 = {},
         view_format_count: Int = Int(),
-        view_formats: FFIPointer[TextureFormat, mut=True] = {},
+        view_formats: FFIPointer[TextureFormat, mut=False] = {},
     ):
         self.next_in_chain = next_in_chain
         self.label = label
@@ -4226,14 +4228,14 @@ fn create_instance(
     ](descriptor)
 
 
-alias DeviceLostCallback = fn (
+comptime DeviceLostCallback = fn (
     DeviceLostReason,
     FFIPointer[Int8, mut=False],
     FFIPointer[NoneType, mut=True],
     FFIPointer[NoneType, mut=True],
 ) -> None
 
-alias ErrorCallback = fn (
+comptime ErrorCallback = fn (
     ErrorType,
     FFIPointer[Int8, mut=False],
     FFIPointer[NoneType, mut=True],
@@ -4356,7 +4358,7 @@ struct WGPUPipelineLayoutExtras(Copyable, ImplicitlyCopyable, Movable):
         self.push_constant_ranges = push_constant_ranges
 
 
-alias WGPUSubmissionIndex = UInt64
+comptime WGPUSubmissionIndex = UInt64
 
 
 struct WGPUWrappedSubmissionIndex(Copyable, ImplicitlyCopyable, Movable):
@@ -4592,7 +4594,7 @@ struct WGPUSurfaceConfigurationExtras(Copyable, ImplicitlyCopyable, Movable):
         self.desired_maximum_frame_latency = desired_maximum_frame_latency
 
 
-alias WGPULogCallback = fn (
+comptime WGPULogCallback = fn (
     level: LogLevel,
     message: FFIPointer[Int8, mut=True],
     userdata: FFIPointer[NoneType, mut=True],
