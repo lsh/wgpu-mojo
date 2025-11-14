@@ -1014,9 +1014,7 @@ struct Device(Movable):
                     array_stride=buf.array_stride,
                     step_mode=buf.step_mode,
                     attribute_count=len(buf.attributes),
-                    attributes=_c.FFIPointer[mut=True](
-                        buf.attributes.unsafe_ptr()
-                    ),
+                    attributes=buf.attributes.unsafe_ptr(),
                 )
             )
         frag = _c.WGPUFragmentState()
@@ -1780,7 +1778,7 @@ struct RenderPass[encoder: ImmutOrigin](Movable):
             self._handle,
             index,
             len(dynamic_offsets),
-            _c.FFIPointer[mut=True](dynamic_offsets.unsafe_ptr()),
+            dynamic_offsets.unsafe_ptr(),
             group._handle,
         )
 

@@ -264,7 +264,7 @@ fn main() raises:
 
             command = encoder^.finish()
 
-            queue.submit(command)
+            queue.submit(command^)
             surface.present()
             u_time += 0.05
 
