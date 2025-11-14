@@ -66,7 +66,7 @@ struct Adapter(Movable):
         TODO
         """
 
-        user_data = (_c.WGPUDevice(), False)
+        user_data = (_c.WGPUDevice(), False, String(""))
 
         fn _req(
             status: RequestDeviceStatus,
@@ -75,19 +75,20 @@ struct Adapter(Movable):
             user_data: _c.FFIPointer[NoneType, mut=True],
         ):
             u_data = user_data.unsafe_ptr().bitcast[
-                Tuple[_c.WGPUDevice, Bool]
+                Tuple[_c.WGPUDevice, Bool, String]
             ]()
             u_data[][0] = device
             u_data[][1] = True
+            if message:
+                u_data[][2] = String(message.unsafe_ptr())
 
-        var lim = _c.WGPURequiredLimits(limits=descriptor.limits)
         var desc = _c.WGPUDeviceDescriptor(
             label=descriptor.label.unsafe_cstr_ptr(),
             required_feature_count=len(
                 descriptor.required_features.value()
             ) if descriptor.required_features else 0,
             required_features=descriptor.required_features.value().unsafe_ptr() if descriptor.required_features else {},
-            required_limits=UnsafePointer(to=lim),
+            required_limits={},
         )
 
         _c.adapter_request_device(
@@ -96,24 +97,27 @@ struct Adapter(Movable):
             UnsafePointer(to=user_data).bitcast[NoneType](),
             UnsafePointer(to=desc),
         )
-        _ = lim^
         device = user_data[0]
+        error_msg = user_data[2]
         debug_assert(user_data[1], "Expected device callback to be done")
 
         _ = user_data^
+        _ = desc^
         if not device:
+            if error_msg:
+                raise Error("failed to get device: " + error_msg)
             raise Error("failed to get device.")
         return Device(device)
 
 
+@fieldwise_init
 struct BindGroup(Movable):
     var _handle: _c.WGPUBindGroup
-
-    fn __init__(out self, unsafe_ptr: _c.WGPUBindGroup):
-        self._handle = unsafe_ptr
+    var _layout: ArcPointer[BindGroupLayout]
 
     fn __moveinit__(out self, deinit rhs: Self):
         self._handle = rhs._handle
+        self._layout = rhs._layout
         rhs._handle = _c.WGPUBindGroup()
 
     fn __del__(deinit self):
@@ -256,7 +260,7 @@ struct Buffer[T: Copyable & Movable](Movable, Sized):
 struct MappedBuffer[T: Copyable & Movable, origin: MutOrigin](
     Copyable, Movable, Sized
 ):
-    var _buffer: Pointer[Buffer[T], origin]
+    var _buffer_handle: _c.WGPUBuffer
     var _ptr: UnsafePointer[T, MutOrigin.external]
     var _offset: Int
     var _size: Int
@@ -268,7 +272,7 @@ struct MappedBuffer[T: Copyable & Movable, origin: MutOrigin](
         offset: Int,
         size: Int,
     ):
-        self._buffer = Pointer(to=buffer)
+        self._buffer_handle = buffer._handle
         self._ptr = ptr
         self._offset = offset
         self._size = size
@@ -283,7 +287,7 @@ struct MappedBuffer[T: Copyable & Movable, origin: MutOrigin](
         return self._ptr[i]
 
     fn __del__(deinit self):
-        self._buffer[].unmap()
+        _c.buffer_unmap(self._buffer_handle)
 
     fn __len__(self) -> Int:
         return self._size - self._offset
@@ -349,7 +353,7 @@ struct CommandEncoder(Movable):
 
     fn begin_render_pass[
         tex: ImmutOrigin
-    ](mut self, var descriptor: RenderPassDescriptor[tex]) -> RenderPass[
+    ](mut self, mut descriptor: RenderPassDescriptor[tex]) -> RenderPass[
         origin_of(self)
     ]:
         """
@@ -784,9 +788,9 @@ struct Device(Movable):
         handle = _c.device_create_bind_group(
             self._handle, UnsafePointer(to=desc)
         )
-        _ = entries
-        _ = desc
-        return BindGroup(handle)
+        _ = desc^
+        _ = entries^
+        return BindGroup(handle, descriptor.layout)
 
     fn create_bind_group_layout(
         self, var descriptor: BindGroupLayoutDescriptor
@@ -834,7 +838,8 @@ struct Device(Movable):
                 self._handle, UnsafePointer(to=desc)
             )
         )
-        _ = desc
+        _ = desc^
+        _ = entries^
         return layout^
 
     fn create_buffer[
@@ -844,18 +849,20 @@ struct Device(Movable):
         TODO
         """
 
-        desc = _c.WGPUBufferDescriptor(
+        var desc = _c.WGPUBufferDescriptor(
             label=descriptor.label.unsafe_cstr_ptr(),
             usage=descriptor.usage,
             size=descriptor.size * sys.size_of[T](),
             mapped_at_creation=descriptor.mapped_at_creation,
         )
-        return Buffer[T](
+        var buffer = Buffer[T](
             _c.device_create_buffer(self._handle, UnsafePointer(to=desc))
         )
+        _ = desc^
+        return buffer^
 
     fn create_command_encoder(
-        self, var descriptor: CommandEncoderDescriptor
+        self, mut descriptor: CommandEncoderDescriptor
     ) -> CommandEncoder:
         """
         TODO
@@ -869,7 +876,7 @@ struct Device(Movable):
                 self._handle, UnsafePointer(to=desc)
             )
         )
-        _ = desc
+        _ = desc^
         return encoder^
 
     # fn device_create_compute_pipeline(
@@ -938,10 +945,11 @@ struct Device(Movable):
                 self._handle, UnsafePointer(to=desc)
             )
         )
-        _ = desc
+        _ = desc^
+        _ = layouts^
         return layout^
 
-    fn create_query_set(self, var descriptor: QuerySetDescriptor) -> QuerySet:
+    fn create_query_set(self, mut descriptor: QuerySetDescriptor) -> QuerySet:
         """
         TODO
         """
@@ -1021,7 +1029,7 @@ struct Device(Movable):
         targets = List[_c.WGPUColorTargetState]()
         if descriptor.fragment:
             for ref target in descriptor.fragment.value().targets:
-                blend = UnsafePointer[mut=True](to=target.blend.value())
+                blend = UnsafePointer(to=target.blend.value())
                 targets.append(
                     _c.WGPUColorTargetState(
                         format=target.format,
@@ -1077,9 +1085,12 @@ struct Device(Movable):
             self._handle, UnsafePointer(to=desc)
         )
         _ = desc
+        _ = buffers
+        _ = frag
+        _ = targets
         return RenderPipeline(handle)
 
-    fn create_sampler(self, var descriptor: SamplerDescriptor) -> Sampler:
+    fn create_sampler(self, mut descriptor: SamplerDescriptor) -> Sampler:
         """
         TODO
         """
@@ -1128,7 +1139,7 @@ struct Device(Movable):
             raise Error("failed to create shader module.")
         return ShaderModule(handle)
 
-    fn create_texture(self, var descriptor: TextureDescriptor) -> Texture:
+    fn create_texture(self, mut descriptor: TextureDescriptor) -> Texture:
         """
         TODO
         """
@@ -1222,7 +1233,7 @@ struct Instance(Movable):
             chain=_c.ChainedStruct(
                 s_type=SType(NativeSType.instance_extras.value)
             ),
-            backends=InstanceBackend.metal,
+            backends=InstanceBackend.all,
             flags=InstanceFlag.default,
         )
 
@@ -1427,10 +1438,7 @@ struct Queue(Movable):
         if self._handle:
             _c.queue_release(self._handle)
 
-    fn submit(
-        mut self,
-        var command: CommandBuffer,
-    ) -> None:
+    fn submit(mut self, command: CommandBuffer) -> None:
         """
         TODO
         """
@@ -1458,7 +1466,12 @@ struct Queue(Movable):
 
     fn write_buffer[
         T: Copyable & Movable
-    ](mut self, buffer: Buffer[T], offset: UInt64, data: Span[T],) -> None:
+    ](
+        mut self,
+        buffer: Buffer[T],
+        offset: UInt64,
+        data: Span[mut=True, T],
+    ) -> None:
         """
         TODO
         """
@@ -1466,7 +1479,7 @@ struct Queue(Movable):
             self._handle,
             buffer._handle,
             offset,
-            _c.FFIPointer[mut=True](data.unsafe_ptr().bitcast[NoneType]()),
+            data.unsafe_ptr().bitcast[NoneType](),
             len(data) * sys.size_of[T](),
         )
 
@@ -2176,20 +2189,22 @@ struct Surface:
         """
         TODO
         """
-        caps = _c.WGPUSurfaceCapabilities()
+        var caps = _c.WGPUSurfaceCapabilities()
         _c.surface_get_capabilities(
             self._handle,
             adapter._handle,
             UnsafePointer(to=caps),
         )
-        return SurfaceCapabilities(caps)
+        return SurfaceCapabilities(caps^)
 
-    fn get_current_texture(self) -> SurfaceTexture:
+    fn get_current_texture(self) raises -> SurfaceTexture:
         """
         TODO
         """
         tex = _c.WGPUSurfaceTexture()
         _c.surface_get_current_texture(self._handle, UnsafePointer(to=tex))
+        if tex.status != wgpu.SurfaceGetCurrentTextureStatus.success:
+            raise Error("failed to get surface tex")
         return SurfaceTexture(
             texture=Texture(tex.texture),
             suboptimal=tex.suboptimal,
@@ -2229,7 +2244,7 @@ struct Texture(Movable):
         if self._handle:
             _c.texture_release(self._handle)
 
-    fn create_view(self, var descriptor: TextureViewDescriptor) -> TextureView:
+    fn create_view(self, mut descriptor: TextureViewDescriptor) -> TextureView:
         """
         TODO
         """
@@ -2380,9 +2395,7 @@ fn _glfw_get_wgpu_surface(
                 fn (
                     _c.FFIPointer[Int8, mut=False]
                 ) -> _c.FFIPointer[NoneType, mut=True]
-            ]("sel_registerName")(
-                _c.FFIPointer[mut=False](name.unsafe_cstr_ptr().as_immutable())
-            )
+            ]("sel_registerName")(name.unsafe_cstr_ptr().as_immutable())
 
         @parameter
         fn get_class(mut name: String) -> _c.FFIPointer[NoneType, mut=True]:
@@ -2390,7 +2403,7 @@ fn _glfw_get_wgpu_surface(
                 fn (
                     _c.FFIPointer[Int8, mut=False]
                 ) -> _c.FFIPointer[NoneType, mut=True]
-            ]("objc_getClass")(_c.FFIPointer[mut=False](name.unsafe_cstr_ptr()))
+            ]("objc_getClass")(name.unsafe_cstr_ptr())
 
         objc_msg_send = objc.get_function[
             fn (
@@ -2443,7 +2456,8 @@ fn _glfw_get_wgpu_surface(
         var surf = _c.instance_create_surface(
             instance, UnsafePointer(to=descriptor)
         )
-        _ = from_metal_layer^  # keep layer alive
+        _ = descriptor^
+        _ = from_metal_layer^
         return surf
     # elif platform == glfw.Platform.x11:
     #     pass

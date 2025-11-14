@@ -16,6 +16,24 @@ backend = { name = "pixi-build-rattler-build", version = "*" }
 mojo = ">=0.25.7.0.dev2025110305,<0.26"
 max = ">=25.7.0.dev2025110305,<26"
 glfw-mojo = { git = "https://github.com/lsh/glfw-mojo" }
+wgpu-native = ">=22.1.0,<23"
+glfw = ">=3.4,<4"
+
+[activation.env]
+MODULAR_MOJO_MAX_SYSTEM_LIBS = "-lm,-L.pixi/envs/default/lib/,-lglfw,-lwgpu_native"
+RUST_LOG = "debug"
+RUST_BACKTRACE = "full"
 
 [tasks]
 gen = "python gen_c.py webgpu.json && mojo format wgpu"
+setup = { cmd = "mkdir -p build" }
+build = { cmd = """
+mojo build main.mojo -o build/main && \
+OLD_PATH=$(otool -L build/main | grep wgpu_native | awk '{print $1}') && \
+install_name_tool -change \
+  $OLD_PATH \
+  @rpath/libwgpu_native.dylib \
+  build/main && \
+install_name_tool -add_rpath @loader_path/../.pixi/envs/default/lib build/main
+""", depends-on = ["setup"] }
+exec = { cmd = "./build/main", depends-on = ["build"] }

@@ -6,6 +6,7 @@ from .bitflags import *
 from .constants import *
 
 
+@register_passable("trivial")
 struct ChainedStruct(Copyable, ImplicitlyCopyable, Movable):
     var next: FFIPointer[Self, mut=True]
     var s_type: SType
@@ -19,6 +20,7 @@ struct ChainedStruct(Copyable, ImplicitlyCopyable, Movable):
         self.s_type = s_type
 
 
+@register_passable("trivial")
 struct ChainedStructOut(Copyable, ImplicitlyCopyable, Movable):
     var next: FFIPointer[Self, mut=True]
     var s_type: SType
