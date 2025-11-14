@@ -1222,7 +1222,7 @@ struct Instance(Movable):
             chain=_c.ChainedStruct(
                 s_type=SType(NativeSType.instance_extras.value)
             ),
-            backends=InstanceBackend.all,
+            backends=InstanceBackend.metal,
             flags=InstanceFlag.default,
         )
 
