@@ -608,11 +608,10 @@ struct MultisampleState(Copyable, Movable):
 
 @fieldwise_init
 struct FragmentState[
-    entry_mut: Bool,
-    tgt_mut: Bool, //,
+    entry_mut: Bool, //,
     mod: ImmutOrigin,
     entry: Origin[entry_mut],
-    tgt: Origin[tgt_mut],
+    tgt: MutOrigin,
 ](Copyable, Movable):
     var module: Pointer[ShaderModule, mod]
     var entry_point: StringSlice[entry]
