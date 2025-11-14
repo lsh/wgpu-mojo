@@ -230,20 +230,20 @@ struct SurfaceCapabilities(Copyable, Movable):
     fn usages(self) -> TextureUsage:
         return self._handle.usages
 
-    fn formats(self) -> Span[TextureFormat, MutOrigin.external]:
-        return Span[TextureFormat, MutOrigin.external](
+    fn formats(self) -> Span[TextureFormat, ImmutOrigin.external]:
+        return Span[TextureFormat, ImmutOrigin.external](
             ptr=self._handle.formats.unsafe_ptr(),
             length=self._handle.format_count,
         )
 
-    fn present_modes(self) -> Span[PresentMode, MutOrigin.external]:
-        return Span[PresentMode, MutOrigin.external](
+    fn present_modes(self) -> Span[PresentMode, ImmutOrigin.external]:
+        return Span[PresentMode, ImmutOrigin.external](
             ptr=self._handle.present_modes.unsafe_ptr(),
             length=self._handle.present_mode_count,
         )
 
-    fn alpha_modes(self) -> Span[CompositeAlphaMode, MutOrigin.external]:
-        return Span[CompositeAlphaMode, MutOrigin.external](
+    fn alpha_modes(self) -> Span[CompositeAlphaMode, ImmutOrigin.external]:
+        return Span[CompositeAlphaMode, ImmutOrigin.external](
             ptr=self._handle.alpha_modes.unsafe_ptr(),
             length=self._handle.alpha_mode_count,
         )
