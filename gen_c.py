@@ -318,7 +318,8 @@ def gen_parameter_type(
                 with_origin=with_origin,
             )
             if with_origin:
-                ty = f"FFIPointer[{ty}, mut=True]"
+                mutability = "True" if entry.pointer == "mutable" else "False"
+                ty = f"FFIPointer[{ty}, mut={mutability}]"
             else:
                 ty = f"FFIPointer[{ty}]"
         else:
