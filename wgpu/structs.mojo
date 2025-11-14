@@ -646,8 +646,7 @@ struct RenderPipelineDescriptor[
     ventry_mut: Bool,
     buf_mut: Bool,
     vbuf_mut: Bool,
-    fentry_mut: Bool,
-    tgt_mut: Bool, //,
+    fentry_mut: Bool, //,
     lyt: Origin[lyt_mut],
     vmod: ImmutOrigin,
     ventry: Origin[ventry_mut],
@@ -655,7 +654,7 @@ struct RenderPipelineDescriptor[
     vbuf: Origin[vbuf_mut],
     fmod: ImmutOrigin,
     fentry: Origin[fentry_mut],
-    tgt: Origin[tgt_mut],
+    tgt: MutOrigin,
 ](Copyable, Movable):
     var label: String
     var layout: Optional[Pointer[PipelineLayout, lyt]]
