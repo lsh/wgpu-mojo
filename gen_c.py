@@ -155,7 +155,9 @@ struct {entry.name.title().replace("_", "")}(Copyable, EqualityComparable, Impli
         ename = e.name.lower()
         if entry.name == "texture_view_dimension" or entry.name == "texture_dimension":
             ename = ename[::-1]
-        output += f"    alias {ename} = Self({e.value if hasattr(e, 'value') else i})\n"
+        output += (
+            f"    comptime {ename} = Self({e.value if hasattr(e, 'value') else i})\n"
+        )
         if e.doc.strip() != "TODO":
             output += f'    """{e.doc.strip()}"""\n'
     output += """\n    fn write_to(self, mut w: Some[Writer]):\n"""
@@ -206,9 +208,9 @@ struct {entry.name.title().replace("_", "")}(Copyable, EqualityComparable, Impli
     for i, e in enumerate(entry.entries):
         if hasattr(e, "value_combination"):
             combination = " | ".join(f"Self.{val}" for val in e.value_combination)
-            output += f"    alias {e.name.lower()} = {combination}\n"
+            output += f"    comptime {e.name.lower()} = {combination}\n"
         else:
-            output += f"    alias {e.name.lower()} = Self({int(math.pow(2, int(e.value) if hasattr(e, 'value') else i - 1))})\n"
+            output += f"    comptime {e.name.lower()} = Self({int(math.pow(2, int(e.value) if hasattr(e, 'value') else i - 1))})\n"
         if e.doc.strip() != "TODO":
             output += f'    """{e.doc.strip()}"""\n'
     return output
@@ -231,7 +233,7 @@ def gen_constant(entry: Constant) -> str:
         else f"""\"\"\"\n{entry.doc.strip()}\"\"\"\n"""
     )
     return f"""
-alias {entry.name.upper()} = {val}
+comptime {entry.name.upper()} = {val}
 {doc}
 """
 
@@ -437,7 +439,7 @@ def gen_callback(entry: Callback):
     params_no_default = ", ".join(
         gen_parameter_type(e, type_only=True, in_function=True) for e in args
     )
-    return f"\nalias {entry.name}_callback = fn({params_no_default}) -> None\n"
+    return f"\ncomptime {entry.name}_callback = fn({params_no_default}) -> None\n"
 
 
 def gen_object(entry: Object) -> str:
@@ -445,7 +447,7 @@ def gen_object(entry: Object) -> str:
     output = f"""
 struct _{name}Impl:
     pass
-alias WGPU{name} = FFIPointer[_{name}Impl, mut=True]
+comptime WGPU{name} = FFIPointer[_{name}Impl, mut=True]
 
 fn {entry.name}_release(handle: WGPU{name}):
     _ = external_call["wgpu{name}Release", NoneType, type_of(handle)](handle)
@@ -555,9 +557,7 @@ def gen_function_type(entry: Function) -> str:
         for e in entry.args
     )
     cb_params_arg += ", FFIPointer[NoneType, mut=True]"
-    return (
-        f"alias {entry.name.title().replace('_', '')} = fn({cb_params_arg}) -> None\n"
-    )
+    return f"comptime {entry.name.title().replace('_', '')} = fn({cb_params_arg}) -> None\n"
 
 
 if __name__ == "__main__":
@@ -578,16 +578,16 @@ struct NativeSType(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
         return self.value == rhs.value
 
     #  Start at 0003 since that's allocated range for wgpu-native
-    alias device_extras = Self(0x00030001)
-    alias required_limits_extras = Self(0x00030002)
-    alias pipeline_layout_extras = Self(0x00030003)
-    alias shader_module_glsl_descriptor = Self(0x00030004)
-    alias supported_limits_extras = Self(0x00030005)
-    alias instance_extras = Self(0x00030006)
-    alias bind_group_entry_extras = Self(0x00030007)
-    alias bind_group_layout_entry_extras = Self(0x00030008)
-    alias query_set_descriptor_extras = Self(0x00030009)
-    alias surface_configuration_extras = Self(0x0003000A)
+    comptime device_extras = Self(0x00030001)
+    comptime required_limits_extras = Self(0x00030002)
+    comptime pipeline_layout_extras = Self(0x00030003)
+    comptime shader_module_glsl_descriptor = Self(0x00030004)
+    comptime supported_limits_extras = Self(0x00030005)
+    comptime instance_extras = Self(0x00030006)
+    comptime bind_group_entry_extras = Self(0x00030007)
+    comptime bind_group_layout_entry_extras = Self(0x00030008)
+    comptime query_set_descriptor_extras = Self(0x00030009)
+    comptime surface_configuration_extras = Self(0x0003000A)
 
 
 @fieldwise_init
@@ -598,44 +598,44 @@ struct NativeFeature(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias push_constants = Self(0x00030001)
-    alias texture_adapter_specific_format_features = Self(0x00030002)
-    alias multi_draw_indirect = Self(0x00030003)
-    alias multi_draw_indirect_count = Self(0x00030004)
-    alias vertex_writable_storage = Self(0x00030005)
-    alias texture_binding_array = Self(0x00030006)
-    alias sampled_texture_and_storage_buffer_array_non_uniform_indexing = Self(
+    comptime push_constants = Self(0x00030001)
+    comptime texture_adapter_specific_format_features = Self(0x00030002)
+    comptime multi_draw_indirect = Self(0x00030003)
+    comptime multi_draw_indirect_count = Self(0x00030004)
+    comptime vertex_writable_storage = Self(0x00030005)
+    comptime texture_binding_array = Self(0x00030006)
+    comptime sampled_texture_and_storage_buffer_array_non_uniform_indexing = Self(
         0x00030007
     )
-    alias pipeline_statistics_query = Self(0x00030008)
-    alias storage_resource_binding_array = Self(0x00030009)
-    alias partially_bound_binding_array = Self(0x0003000A)
-    alias texture_format_16_bit_norm = Self(0x0003000B)
-    alias texture_compression_astc_hdr = Self(0x0003000C)
+    comptime pipeline_statistics_query = Self(0x00030008)
+    comptime storage_resource_binding_array = Self(0x00030009)
+    comptime partially_bound_binding_array = Self(0x0003000A)
+    comptime texture_format_16_bit_norm = Self(0x0003000B)
+    comptime texture_compression_astc_hdr = Self(0x0003000C)
     # TODO: requires wgpu.h api change
-    # alias timestamp_query_inside_passes = Self(0x0003000D)
-    alias mappable_primary_buffers = Self(0x0003000E)
-    alias buffer_binding_array = Self(0x0003000F)
-    alias uniform_buffer_and_storage_texture_array_non_uniform_indexing = Self(
+    # comptime timestamp_query_inside_passes = Self(0x0003000D)
+    comptime mappable_primary_buffers = Self(0x0003000E)
+    comptime buffer_binding_array = Self(0x0003000F)
+    comptime uniform_buffer_and_storage_texture_array_non_uniform_indexing = Self(
         0x00030010
     )
     # TODO: requires wgpu.h api change
-    # alias address_mode_clamp_to_zero = Self(0x00030011)
-    # alias address_mode_clamp_to_border = Self(0x00030012)
-    # alias polygon_mode_line = Self(0x00030013)
-    # alias polygon_mode_point = Self(0x00030014)
-    # alias conservative_rasterization = Self(0x00030015)
-    # alias clear_texture = Self(0x00030016)
-    # alias spirv_shader_passthrough = Self(0x00030017)
-    # alias multiview = Self(0x00030018)
-    alias vertex_attribute_64_bit = Self(0x00030019)
-    alias texture_format_nv_12 = Self(0x0003001A)
-    alias ray_tracing_acceleration_structure = Self(0x0003001B)
-    alias ray_query = Self(0x0003001C)
-    alias shader_f64 = Self(0x0003001D)
-    alias shader_i16 = Self(0x0003001E)
-    alias shader_primitive_index = Self(0x0003001F)
-    alias shader_early_depth_test = Self(0x00030020)
+    # comptime address_mode_clamp_to_zero = Self(0x00030011)
+    # comptime address_mode_clamp_to_border = Self(0x00030012)
+    # comptime polygon_mode_line = Self(0x00030013)
+    # comptime polygon_mode_point = Self(0x00030014)
+    # comptime conservative_rasterization = Self(0x00030015)
+    # comptime clear_texture = Self(0x00030016)
+    # comptime spirv_shader_passthrough = Self(0x00030017)
+    # comptime multiview = Self(0x00030018)
+    comptime vertex_attribute_64_bit = Self(0x00030019)
+    comptime texture_format_nv_12 = Self(0x0003001A)
+    comptime ray_tracing_acceleration_structure = Self(0x0003001B)
+    comptime ray_query = Self(0x0003001C)
+    comptime shader_f64 = Self(0x0003001D)
+    comptime shader_i16 = Self(0x0003001E)
+    comptime shader_primitive_index = Self(0x0003001F)
+    comptime shader_early_depth_test = Self(0x00030020)
 
 
 @fieldwise_init
@@ -646,12 +646,12 @@ struct LogLevel(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     fn __eq__(self, rhs: Self) -> Bool:
         return self.value == rhs.value
 
-    alias off = Self(0x00000000)
-    alias error = Self(0x00000001)
-    alias warn = Self(0x00000002)
-    alias info = Self(0x00000003)
-    alias debug = Self(0x00000004)
-    alias trace = Self(0x00000005)
+    comptime off = Self(0x00000000)
+    comptime error = Self(0x00000001)
+    comptime warn = Self(0x00000002)
+    comptime info = Self(0x00000003)
+    comptime debug = Self(0x00000004)
+    comptime trace = Self(0x00000005)
 
 
 @fieldwise_init
@@ -663,14 +663,14 @@ struct NativeTextureFormat(Copyable, ImplicitlyCopyable, Movable, EqualityCompar
         return self.value == rhs.value
 
     # From Features::TEXTURE_FORMAT_16BIT_NORM
-    alias r_16_unorm = Self(0x00030001)
-    alias r_16_snorm = Self(0x00030002)
-    alias rg_16_unorm = Self(0x00030003)
-    alias rg_16_snorm = Self(0x00030004)
-    alias rgba_16_unorm = Self(0x00030005)
-    alias rgba_16_snorm = Self(0x00030006)
+    comptime r_16_unorm = Self(0x00030001)
+    comptime r_16_snorm = Self(0x00030002)
+    comptime rg_16_unorm = Self(0x00030003)
+    comptime rg_16_snorm = Self(0x00030004)
+    comptime rgba_16_unorm = Self(0x00030005)
+    comptime rgba_16_snorm = Self(0x00030006)
     # From Features::TEXTURE_FORMAT_NV12
-    alias nv_12 = Self(0x00030007)
+    comptime nv_12 = Self(0x00030007)
 """
     with open("wgpu/enums.mojo", "w+") as f:
         f.write(enums)
@@ -699,15 +699,15 @@ struct InstanceBackend(Copyable, ImplicitlyCopyable, Movable, EqualityComparable
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias all = Self(0x00000000)
-    alias vulkan = Self(1 << 0)
-    alias gl = Self(1 << 1)
-    alias metal = Self(1 << 2)
-    alias dx12 = Self(1 << 3)
-    alias dx11 = Self(1 << 4)
-    alias browser_webgpu = Self(1 << 5)
-    alias primary = Self.vulkan | Self.metal | Self.dx12 | Self.browser_webgpu
-    alias secondary = Self.gl | Self.dx11
+    comptime all = Self(0x00000000)
+    comptime vulkan = Self(1 << 0)
+    comptime gl = Self(1 << 1)
+    comptime metal = Self(1 << 2)
+    comptime dx12 = Self(1 << 3)
+    comptime dx11 = Self(1 << 4)
+    comptime browser_webgpu = Self(1 << 5)
+    comptime primary = Self.vulkan | Self.metal | Self.dx12 | Self.browser_webgpu
+    comptime secondary = Self.gl | Self.dx11
 
 
 @fieldwise_init
@@ -729,10 +729,10 @@ struct InstanceFlag(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias default = Self(0x00000000)
-    alias debug = Self(1 << 0)
-    alias validation = Self(1 << 1)
-    alias discard_hal_labels = Self(1 << 2)
+    comptime default = Self(0x00000000)
+    comptime debug = Self(1 << 0)
+    comptime validation = Self(1 << 1)
+    comptime discard_hal_labels = Self(1 << 2)
 
 
 @fieldwise_init
@@ -754,9 +754,9 @@ struct Dx12Compiler(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias undefined = Self(0x00000000)
-    alias fxc = Self(0x00000001)
-    alias dxc = Self(0x00000002)
+    comptime undefined = Self(0x00000000)
+    comptime fxc = Self(0x00000001)
+    comptime dxc = Self(0x00000002)
 
 
 @fieldwise_init
@@ -778,10 +778,10 @@ struct Gles3MinorVersion(Copyable, ImplicitlyCopyable, Movable, EqualityComparab
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias automatic = Self(0x00000000)
-    alias version0 = Self(0x00000001)
-    alias version1 = Self(0x00000002)
-    alias version2 = Self(0x00000003)
+    comptime automatic = Self(0x00000000)
+    comptime version0 = Self(0x00000001)
+    comptime version1 = Self(0x00000002)
+    comptime version2 = Self(0x00000003)
 
 
 @fieldwise_init
@@ -803,11 +803,11 @@ struct PipelineStatisticName(Copyable, ImplicitlyCopyable, Movable, EqualityComp
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias vertex_shader_invocations = Self(0x00000000)
-    alias clipper_invocations = Self(0x00000001)
-    alias clipper_primitives_out = Self(0x00000002)
-    alias fragment_shader_invocations = Self(0x00000003)
-    alias compute_shader_invocations = Self(0x00000004)
+    comptime vertex_shader_invocations = Self(0x00000000)
+    comptime clipper_invocations = Self(0x00000001)
+    comptime clipper_primitives_out = Self(0x00000002)
+    comptime fragment_shader_invocations = Self(0x00000003)
+    comptime compute_shader_invocations = Self(0x00000004)
 
 
 @fieldwise_init
@@ -829,7 +829,7 @@ struct NativeQueryType(Copyable, ImplicitlyCopyable, Movable, EqualityComparable
     fn __invert__(self) -> Self:
         return Self(~self.value)
 
-    alias pipeline_statistics = Self(0x00030000)
+    comptime pipeline_statistics = Self(0x00030000)
 """
     with open("wgpu/bitflags.mojo", "w+") as f:
         f.write(bitflags)
@@ -840,6 +840,8 @@ struct NativeQueryType(Copyable, ImplicitlyCopyable, Movable, EqualityComparable
     objects = "\n".join(gen_object(e) for e in spec.objects)
     function_types = "\n".join(gen_function_type(e) for e in spec.function_types)
     output = """
+from glfw._cffi import FFIPointer
+
 from sys.ffi import external_call
 from .enums import *
 from .bitflags import *
@@ -981,7 +983,7 @@ struct WGPUPipelineLayoutExtras(Copyable, ImplicitlyCopyable, Movable):
         self.push_constant_ranges = push_constant_ranges
 
 
-alias WGPUSubmissionIndex = UInt64
+comptime WGPUSubmissionIndex = UInt64
 
 
 struct WGPUWrappedSubmissionIndex(Copyable, ImplicitlyCopyable, Movable):
@@ -1217,7 +1219,7 @@ struct WGPUSurfaceConfigurationExtras(Copyable, ImplicitlyCopyable, Movable):
         self.desired_maximum_frame_latency = desired_maximum_frame_latency
 
 
-alias WGPULogCallback = fn (
+comptime WGPULogCallback = fn (
     level: LogLevel,
     message: FFIPointer[Int8, mut=True],
     userdata: FFIPointer[NoneType, mut=True],
@@ -1450,84 +1452,6 @@ fn render_pass_encoder_end_pipeline_statistics_query(
 
 fn surface_capabilities_free_members(capabilities: FFIPointer[WGPUSurfaceCapabilities]):
    external_call["wgpuSurfaceCapabilitiesFreeMembers", NoneType, type_of(capabilities)](capabilities)
-
-@register_passable("trivial")
-struct FFIPointer[type: AnyType, /, *, mut: Bool](
-    Defaultable, ImplicitlyBoolable, ImplicitlyCopyable, Movable, Writable
-):
-    var _value: UnsafePointer[type, Origin[mut].external]
-
-    @always_inline
-    fn __init__(out self):
-        \"\"\"Create a null ffi pointer.\"\"\"
-        self._value = {}
-
-    @always_inline
-    @implicit
-    fn __init__(
-        out self: FFIPointer[type, mut=True],
-        unsafe_pointer: UnsafePointer[mut=True, type],
-    ):
-        \"\"\"Create a mutable ffi pointer from a mutable `UnsafePointer`.
-
-        Args:
-            unsafe_pointer: The mutable `UnsafePointer` to convert from.
-        \"\"\"
-        self._value = unsafe_pointer.unsafe_origin_cast[MutOrigin.external]()
-
-    @always_inline
-    @implicit
-    fn __init__(
-        out self: FFIPointer[type, mut=False],
-        unsafe_pointer: UnsafePointer[type],
-    ):
-        \"\"\"Create an immutable ffi pointer from an `UnsafePointer`.
-
-        Args:
-            unsafe_pointer: The `UnsafePointer` to convert from.
-        \"\"\"
-        self._value = unsafe_pointer.as_immutable().unsafe_origin_cast[
-            ImmutOrigin.external
-        ]()
-
-    @doc_private
-    @implicit
-    fn __init__(
-        out self: FFIPointer[type, mut=True],
-        unsafe_pointer: UnsafePointer[mut=False, type],
-    ):
-        constrained[
-            False,
-            (
-                "Invalid conversion from immutable `UnsafePointer` to mutable"
-                " `FFIPointer`"
-            ),
-        ]()
-        self = abort[type_of(self)]()
-
-    @always_inline
-    fn __bool__(self) -> Bool:
-        \"\"\"Return true if the pointer is non-null.
-
-        Returns:
-            Whether the pointer is null.
-        \"\"\"
-        return Bool(self._value)
-
-    @no_inline
-    fn write_to(self, mut writer: Some[Writer]):
-        \"\"\"Formats the pointer to the provided `Writer`.
-
-        Args:
-            writer: The `Writer` to format the pointer to.
-        \"\"\"
-        self._value.write_to(writer)
-
-    @always_inline
-    fn unsafe_ptr(self) -> UnsafePointer[Self.type, Origin[Self.mut].external]:
-        return self._value.mut_cast[Self.mut]().unsafe_origin_cast[
-            Origin[Self.mut].external
-        ]()
 """
 
     with open("wgpu/_cffi.mojo", "w+") as f:
