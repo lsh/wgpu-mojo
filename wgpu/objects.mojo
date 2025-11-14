@@ -1020,8 +1020,8 @@ struct Device(Movable):
         frag = _c.WGPUFragmentState()
         targets = List[_c.WGPUColorTargetState]()
         if descriptor.fragment:
-            for target in descriptor.fragment.value().targets:
-                blend = UnsafePointer(to=target.blend.value())
+            for ref target in descriptor.fragment.value().targets:
+                blend = UnsafePointer[mut=True](to=target.blend.value())
                 targets.append(
                     _c.WGPUColorTargetState(
                         format=target.format,
