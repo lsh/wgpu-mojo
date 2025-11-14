@@ -2455,7 +2455,7 @@ fn _glfw_get_wgpu_surface(
 
 fn _request_adapter_sync(
     instance: _c.WGPUInstance,
-    opts: _c.WGPURequestAdapterOptions = _c.WGPURequestAdapterOptions(),
+    var opts: _c.WGPURequestAdapterOptions = _c.WGPURequestAdapterOptions(),
 ) -> _c.WGPUAdapter:
     adapter_user_data = (_c.WGPUAdapter(), False)
 
