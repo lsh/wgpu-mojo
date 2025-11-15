@@ -134,9 +134,9 @@ struct BindGroupDescriptor[
 
     fn __init__(
         out self,
-        label: String,
-        layout: ArcPointer[BindGroupLayout],
-        entries: Span[BindGroupEntry[T, bind_group_origin], origin],
+        var label: String,
+        var layout: ArcPointer[BindGroupLayout],
+        var entries: Span[BindGroupEntry[T, bind_group_origin], origin],
     ):
         self.label = label
         self.layout = layout
@@ -230,21 +230,27 @@ struct SurfaceCapabilities(Copyable, Movable):
     fn usages(self) -> TextureUsage:
         return self._handle.usages
 
-    fn formats(self) -> Span[TextureFormat, ImmutOrigin.external]:
-        return Span[TextureFormat, ImmutOrigin.external](
-            ptr=self._handle.formats.unsafe_ptr(),
+    fn formats(self) -> Span[TextureFormat, origin_of(self)]:
+        return Span[TextureFormat, origin_of(self)](
+            ptr=self._handle.formats.unsafe_ptr().unsafe_origin_cast[
+                origin_of(self)
+            ](),
             length=self._handle.format_count,
         )
 
-    fn present_modes(self) -> Span[PresentMode, ImmutOrigin.external]:
-        return Span[PresentMode, ImmutOrigin.external](
-            ptr=self._handle.present_modes.unsafe_ptr(),
+    fn present_modes(self) -> Span[PresentMode, origin_of(self)]:
+        return Span[PresentMode, origin_of(self)](
+            ptr=self._handle.present_modes.unsafe_ptr().unsafe_origin_cast[
+                origin_of(self)
+            ](),
             length=self._handle.present_mode_count,
         )
 
-    fn alpha_modes(self) -> Span[CompositeAlphaMode, ImmutOrigin.external]:
-        return Span[CompositeAlphaMode, ImmutOrigin.external](
-            ptr=self._handle.alpha_modes.unsafe_ptr(),
+    fn alpha_modes(self) -> Span[CompositeAlphaMode, origin_of(self)]:
+        return Span[CompositeAlphaMode, origin_of(self)](
+            ptr=self._handle.alpha_modes.unsafe_ptr().unsafe_origin_cast[
+                origin_of(self)
+            ](),
             length=self._handle.alpha_mode_count,
         )
 
@@ -293,9 +299,7 @@ struct BindGroupLayoutEntry(Copyable, Movable):
 
 
 @fieldwise_init
-struct BindGroupLayoutDescriptor[mut: Bool, //, origin: Origin[mut]](
-    Copyable, Movable
-):
+struct BindGroupLayoutDescriptor[origin: MutOrigin](Copyable, Movable):
     var label: String
     var entries: Span[BindGroupLayoutEntry, origin]
 
@@ -411,8 +415,7 @@ struct VertexBufferLayout[mut: Bool, //, origin: Origin[mut]](
 
 @fieldwise_init
 struct PipelineLayoutDescriptor[
-    mut: Bool, //,
-    origin: Origin[mut],
+    origin: MutOrigin,
 ](Copyable, Movable):
     var label: String
     var bind_group_layouts: Span[ArcPointer[BindGroupLayout], origin]
@@ -526,23 +529,21 @@ struct RenderPassTimestampWrites(Copyable, Movable):
 
 
 struct VertexState[
-    entry_mut: Bool,
     buf_mut: Bool,
     vbuf_mut: Bool, //,
     mod: ImmutOrigin,
-    entry: Origin[entry_mut],
     buf: Origin[buf_mut],
     vbuf: Origin[vbuf_mut],
 ](Copyable, Movable):
     var module: Pointer[ShaderModule, mod]
-    var entry_point: StringSlice[entry]
+    var entry_point: String
     # var constants: Span[ConstantEntry, lifetime]
     var buffers: Span[VertexBufferLayout[vbuf], buf]
 
     fn __init__(
         out self,
         ref [mod]module: ShaderModule,
-        entry_point: StringSlice[entry],
+        var entry_point: String,
         buffers: Span[VertexBufferLayout[vbuf], buf],
     ):
         self.module = Pointer(to=module)
@@ -608,13 +609,11 @@ struct MultisampleState(Copyable, Movable):
 
 @fieldwise_init
 struct FragmentState[
-    entry_mut: Bool, //,
     mod: ImmutOrigin,
-    entry: Origin[entry_mut],
     tgt: MutOrigin,
 ](Copyable, Movable):
     var module: Pointer[ShaderModule, mod]
-    var entry_point: StringSlice[entry]
+    var entry_point: String
     # var constants: Span[ConstantEntry, lifetime]
     var targets: Span[ColorTargetState, tgt]
 
@@ -622,7 +621,7 @@ struct FragmentState[
         out self,
         *,
         ref [mod]module: ShaderModule,
-        entry_point: StringSlice[entry],
+        var entry_point: String,
         # constants: Span[ConstantEntry],
         targets: Span[ColorTargetState, tgt],
     ):
@@ -641,27 +640,20 @@ struct ColorTargetState(Copyable, Movable):
 
 @fieldwise_init
 struct RenderPipelineDescriptor[
-    lyt_mut: Bool,
-    ventry_mut: Bool,
-    buf_mut: Bool,
-    vbuf_mut: Bool,
-    fentry_mut: Bool, //,
-    lyt: Origin[lyt_mut],
+    lyt: ImmutOrigin,
     vmod: ImmutOrigin,
-    ventry: Origin[ventry_mut],
-    buf: Origin[buf_mut],
-    vbuf: Origin[vbuf_mut],
+    buf: ImmutOrigin,
+    vbuf: ImmutOrigin,
     fmod: ImmutOrigin,
-    fentry: Origin[fentry_mut],
     tgt: MutOrigin,
 ](Copyable, Movable):
     var label: String
     var layout: Optional[Pointer[PipelineLayout, lyt]]
-    var vertex: VertexState[vmod, ventry, buf, vbuf]
+    var vertex: VertexState[vmod, buf, vbuf]
     var primitive: PrimitiveState
     var depth_stencil: Optional[DepthStencilState]
     var multisample: MultisampleState
-    var fragment: Optional[FragmentState[fmod, fentry, tgt]]
+    var fragment: Optional[FragmentState[fmod, tgt]]
 
 
 @fieldwise_init

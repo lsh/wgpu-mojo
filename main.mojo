@@ -61,8 +61,14 @@ fn main() raises:
 
     queue = device.get_queue()
 
-    surface_capabilities = surface.get_capabilities(adapter)
-    surface_format = surface_capabilities.formats()[0]
+    var surface_capabilities = surface.get_capabilities(adapter)
+
+    # Copy the first format from capabilities before the struct is destroyed
+    var formats = surface_capabilities.formats()
+    surface_format = (
+        formats[0] if len(formats) > 0 else wgpu.TextureFormat.bgra8_unorm
+    )
+
     surface.configure(
         device,
         SurfaceConfiguration(
@@ -82,7 +88,7 @@ fn main() raises:
 
         struct VertexOutput {
             @builtin(position) position: vec4<f32>,
-            @location(1) color: vec4<f32>,
+            @location(0) color: vec4<f32>,
         };
 
         @vertex
@@ -92,7 +98,7 @@ fn main() raises:
         }
 
         @fragment
-        fn fs_main(@location(1) in_color: vec4<f32>) -> @location(0) vec4<f32> {
+        fn fs_main(@location(0) in_color: vec4<f32>) -> @location(0) vec4<f32> {
             let t = cos(time * 0.1) * 0.5 + 0.5;
             let color = in_color + vec4<f32>(t, t, t, 1.0);
             return color;
@@ -101,7 +107,7 @@ fn main() raises:
 
     shader_module = device.create_wgsl_shader_module(code=shader_code)
 
-    vertex_attributes = [
+    var vertex_attributes = [
         VertexAttribute(
             format=VertexFormat.float32x3, offset=0, shader_location=0
         ),
@@ -112,11 +118,11 @@ fn main() raises:
         ),
     ]
 
-    vertex_buffer_layouts = [
+    var vertex_buffer_layouts = [
         VertexBufferLayout(
             array_stride=size_of[MyVertex](),
             step_mode=VertexStepMode.vertex,
-            attributes=Span(vertex_attributes),
+            attributes=Span(vertex_attributes).get_immutable(),
         )
     ]
 
@@ -132,36 +138,48 @@ fn main() raises:
             count=0,
         )
     ]
-    bind_group_layouts = [
-        ArcPointer(
-            device.create_bind_group_layout(
-                {"bind group layout", bind_group_entries}
-            )
+    var bg_layout = ArcPointer(
+        device.create_bind_group_layout(
+            {
+                "bind group layout",
+                bind_group_entries,
+            }
         )
-    ]
+    )
+    # var bg_layout_ptr = ArcPointer(bg_layout^)
+
+    var bind_group_layouts: List[ArcPointer[BindGroupLayout]] = [bg_layout]
 
     pipeline_layout = device.create_pipeline_layout(
-        {"pipeline layout", bind_group_layouts}
+        {
+            "pipeline layout",
+            Span(bind_group_layouts),
+        }
     )
+
     uniform_buffer = device.create_buffer[Float32](
         {
             "uniform buffer",
             BufferUsage.uniform | BufferUsage.copy_dst,
             size_of[Float32](),
-            True,
+            True,  # Don't map at creation since we'll use write_buffer
         }
     )
-
     with uniform_buffer.get_mapped_range(0, 1) as uniform_host:
         uniform_host[0] = 0
     uniform_bind_group_entries = [
-        BindGroupEntry[Float32](0, BufferBinding[Float32](uniform_buffer, 0, 1))
+        BindGroupEntry[Float32](
+            0, BufferBinding[Float32](uniform_buffer, 0, size_of[Float32]())
+        )
     ]
-
     uniform_bind_group = device.create_bind_group(
-        {"bind group", bind_group_layouts[0], uniform_bind_group_entries}
+        {
+            "bind group",
+            bg_layout,
+            uniform_bind_group_entries,
+        }
     )
-    targets = [
+    var targets = [
         wgpu.ColorTargetState(
             blend=wgpu.BlendState(
                 color=wgpu.BlendComponent(
@@ -180,24 +198,26 @@ fn main() raises:
         )
     ]
 
+    var fragment_state = wgpu.FragmentState(
+        module=shader_module,
+        entry_point="fs_main",
+        targets=Span(targets),
+    )
+
     pipeline = device.create_render_pipeline(
         {
             label = "render pipeline",
             vertex = wgpu.VertexState(
                 entry_point="vs_main",
                 module=shader_module,
-                buffers=vertex_buffer_layouts,
+                buffers=Span(vertex_buffer_layouts).get_immutable(),
             ),
-            fragment = wgpu.FragmentState(
-                module=shader_module,
-                entry_point="fs_main",
-                targets=targets,
-            ),
+            fragment = fragment_state^,
             primitive = wgpu.PrimitiveState(
                 topology=wgpu.PrimitiveTopology.triangle_list,
             ),
             multisample = wgpu.MultisampleState(),
-            layout = Pointer(to=pipeline_layout),
+            layout = Pointer(to=pipeline_layout).get_immutable(),
             depth_stencil = None,
         }
     )
@@ -208,7 +228,12 @@ fn main() raises:
         {Vec3(0.0, 0.5, 0.0), MyColor(0, 0, 1, 1)},
     ]
     vertex_buffer = device.create_buffer[MyVertex](
-        {"vertex buffer", BufferUsage.vertex, len(vertices), True}
+        {
+            "vertex buffer",
+            BufferUsage.vertex,
+            len(vertices),
+            True,
+        }
     )
     with vertex_buffer.get_mapped_range(0, len(vertices)) as vertex_host:
         for i in range(len(vertex_host)):
@@ -218,23 +243,20 @@ fn main() raises:
     while not window.should_close():
         glfw.poll_events()
         with surface.get_current_texture() as surface_tex:
-            if (
-                surface_tex.status
-                != wgpu.SurfaceGetCurrentTextureStatus.success
-            ):
-                raise Error("failed to get surface tex")
-            target_view = surface_tex.texture.create_view(
-                {
-                    format = surface_tex.texture.get_format(),
-                    dimension = wgpu.TextureViewDimension.d2,
-                    base_mip_level = 0,
-                    mip_level_count = 1,
-                    base_array_layer = 0,
-                    array_layer_count = 1,
-                    aspect = wgpu.TextureAspect.all,
-                }
-            )
-            encoder = device.create_command_encoder({})
+            var view_desc: wgpu.TextureViewDescriptor = {
+                format = surface_format,  # Use the format we set during surface configuration
+                dimension = wgpu.TextureViewDimension.d2,
+                base_mip_level = 0,
+                mip_level_count = 1,
+                base_array_layer = 0,
+                array_layer_count = 1,
+                aspect = wgpu.TextureAspect.all,
+            }
+
+            var target_view = surface_tex.texture.create_view(view_desc)
+            var command_desc = wgpu.CommandEncoderDescriptor()
+            var encoder = device.create_command_encoder(command_desc)
+
             color_attachments = [
                 ArcPointer(
                     wgpu.RenderPassColorAttachment(
@@ -254,9 +276,10 @@ fn main() raises:
                 ),
             )
 
-            rp = encoder.begin_render_pass(
-                {color_attachments = color_attachments^}
+            rpass_desc = wgpu.RenderPassDescriptor(
+                color_attachments=color_attachments^
             )
+            rp = encoder.begin_render_pass(rpass_desc)
             rp.set_pipeline(pipeline)
             rp.set_vertex_buffer(0, 0, len(vertex_buffer), vertex_buffer)
             rp.set_bind_group(0, uniform_bind_group, List[UInt32]())
@@ -264,7 +287,7 @@ fn main() raises:
 
             command = encoder^.finish()
 
-            queue.submit(command^)
+            queue.submit(command)
             surface.present()
             u_time += 0.05
 

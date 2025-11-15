@@ -11,6 +11,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.11.12-hbd8a1cb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/click-8.3.0-pyh707e725_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cpython-3.13.9-py313hd8ed1ab_101.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/glfw-3.4-hc919400_1.conda
       - conda: git+https://github.com/lsh/glfw-mojo#5f4c16d9d01e6791ce696b92533eea1ce7497220
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/icu-75.1-hfee45f7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.7.0-pyhe01879c_1.conda
@@ -61,6 +62,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-extensions-4.15.0-h396c80c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.15.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025b-h78e105d_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/wgpu-native-22.1.0.5-h5f1966e_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.5-h925e9cb_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zeromq-4.3.5-h888dc83_9.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhd8ed1ab_0.conda
@@ -112,6 +114,14 @@ packages:
   license: Python-2.0
   size: 48397
   timestamp: 1761175097707
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/glfw-3.4-hc919400_1.conda
+  sha256: 1399137b5ca52e73760aeb98235247c90cd4cee43f946aaf39ed69f69a00a956
+  md5: 77d80914f04ad95f9ed0338735986b95
+  depends:
+  - __osx >=11.0
+  license: Zlib
+  size: 113494
+  timestamp: 1758809831689
 - conda: git+https://github.com/lsh/glfw-mojo#5f4c16d9d01e6791ce696b92533eea1ce7497220
   name: glfw-mojo
   version: 0.1.0
@@ -701,6 +711,18 @@ packages:
   license: LicenseRef-Public-Domain
   size: 122968
   timestamp: 1742727099393
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/wgpu-native-22.1.0.5-h5f1966e_1.conda
+  sha256: 88d7a170c3b7e5e736f99510c6b5a2fb90e62eeb76578234010f439cdbf888b6
+  md5: 195179cc98d877876b6961d6ba18e472
+  depends:
+  - __osx >=11.0
+  - libcxx >=18
+  constrains:
+  - __osx >=11.0
+  - webgpu-headers 0.0.0.2024.6.12
+  license: MIT OR Apache-2.0
+  size: 2337530
+  timestamp: 1730778794780
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.5-h925e9cb_3.conda
   sha256: b03433b13d89f5567e828ea9f1a7d5c5d697bf374c28a4168d71e9464f5dafac
   md5: 78a0fe9e9c50d2c381e8ee47e3ea437d
