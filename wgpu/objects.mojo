@@ -353,7 +353,7 @@ struct CommandEncoder(Movable):
 
     fn begin_render_pass[
         tex: ImmutOrigin
-    ](mut self, mut descriptor: RenderPassDescriptor[tex]) -> RenderPass[
+    ](mut self, var descriptor: RenderPassDescriptor[tex]) -> RenderPass[
         origin_of(self)
     ]:
         """
@@ -862,7 +862,7 @@ struct Device(Movable):
         return buffer^
 
     fn create_command_encoder(
-        self, mut descriptor: CommandEncoderDescriptor
+        self, var descriptor: CommandEncoderDescriptor
     ) -> CommandEncoder:
         """
         TODO
@@ -949,7 +949,7 @@ struct Device(Movable):
         _ = layouts^
         return layout^
 
-    fn create_query_set(self, mut descriptor: QuerySetDescriptor) -> QuerySet:
+    fn create_query_set(self, var descriptor: QuerySetDescriptor) -> QuerySet:
         """
         TODO
         """
@@ -1090,7 +1090,7 @@ struct Device(Movable):
         _ = targets
         return RenderPipeline(handle)
 
-    fn create_sampler(self, mut descriptor: SamplerDescriptor) -> Sampler:
+    fn create_sampler(self, var descriptor: SamplerDescriptor) -> Sampler:
         """
         TODO
         """
@@ -1139,7 +1139,7 @@ struct Device(Movable):
             raise Error("failed to create shader module.")
         return ShaderModule(handle)
 
-    fn create_texture(self, mut descriptor: TextureDescriptor) -> Texture:
+    fn create_texture(self, var descriptor: TextureDescriptor) -> Texture:
         """
         TODO
         """
@@ -2065,7 +2065,7 @@ struct RenderPipeline(Movable):
     #         fn (WGPURenderPipeline, UInt32) -> WGPUBindGroupLayout
     #     ]("wgpuRenderPipelineGetBindGroupLayout")(handle, group_index)
 
-    fn set_label(mut self, mut label: String) -> None:
+    fn set_label(mut self, var label: String) -> None:
         """
         TODO
         """
@@ -2223,7 +2223,7 @@ struct Surface:
         """
         _c.surface_unconfigure(self._handle)
 
-    fn surface_set_label(mut self, mut label: String):
+    fn surface_set_label(mut self, var label: String):
         """
         TODO
         """
@@ -2244,7 +2244,7 @@ struct Texture(Movable):
         if self._handle:
             _c.texture_release(self._handle)
 
-    fn create_view(self, mut descriptor: TextureViewDescriptor) -> TextureView:
+    fn create_view(self, var descriptor: TextureViewDescriptor) -> TextureView:
         """
         TODO
         """
@@ -2378,7 +2378,7 @@ struct TextureView(Movable):
         if self._handle:
             _c.texture_view_release(self._handle)
 
-    fn set_label(mut self, mut label: String):
+    fn set_label(mut self, var label: String):
         _cffi.texture_view_set_label(self._handle, label.unsafe_cstr_ptr())
 
 
@@ -2390,7 +2390,7 @@ fn _glfw_get_wgpu_surface(
         objc = sys.ffi.OwnedDLHandle("libobjc.A.dylib")
 
         @parameter
-        fn sel(mut name: String) -> _c.FFIPointer[NoneType, mut=True]:
+        fn sel(var name: String) -> _c.FFIPointer[NoneType, mut=True]:
             return objc.get_function[
                 fn (
                     _c.FFIPointer[Int8, mut=False]
@@ -2398,7 +2398,7 @@ fn _glfw_get_wgpu_surface(
             ]("sel_registerName")(name.unsafe_cstr_ptr().as_immutable())
 
         @parameter
-        fn get_class(mut name: String) -> _c.FFIPointer[NoneType, mut=True]:
+        fn get_class(var name: String) -> _c.FFIPointer[NoneType, mut=True]:
             return objc.get_function[
                 fn (
                     _c.FFIPointer[Int8, mut=False]
