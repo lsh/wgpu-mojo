@@ -412,9 +412,9 @@ struct VertexBufferLayout(Copyable, Movable):
 
 
 @fieldwise_init
-struct PipelineLayoutDescriptor(Copyable, Movable):
+struct PipelineLayoutDescriptor[origin: ImmutOrigin](Copyable, Movable):
     var label: String
-    var bind_group_layouts: List[ArcPointer[BindGroupLayout]]
+    var bind_group_layouts: Span[ArcPointer[BindGroupLayout], origin]
 
 
 @fieldwise_init
