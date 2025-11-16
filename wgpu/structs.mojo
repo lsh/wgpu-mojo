@@ -405,20 +405,16 @@ struct ImageCopyTexture[tex: ImmutOrigin](Copyable, Movable):
 
 
 @fieldwise_init
-struct VertexBufferLayout[mut: Bool, //, origin: Origin[mut]](
-    Copyable, Movable
-):
+struct VertexBufferLayout(Copyable, Movable):
     var array_stride: UInt64
     var step_mode: VertexStepMode
-    var attributes: Span[VertexAttribute, origin]
+    var attributes: List[VertexAttribute]
 
 
 @fieldwise_init
-struct PipelineLayoutDescriptor[
-    origin: MutOrigin,
-](Copyable, Movable):
+struct PipelineLayoutDescriptor(Copyable, Movable):
     var label: String
-    var bind_group_layouts: Span[ArcPointer[BindGroupLayout], origin]
+    var bind_group_layouts: List[ArcPointer[BindGroupLayout]]
 
 
 @fieldwise_init
@@ -529,26 +525,22 @@ struct RenderPassTimestampWrites(Copyable, Movable):
 
 
 struct VertexState[
-    buf_mut: Bool,
-    vbuf_mut: Bool, //,
     mod: ImmutOrigin,
-    buf: Origin[buf_mut],
-    vbuf: Origin[vbuf_mut],
 ](Copyable, Movable):
     var module: Pointer[ShaderModule, mod]
     var entry_point: String
     # var constants: Span[ConstantEntry, lifetime]
-    var buffers: Span[VertexBufferLayout[vbuf], buf]
+    var buffers: List[VertexBufferLayout]
 
     fn __init__(
         out self,
         ref [mod]module: ShaderModule,
         var entry_point: String,
-        buffers: Span[VertexBufferLayout[vbuf], buf],
+        var buffers: List[VertexBufferLayout],
     ):
         self.module = Pointer(to=module)
         self.entry_point = entry_point
-        self.buffers = buffers
+        self.buffers = buffers^
 
 
 struct PrimitiveState(Copyable, Movable):
@@ -642,14 +634,12 @@ struct ColorTargetState(Copyable, Movable):
 struct RenderPipelineDescriptor[
     lyt: ImmutOrigin,
     vmod: ImmutOrigin,
-    buf: ImmutOrigin,
-    vbuf: ImmutOrigin,
     fmod: ImmutOrigin,
     tgt: MutOrigin,
 ](Copyable, Movable):
     var label: String
     var layout: Optional[Pointer[PipelineLayout, lyt]]
-    var vertex: VertexState[vmod, buf, vbuf]
+    var vertex: VertexState[vmod]
     var primitive: PrimitiveState
     var depth_stencil: Optional[DepthStencilState]
     var multisample: MultisampleState
