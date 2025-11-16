@@ -526,21 +526,22 @@ struct RenderPassTimestampWrites(Copyable, Movable):
 
 struct VertexState[
     mod: ImmutOrigin,
+    buf: ImmutOrigin,
 ](Copyable, Movable):
     var module: Pointer[ShaderModule, mod]
     var entry_point: String
     # var constants: Span[ConstantEntry, lifetime]
-    var buffers: List[VertexBufferLayout]
+    var buffers: Span[VertexBufferLayout, buf]
 
     fn __init__(
         out self,
         ref [mod]module: ShaderModule,
         var entry_point: String,
-        var buffers: List[VertexBufferLayout],
+        buffers: Span[VertexBufferLayout, buf],
     ):
         self.module = Pointer(to=module)
         self.entry_point = entry_point
-        self.buffers = buffers^
+        self.buffers = buffers
 
 
 struct PrimitiveState(Copyable, Movable):
@@ -633,13 +634,14 @@ struct ColorTargetState(Copyable, Movable):
 @fieldwise_init
 struct RenderPipelineDescriptor[
     lyt: ImmutOrigin,
+    buf: ImmutOrigin,
     vmod: ImmutOrigin,
     fmod: ImmutOrigin,
     tgt: MutOrigin,
 ](Copyable, Movable):
     var label: String
     var layout: Optional[Pointer[PipelineLayout, lyt]]
-    var vertex: VertexState[vmod]
+    var vertex: VertexState[vmod, buf]
     var primitive: PrimitiveState
     var depth_stencil: Optional[DepthStencilState]
     var multisample: MultisampleState
