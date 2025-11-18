@@ -122,7 +122,7 @@ fn main() raises:
         VertexBufferLayout(
             array_stride=size_of[MyVertex](),
             step_mode=VertexStepMode.vertex,
-            attributes=Span(vertex_attributes).get_immutable(),
+            attributes=vertex_attributes^,
         )
     ]
 
@@ -165,12 +165,12 @@ fn main() raises:
             True,  # Don't map at creation since we'll use write_buffer
         }
     )
-    with uniform_buffer.get_mapped_range(0, 1) as uniform_host:
+    with uniform_buffer.get_mapped_range[Float32](
+        0, size_of[Float32]()
+    ) as uniform_host:
         uniform_host[0] = 0
     uniform_bind_group_entries = [
-        BindGroupEntry[Float32](
-            0, BufferBinding[Float32](uniform_buffer, 0, size_of[Float32]())
-        )
+        BindGroupEntry(0, BufferBinding(uniform_buffer, 0, size_of[Float32]()))
     ]
     uniform_bind_group = device.create_bind_group(
         {
@@ -231,11 +231,13 @@ fn main() raises:
         {
             "vertex buffer",
             BufferUsage.vertex,
-            len(vertices),
+            len(vertices) * size_of[MyVertex](),
             True,
         }
     )
-    with vertex_buffer.get_mapped_range(0, len(vertices)) as vertex_host:
+    with vertex_buffer.get_mapped_range[MyVertex](
+        0, len(vertices) * size_of[MyVertex]()
+    ) as vertex_host:
         for i in range(len(vertex_host)):
             vertex_host[i] = vertices[i]
 
@@ -243,19 +245,18 @@ fn main() raises:
     while not window.should_close():
         glfw.poll_events()
         with surface.get_current_texture() as surface_tex:
-            var view_desc: wgpu.TextureViewDescriptor = {
-                format = surface_format,  # Use the format we set during surface configuration
-                dimension = wgpu.TextureViewDimension.d2,
-                base_mip_level = 0,
-                mip_level_count = 1,
-                base_array_layer = 0,
-                array_layer_count = 1,
-                aspect = wgpu.TextureAspect.all,
-            }
-
-            var target_view = surface_tex.texture.create_view(view_desc)
-            var command_desc = wgpu.CommandEncoderDescriptor()
-            var encoder = device.create_command_encoder(command_desc)
+            var target_view = surface_tex.texture.create_view(
+                {
+                    format = surface_format,  # Use the format we set during surface configuration
+                    dimension = wgpu.TextureViewDimension.d2,
+                    base_mip_level = 0,
+                    mip_level_count = 1,
+                    base_array_layer = 0,
+                    array_layer_count = 1,
+                    aspect = wgpu.TextureAspect.all,
+                }
+            )
+            var encoder = device.create_command_encoder({})
 
             color_attachments = [
                 ArcPointer(
@@ -271,15 +272,15 @@ fn main() raises:
             queue.write_buffer(
                 uniform_buffer,
                 0,
-                Span[Float32, origin_of(u_time)](
-                    ptr=UnsafePointer(to=u_time), length=1
+                Span[UInt8, origin_of(u_time)](
+                    ptr=UnsafePointer(to=u_time).bitcast[UInt8](),
+                    length=size_of[Float32](),
                 ),
             )
 
-            rpass_desc = wgpu.RenderPassDescriptor(
-                color_attachments=color_attachments^
+            rp = encoder.begin_render_pass(
+                {color_attachments = color_attachments^}
             )
-            rp = encoder.begin_render_pass(rpass_desc)
             rp.set_pipeline(pipeline)
             rp.set_vertex_buffer(0, 0, len(vertex_buffer), vertex_buffer)
             rp.set_bind_group(0, uniform_bind_group, List[UInt32]())

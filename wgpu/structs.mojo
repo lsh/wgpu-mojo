@@ -68,42 +68,38 @@ struct DeviceDescriptor(Copyable, Movable):
 
 
 @fieldwise_init
-struct BindingResource[T: Copyable & Movable, origin: ImmutOrigin](
-    Copyable, Movable
-):
-    var _value: Variant[BufferBinding[T, origin], BufferArray[T, origin]]
+struct BindingResource[origin: ImmutOrigin](Copyable, Movable):
+    var _value: Variant[BufferBinding[origin], BufferArray[origin]]
 
     @implicit
-    fn __init__(out self, var value: BufferBinding[T, origin]):
+    fn __init__(out self, var value: BufferBinding[origin]):
         self._value = value^
 
     @implicit
-    fn __init__(out self, var value: BufferArray[T, origin]):
+    fn __init__(out self, var value: BufferArray[origin]):
         self._value = value^
 
     fn is_buffer(self) -> Bool:
-        return self._value.isa[BufferBinding[T, origin]]()
+        return self._value.isa[BufferBinding[origin]]()
 
     fn is_buffer_array(self) -> Bool:
-        return self._value.isa[BufferArray[T, origin]]()
+        return self._value.isa[BufferArray[origin]]()
 
-    fn buffer(self) -> ref [self._value] BufferBinding[T, origin]:
-        return self._value[BufferBinding[T, origin]]
+    fn buffer(self) -> ref [self._value] BufferBinding[origin]:
+        return self._value[BufferBinding[origin]]
 
-    fn buffer_array(self) -> ref [self._value] BufferArray[T, origin]:
-        return self._value[BufferArray[T, origin]]
+    fn buffer_array(self) -> ref [self._value] BufferArray[origin]:
+        return self._value[BufferArray[origin]]
 
 
 @fieldwise_init
-struct BufferBinding[T: Copyable & Movable, origin: ImmutOrigin](
-    Copyable, Movable
-):
-    var buffer: Pointer[Buffer[T], origin]
+struct BufferBinding[origin: ImmutOrigin](Copyable, Movable):
+    var buffer: Pointer[Buffer, origin]
     var offset: UInt64
     var size: UInt64
 
     fn __init__(
-        out self, ref [origin]buffer: Buffer[T], offset: UInt64, size: UInt64
+        out self, ref [origin]buffer: Buffer, offset: UInt64, size: UInt64
     ):
         self.buffer = Pointer(to=buffer)
         self.offset = offset
@@ -111,32 +107,28 @@ struct BufferBinding[T: Copyable & Movable, origin: ImmutOrigin](
 
 
 @fieldwise_init
-struct BufferArray[T: Copyable & Movable, origin: ImmutOrigin](
-    Copyable, Movable
-):
-    var value: List[BufferBinding[T, origin]]
+struct BufferArray[origin: ImmutOrigin](Copyable, Movable):
+    var value: List[BufferBinding[origin]]
 
 
 @fieldwise_init
-struct BindGroupEntry[T: Copyable & Movable, origin: ImmutOrigin](
+struct BindGroupEntry[origin: ImmutOrigin](Copyable, Movable):
+    var binding: UInt32
+    var resource: BindingResource[origin]
+
+
+struct BindGroupDescriptor[origin: ImmutOrigin, bind_group_origin: ImmutOrigin](
     Copyable, Movable
 ):
-    var binding: UInt32
-    var resource: BindingResource[T, origin]
-
-
-struct BindGroupDescriptor[
-    T: Copyable & Movable, origin: ImmutOrigin, bind_group_origin: ImmutOrigin
-](Copyable, Movable):
     var label: String
     var layout: ArcPointer[BindGroupLayout]
-    var entries: Span[BindGroupEntry[T, bind_group_origin], origin]
+    var entries: Span[BindGroupEntry[bind_group_origin], origin]
 
     fn __init__(
         out self,
         var label: String,
         var layout: ArcPointer[BindGroupLayout],
-        var entries: Span[BindGroupEntry[T, bind_group_origin], origin],
+        var entries: Span[BindGroupEntry[bind_group_origin], origin],
     ):
         self.label = label
         self.layout = layout
@@ -369,15 +361,13 @@ struct ComputePipelineDescriptor(Copyable, Movable):
 
 
 @fieldwise_init
-struct ImageCopyBuffer[T: Copyable & Movable, buf: ImmutOrigin](
-    Copyable, Movable
-):
+struct ImageCopyBuffer[buf: ImmutOrigin](Copyable, Movable):
     var layout: TextureDataLayout
-    var buffer: Pointer[Buffer[T], buf]
+    var buffer: Pointer[Buffer, buf]
 
     fn __init__(
         out self,
-        ref [buf]buffer: Buffer[T],
+        ref [buf]buffer: Buffer,
         var layout: TextureDataLayout = TextureDataLayout(),
     ):
         self.buffer = Pointer(to=buffer)

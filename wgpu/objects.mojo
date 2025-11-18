@@ -153,7 +153,7 @@ struct BindGroupLayout(Movable):
         )
 
 
-struct Buffer[T: Copyable & Movable](Movable, Sized):
+struct Buffer(Movable, Sized):
     var _handle: _c.WGPUBuffer
 
     fn __init__(out self, unsafe_ptr: _c.WGPUBuffer):
@@ -189,19 +189,17 @@ struct Buffer[T: Copyable & Movable](Movable, Sized):
     #         ) -> None
     #     ]("wgpuBufferMapAsync")(handle, mode, offset, size, callback, user_data)
 
-    fn get_mapped_range(
-        mut self, offset: Int, size: Int
-    ) -> MappedBuffer[T, origin_of(self)]:
+    fn get_mapped_range[
+        type: AnyType
+    ](mut self, offset: Int, size: Int) -> MappedBuffer[type, origin_of(self)]:
         """
         TODO
         """
-        return MappedBuffer[T, origin_of(self)](
+        return MappedBuffer[type, origin_of(self)](
             self,
-            _c.buffer_get_mapped_range(
-                self._handle, offset, sys.size_of[T]() * size
-            )
+            _c.buffer_get_mapped_range(self._handle, offset, size)
             .unsafe_ptr()
-            .bitcast[T](),
+            .bitcast[type](),
             offset,
             size,
         )
@@ -257,18 +255,16 @@ struct Buffer[T: Copyable & Movable](Movable, Sized):
 
 
 @fieldwise_init
-struct MappedBuffer[T: Copyable & Movable, origin: MutOrigin](
-    Copyable, Movable, Sized
-):
+struct MappedBuffer[type: AnyType, origin: MutOrigin](Copyable, Movable, Sized):
     var _buffer_handle: _c.WGPUBuffer
-    var _ptr: UnsafePointer[T, MutOrigin.external]
+    var _ptr: UnsafePointer[type, MutOrigin.external]
     var _offset: Int
     var _size: Int
 
     fn __init__(
         out self,
-        ref [origin]buffer: Buffer[T],
-        ptr: UnsafePointer[T, MutOrigin.external],
+        ref [origin]buffer: Buffer,
+        ptr: UnsafePointer[type, MutOrigin.external],
         offset: Int,
         size: Int,
     ):
@@ -280,10 +276,12 @@ struct MappedBuffer[T: Copyable & Movable, origin: MutOrigin](
     fn __enter__(var self) -> Self:
         return self^
 
-    fn __getitem__[IndexType: Indexer](ref self, i: IndexType) -> ref [self] T:
+    fn __getitem__[
+        IndexType: Indexer
+    ](ref self, i: IndexType) -> ref [self] type:
         return self._ptr[i]
 
-    fn __getitem__[i: Int](ref self) -> ref [self] T:
+    fn __getitem__[i: Int](ref self) -> ref [self] type:
         return self._ptr[i]
 
     fn __del__(deinit self):
@@ -844,7 +842,7 @@ struct Device(Movable):
 
     fn create_buffer[
         T: Copyable & Movable
-    ](self, var descriptor: BufferDescriptor) -> Buffer[T]:
+    ](self, var descriptor: BufferDescriptor) -> Buffer:
         """
         TODO
         """
@@ -852,10 +850,10 @@ struct Device(Movable):
         var desc = _c.WGPUBufferDescriptor(
             label=descriptor.label.unsafe_cstr_ptr(),
             usage=descriptor.usage,
-            size=descriptor.size * sys.size_of[T](),
+            size=descriptor.size,
             mapped_at_creation=descriptor.mapped_at_creation,
         )
-        var buffer = Buffer[T](
+        var buffer = Buffer(
             _c.device_create_buffer(self._handle, UnsafePointer(to=desc))
         )
         _ = desc^
@@ -1464,13 +1462,11 @@ struct Queue(Movable):
     #         ) -> None
     #     ]("wgpuQueueOnSubmittedWorkDone")(handle, callback, user_data)
 
-    fn write_buffer[
-        T: Copyable & Movable
-    ](
+    fn write_buffer(
         mut self,
-        buffer: Buffer[T],
+        buffer: Buffer,
         offset: UInt64,
-        data: Span[mut=True, T],
+        data: Span[mut=True, UInt8],
     ) -> None:
         """
         TODO
@@ -1480,7 +1476,7 @@ struct Queue(Movable):
             buffer._handle,
             offset,
             data.unsafe_ptr().bitcast[NoneType](),
-            len(data) * sys.size_of[T](),
+            len(data),
         )
 
 
@@ -1979,11 +1975,9 @@ struct RenderPass[encoder: ImmutOrigin](Movable):
             self._handle, slot, offset, size, buffer._handle
         )
 
-    fn set_index_buffer[
-        T: Copyable & Movable
-    ](
+    fn set_index_buffer(
         mut self,
-        buffer: Buffer[T],
+        buffer: Buffer,
         format: IndexFormat,
         offset: UInt64,
         size: UInt64,
