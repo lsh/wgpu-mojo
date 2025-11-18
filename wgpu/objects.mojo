@@ -410,9 +410,9 @@ struct CommandEncoder(Movable):
 
     fn copy_buffer_to_texture(
         mut self,
-        source: ImageCopyBuffer,
-        destination: ImageCopyTexture,
-        copy_size: Extent3D,
+        mut source: ImageCopyBuffer,
+        mut destination: ImageCopyTexture,
+        mut copy_size: Extent3D,
     ):
         var dest = _cffi.WGPUImageCopyTexture(
             texture=destination.texture[]._handle,
@@ -439,9 +439,9 @@ struct CommandEncoder(Movable):
 
     fn copy_texture_to_buffer(
         mut self,
-        source: ImageCopyTexture,
-        destination: ImageCopyBuffer,
-        copy_size: Extent3D,
+        mut source: ImageCopyTexture,
+        mut destination: ImageCopyBuffer,
+        mut copy_size: Extent3D,
     ):
         var src = _cffi.WGPUImageCopyTexture(
             texture=source.texture[]._handle,
@@ -1505,10 +1505,10 @@ struct Queue(Movable):
 
     fn write_texture(
         mut self,
-        destination: ImageCopyTexture,
-        data: Span[mut=True, UInt8],
-        data_layout: TextureDataLayout,
-        write_size: Extent3D,
+        mut destination: ImageCopyTexture,
+        mut data: Span[mut=True, UInt8],
+        mut data_layout: TextureDataLayout,
+        mut write_size: Extent3D,
     ) -> None:
         var dest = _cffi.WGPUImageCopyTexture(
             texture=destination.texture[]._handle,
