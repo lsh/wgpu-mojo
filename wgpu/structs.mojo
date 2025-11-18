@@ -69,7 +69,9 @@ struct DeviceDescriptor(Copyable, Movable):
 
 @fieldwise_init
 struct BindingResource[origin: ImmutOrigin](Copyable, Movable):
-    var _value: Variant[BufferBinding[origin], BufferArray[origin]]
+    var _value: Variant[
+        BufferBinding[origin], BufferArray[origin], Pointer[TextureView, origin]
+    ]
 
     @implicit
     fn __init__(out self, var value: BufferBinding[origin]):
@@ -79,17 +81,27 @@ struct BindingResource[origin: ImmutOrigin](Copyable, Movable):
     fn __init__(out self, var value: BufferArray[origin]):
         self._value = value^
 
+    @implicit
+    fn __init__(out self, ref [origin]value: TextureView):
+        self._value = Pointer(to=value)
+
     fn is_buffer(self) -> Bool:
         return self._value.isa[BufferBinding[origin]]()
 
     fn is_buffer_array(self) -> Bool:
         return self._value.isa[BufferArray[origin]]()
 
+    fn is_texture_view(self) -> Bool:
+        return self._value.isa[Pointer[TextureView, origin]]()
+
     fn buffer(self) -> ref [self._value] BufferBinding[origin]:
         return self._value[BufferBinding[origin]]
 
     fn buffer_array(self) -> ref [self._value] BufferArray[origin]:
         return self._value[BufferArray[origin]]
+
+    fn texture_view(self) -> ref [origin] TextureView:
+        return self._value[Pointer[TextureView, origin]][]
 
 
 @fieldwise_init
