@@ -70,7 +70,10 @@ struct DeviceDescriptor(Copyable, Movable):
 @fieldwise_init
 struct BindingResource[origin: ImmutOrigin](Copyable, Movable):
     var _value: Variant[
-        BufferBinding[origin], BufferArray[origin], Pointer[TextureView, origin]
+        BufferBinding[origin],
+        BufferArray[origin],
+        Pointer[TextureView, origin],
+        Pointer[Sampler, origin],
     ]
 
     @implicit
@@ -85,6 +88,10 @@ struct BindingResource[origin: ImmutOrigin](Copyable, Movable):
     fn __init__(out self, ref [origin]value: TextureView):
         self._value = Pointer(to=value)
 
+    @implicit
+    fn __init__(out self, ref [origin]value: Sampler):
+        self._value = Pointer(to=value)
+
     fn is_buffer(self) -> Bool:
         return self._value.isa[BufferBinding[origin]]()
 
@@ -94,6 +101,9 @@ struct BindingResource[origin: ImmutOrigin](Copyable, Movable):
     fn is_texture_view(self) -> Bool:
         return self._value.isa[Pointer[TextureView, origin]]()
 
+    fn is_sampler(self) -> Bool:
+        return self._value.isa[Pointer[Sampler, origin]]()
+
     fn buffer(self) -> ref [self._value] BufferBinding[origin]:
         return self._value[BufferBinding[origin]]
 
@@ -102,6 +112,9 @@ struct BindingResource[origin: ImmutOrigin](Copyable, Movable):
 
     fn texture_view(self) -> ref [origin] TextureView:
         return self._value[Pointer[TextureView, origin]][]
+
+    fn sampler(self) -> ref [origin] Sampler:
+        return self._value[Pointer[Sampler, origin]][]
 
 
 @fieldwise_init
