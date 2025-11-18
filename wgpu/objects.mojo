@@ -777,6 +777,20 @@ struct Device(Movable):
                         size=entry.resource.buffer().size,
                     )
                 )
+            elif entry.resource.is_texture_view():
+                entries.append(
+                    _c.WGPUBindGroupEntry(
+                        binding=entry.binding,
+                        texture_view=entry.resource.texture_view()._handle,
+                    )
+                )
+            elif entry.resource.is_sampler():
+                entries.append(
+                    _c.WGPUBindGroupEntry(
+                        binding=entry.binding,
+                        sampler=entry.resource.sampler()._handle,
+                    )
+                )
         desc = _c.WGPUBindGroupDescriptor(
             label=descriptor.label.unsafe_cstr_ptr(),
             layout=descriptor.layout[]._handle,
