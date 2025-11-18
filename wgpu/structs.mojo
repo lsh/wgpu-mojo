@@ -386,7 +386,7 @@ struct ComputePipelineDescriptor(Copyable, Movable):
 
 
 @fieldwise_init
-struct ImageCopyBuffer[buf: ImmutOrigin](Copyable, Movable):
+struct ImageCopyBuffer[buf: MutOrigin](Copyable, Movable):
     var layout: TextureDataLayout
     var buffer: Pointer[Buffer, buf]
 
@@ -400,7 +400,7 @@ struct ImageCopyBuffer[buf: ImmutOrigin](Copyable, Movable):
 
 
 @fieldwise_init
-struct ImageCopyTexture[tex: ImmutOrigin](Copyable, Movable):
+struct ImageCopyTexture[tex: MutOrigin](Copyable, Movable):
     var texture: Pointer[Texture, tex]
     var mip_level: UInt32
     var origin: Origin3D
