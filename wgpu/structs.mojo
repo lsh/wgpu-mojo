@@ -717,6 +717,7 @@ struct TextureDataLayout(Copyable, Movable):
         self.rows_per_image = rows_per_image
 
 
+@fieldwise_init
 struct TextureDescriptor(Copyable, Movable):
     var label: String
     var usage: TextureUsage
