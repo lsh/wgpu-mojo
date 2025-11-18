@@ -408,53 +408,63 @@ struct CommandEncoder(Movable):
             size,
         )
 
+    fn copy_buffer_to_texture(
+        mut self,
+        source: ImageCopyBuffer,
+        destination: ImageCopyTexture,
+        copy_size: Extent3D,
+    ):
+        var dest = _cffi.WGPUImageCopyTexture(
+            texture=destination.texture[]._handle,
+            mip_level=destination.mip_level,
+            origin=destination.origin,
+            aspect=destination.aspect,
+        )
+        var src = _cffi.WGPUImageCopyBuffer(
+            layout=_cffi.WGPUTextureDataLayout(
+                offset=source.layout.offset,
+                bytes_per_row=source.layout.bytes_per_row.or_else(0),
+                rows_per_image=source.layout.rows_per_image.or_else(0),
+            ),
+            buffer=source.buffer[]._handle,
+        )
+        _cffi.command_encoder_copy_buffer_to_texture(
+            self._handle,
+            UnsafePointer(to=src),
+            UnsafePointer(to=dest),
+            UnsafePointer(to=copy_size),
+        )
+        _ = dest
+        _ = src
 
-# fn copy_buffer_to_texture(
-#     handle: WGPUCommandEncoder,
-#     source: WGPUImageCopyBuffer,
-#     destination: WGPUImageCopyTexture,
-#     copy_size: WGPUExtent3D,
-# ) -> None:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[
-#         fn (
-#             WGPUCommandEncoder,
-#             UnsafePointer[WGPUImageCopyBuffer],
-#             UnsafePointer[WGPUImageCopyTexture],
-#             UnsafePointer[WGPUExtent3D],
-#         ) -> None
-#     ]("wgpuCommandEncoderCopyBufferToTexture")(
-#         handle,
-#         UnsafePointer(to=source),
-#         UnsafePointer(to=destination),
-#         UnsafePointer(to=copy_size),
-#     )
-
-
-# fn copy_texture_to_buffer(
-#     handle: WGPUCommandEncoder,
-#     source: WGPUImageCopyTexture,
-#     destination: WGPUImageCopyBuffer,
-#     copy_size: WGPUExtent3D,
-# ) -> None:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[
-#         fn (
-#             WGPUCommandEncoder,
-#             UnsafePointer[WGPUImageCopyTexture],
-#             UnsafePointer[WGPUImageCopyBuffer],
-#             UnsafePointer[WGPUExtent3D],
-#         ) -> None
-#     ]("wgpuCommandEncoderCopyTextureToBuffer")(
-#         handle,
-#         UnsafePointer(to=source),
-#         UnsafePointer(to=destination),
-#         UnsafePointer(to=copy_size),
-#     )
+    fn copy_texture_to_buffer(
+        mut self,
+        source: ImageCopyTexture,
+        destination: ImageCopyBuffer,
+        copy_size: Extent3D,
+    ):
+        var src = _cffi.WGPUImageCopyTexture(
+            texture=source.texture[]._handle,
+            mip_level=source.mip_level,
+            origin=source.origin,
+            aspect=source.aspect,
+        )
+        var dest = _cffi.WGPUImageCopyBuffer(
+            layout=_cffi.WGPUTextureDataLayout(
+                offset=destination.layout.offset,
+                bytes_per_row=destination.layout.bytes_per_row.or_else(0),
+                rows_per_image=destination.layout.rows_per_image.or_else(0),
+            ),
+            buffer=destination.buffer[]._handle,
+        )
+        _cffi.command_encoder_copy_texture_to_buffer(
+            self._handle,
+            UnsafePointer(to=src),
+            UnsafePointer(to=dest),
+            UnsafePointer(to=copy_size),
+        )
+        _ = dest
+        _ = src
 
 
 # fn command_encoder_copy_texture_to_texture(
@@ -1493,35 +1503,34 @@ struct Queue(Movable):
             len(data),
         )
 
-
-# fn queue_write_texture(
-#     handle: WGPUQueue,
-#     destination: WGPUImageCopyTexture,
-#     data: UnsafePointer[NoneType],
-#     data_size: Int,
-#     data_layout: WGPUTextureDataLayout,
-#     write_size: WGPUExtent3D,
-# ) -> None:
-#     """
-#     TODO
-#     """
-#     return _wgpu.get_function[
-#         fn (
-#             WGPUQueue,
-#             UnsafePointer[WGPUImageCopyTexture],
-#             UnsafePointer[NoneType],
-#             Int,
-#             UnsafePointer[WGPUTextureDataLayout],
-#             UnsafePointer[WGPUExtent3D],
-#         ) -> None
-#     ]("wgpuQueueWriteTexture")(
-#         handle,
-#         UnsafePointer(to=destination),
-#         data,
-#         data_size,
-#         UnsafePointer(to=data_layout),
-#         UnsafePointer(to=write_size),
-#     )
+    fn write_texture(
+        mut self,
+        destination: ImageCopyTexture,
+        data: Span[mut=True, UInt8],
+        data_layout: TextureDataLayout,
+        write_size: Extent3D,
+    ) -> None:
+        var dest = _cffi.WGPUImageCopyTexture(
+            texture=destination.texture[]._handle,
+            mip_level=destination.mip_level,
+            origin=destination.origin,
+            aspect=destination.aspect,
+        )
+        var data_lyt = _cffi.WGPUTextureDataLayout(
+            offset=data_layout.offset,
+            bytes_per_row=data_layout.bytes_per_row.or_else(0),
+            rows_per_image=data_layout.rows_per_image.or_else(0),
+        )
+        _cffi.queue_write_texture(
+            self._handle,
+            UnsafePointer(to=dest),
+            data.unsafe_ptr().bitcast[NoneType](),
+            len(data),
+            UnsafePointer(to=data_lyt),
+            UnsafePointer(to=write_size),
+        )
+        _ = data_lyt
+        _ = dest
 
 
 # fn queue_set_label(handle: WGPUQueue, label: UnsafePointer[Int8]) -> None:
